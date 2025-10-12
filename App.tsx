@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 
 const LogoIcon = () => (
@@ -6,7 +7,7 @@ const LogoIcon = () => (
     </svg>
 );
 
-const Header = ({ userType, onGroupAdminLogin, onSystemAdminLogin, onLogout }) => (
+const Header = ({ userType, onGroupAdminLogin, onSystemAdminLogin, onLogout }: { userType: string | null, onGroupAdminLogin: () => void, onSystemAdminLogin: () => void, onLogout: () => void }) => (
     <header className="absolute top-0 left-0 right-0 z-20 bg-slate-50/80 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
             <nav className="flex justify-between items-center">
@@ -86,11 +87,13 @@ const HeroSection = () => (
     </section>
 );
 
-const SectionTitle = ({ children }) => (
+// FIX: Added type for the 'children' prop to fix TypeScript error.
+const SectionTitle = ({ children }: { children: React.ReactNode }) => (
     <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4 font-heading">{children}</h2>
 );
 
-const SectionSubtitle = ({ children }) => (
+// FIX: Added type for the 'children' prop to fix TypeScript error.
+const SectionSubtitle = ({ children }: { children: React.ReactNode }) => (
     <p className="text-lg text-gray-600 text-center max-w-2xl mx-auto mb-12">{children}</p>
 );
 
@@ -348,9 +351,9 @@ const mockVaquinhas = [
     }
 ];
 
-const VaquinhaDetail = ({ vaquinha, onBack }) => {
+const VaquinhaDetail = ({ vaquinha, onBack }: { vaquinha: any, onBack: () => void }) => {
 
-    const getParticipantStatusClass = (status) => {
+    const getParticipantStatusClass = (status: string) => {
         switch (status) {
             case 'Pago': return 'bg-green-100 text-green-800';
             case 'Atraso': return 'bg-red-100 text-red-800';
@@ -395,7 +398,7 @@ const VaquinhaDetail = ({ vaquinha, onBack }) => {
                         <h3 className="font-bold text-gray-700 font-heading mb-3">PARTICIPANTES</h3>
                         <div className="flex-grow overflow-y-auto max-h-48 pr-2">
                             <ul className="space-y-2 text-sm">
-                                {vaquinha.participants.map(p => (
+                                {vaquinha.participants.map((p: any) => (
                                     <li key={p.name} className="flex justify-between items-center">
                                         <span className="text-gray-600">{p.name}</span>
                                         <span className={`text-xs font-semibold px-2 py-1 rounded-full ${getParticipantStatusClass(p.status)}`}>{p.status}</span>
@@ -428,7 +431,7 @@ const VaquinhaDetail = ({ vaquinha, onBack }) => {
                     <div className="bg-slate-50 p-4 rounded-lg">
                         <h3 className="font-bold text-gray-700 font-heading mb-3">HISTÓRICO</h3>
                         <ul className="space-y-2 text-sm text-gray-600">
-                           {vaquinha.history.map(h => (
+                           {vaquinha.history.map((h: any) => (
                                 <li key={h.month} className="flex justify-between">
                                     <span>{h.month}:</span> <span className="font-semibold text-gray-800">R$ {h.amount.toLocaleString('pt-BR')}</span>
                                 </li>
@@ -441,8 +444,8 @@ const VaquinhaDetail = ({ vaquinha, onBack }) => {
     );
 };
 
-const VaquinhaList = ({ onSelectVaquinha }) => {
-    const getStatusClass = (status) => {
+const VaquinhaList = ({ onSelectVaquinha }: { onSelectVaquinha: (vaquinha: any) => void }) => {
+    const getStatusClass = (status: string) => {
         switch (status) {
             case 'Ativa': return 'bg-green-100 text-green-800';
             case 'Finalizada': return 'bg-gray-100 text-gray-800';
@@ -510,7 +513,7 @@ const VaquinhaList = ({ onSelectVaquinha }) => {
 };
 
 const GroupAdminDashboard = () => {
-    const [selectedVaquinha, setSelectedVaquinha] = useState(null);
+    const [selectedVaquinha, setSelectedVaquinha] = useState<any | null>(null);
 
     return (
         <div className="bg-slate-100 min-h-screen">
@@ -527,7 +530,7 @@ const GroupAdminDashboard = () => {
     );
 };
 
-const SystemAdminCard = ({ title, items }) => (
+const SystemAdminCard = ({ title, items }: { title: string, items: { label: string, value: any }[] }) => (
     <div className="bg-white rounded-xl shadow-lg p-6">
         <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider font-heading mb-4 border-b border-gray-200 pb-3">{title}</h3>
         <ul className="space-y-3">
@@ -578,7 +581,7 @@ const SystemAdminDashboard = () => {
 
 
 const App = () => {
-    const [userType, setUserType] = useState(null); // null, 'groupAdmin', 'systemAdmin'
+    const [userType, setUserType] = useState<string | null>(null); // null, 'groupAdmin', 'systemAdmin'
 
     const handleGroupAdminLogin = () => setUserType('groupAdmin');
     const handleSystemAdminLogin = () => setUserType('systemAdmin');
