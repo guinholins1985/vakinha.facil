@@ -212,39 +212,45 @@ const TestimonialsSection = () => {
 const PricingSection = () => (
     <section className="bg-white py-20">
         <div className="container mx-auto px-6">
-            <SectionTitle>Planos e Preços</SectionTitle>
-            <SectionSubtitle>Escolha o plano ideal para você e comece a juntar dinheiro hoje mesmo.</SectionSubtitle>
+            <SectionTitle>Planos Flexíveis para Todos</SectionTitle>
+            <SectionSubtitle>Monetize sua comunidade ou simplesmente organize um grupo de amigos. Nós temos a solução certa.</SectionSubtitle>
             <div className="grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto items-center">
+                
                 <div className="bg-slate-50 p-8 rounded-xl border border-gray-200">
-                    <h3 className="text-2xl font-bold text-center mb-2 font-heading">Básico</h3>
-                    <p className="text-center text-gray-500 mb-6">Para começar</p>
-                    <p className="text-4xl font-extrabold text-center mb-6 font-heading">Grátis</p>
+                    <h3 className="text-2xl font-bold text-center mb-2 font-heading">Uso Flexível</h3>
+                    <p className="text-center text-gray-500 mb-6">Ideal para começar</p>
+                    <p className="text-4xl font-extrabold text-center mb-1 font-heading">R$ 15 <span className="text-lg font-medium text-gray-500">/vaquinha</span></p>
+                    <p className="text-center font-bold text-2xl text-gray-600 mb-6">+ 3% <span className="text-base font-normal">do valor</span></p>
                     <ul className="space-y-3 text-gray-600 mb-8">
-                        <li className="flex items-center"><span className="text-emerald-500 mr-2">✔</span>1 vaquinha ativa</li>
-                        <li className="flex items-center"><span className="text-emerald-500 mr-2">✔</span>Taxas de 5% sobre o valor total</li>
-                        <li className="flex items-center"><span className="text-emerald-500 mr-2">✔</span>Suporte via e-mail</li>
+                        <li className="flex items-center"><span className="text-emerald-500 mr-2">✔</span>Cobre uma taxa única por vaquinha</li>
+                        <li className="flex items-center"><span className="text-emerald-500 mr-2">✔</span>Perfeito para eventos pontuais</li>
+                        <li className="flex items-center"><span className="text-emerald-500 mr-2">✔</span>Sem compromisso mensal</li>
                     </ul>
-                    <a href="#" className="w-full block text-center bg-gray-200 text-gray-800 font-semibold py-3 rounded-lg hover:bg-gray-300 transition-colors">Escolher Plano</a>
+                    <a href="#" className="w-full block text-center bg-gray-200 text-gray-800 font-semibold py-3 rounded-lg hover:bg-gray-300 transition-colors">Começar Agora</a>
                 </div>
+
                 <div className="bg-emerald-600 text-white p-8 rounded-xl shadow-2xl transform lg:scale-110">
-                     <p className="text-center bg-white text-emerald-600 font-bold text-xs py-1 px-3 rounded-full uppercase inline-block mb-4 ml-1/2 -translate-x-1/2">Mais Popular</p>
-                    <h3 className="text-2xl font-bold text-center mb-2 font-heading">Premium</h3>
-                    <p className="text-center text-emerald-200 mb-6">Para Experts</p>
-                    <p className="text-4xl font-extrabold text-center mb-1 font-heading">R$ 19,90<span className="text-lg font-medium text-emerald-200">/mês</span></p>
+                    <p className="text-center bg-white text-emerald-600 font-bold text-xs py-1 px-3 rounded-full uppercase inline-block mb-4 ml-1/2 -translate-x-1/2">Mais Popular</p>
+                    <h3 className="text-2xl font-bold text-center mb-2 font-heading">Assinatura Pro</h3>
+                    <p className="text-center text-emerald-200 mb-6">Para gestores de grupos</p>
+                    <p className="text-4xl font-extrabold text-center mb-6 font-heading">R$ 19,90<span className="text-lg font-medium text-emerald-200">/mês</span></p>
                     <ul className="space-y-3 text-emerald-100 mb-8">
-                        <li className="flex items-center"><span className="mr-2">✔</span>Vaquinhas ilimitadas</li>
-                        <li className="flex items-center"><span className="mr-2">✔</span>Taxas de 3%</li>
-                        <li className="flex items-center"><span className="mr-2">✔</span>Suporte prioritário</li>
+                        <li className="flex items-center"><span className="mr-2">✔</span>Crie vaquinhas ilimitadas</li>
+                        <li className="flex items-center"><span className="mr-2">✔</span>Taxas percentuais reduzidas</li>
+                        <li className="flex items-center"><span className="mr-2">✔</span>Suporte prioritário via chat</li>
                     </ul>
-                    <a href="#" className="w-full block text-center bg-white text-emerald-600 font-semibold py-3 rounded-lg hover:bg-emerald-50 transition-colors">Escolher Plano</a>
+                    <a href="#" className="w-full block text-center bg-white text-emerald-600 font-semibold py-3 rounded-lg hover:bg-emerald-50 transition-colors">Assinar Agora</a>
                 </div>
+
                 <div className="bg-slate-50 p-8 rounded-xl border border-gray-200">
                     <h3 className="text-2xl font-bold text-center mb-2 font-heading">White-Label</h3>
-                    <p className="text-center text-gray-500 mb-6">Para Empresas</p>
+                    <p className="text-center text-gray-500 mb-6">Sua marca, nossa tecnologia</p>
                     <p className="text-4xl font-extrabold text-center mb-1 font-heading">R$ 300<span className="text-lg font-medium text-gray-500">/mês</span></p>
+                     <p className="text-center text-gray-500 mb-6">(a partir de)</p>
                      <ul className="space-y-3 text-gray-600 mb-8">
-                        <li className="flex items-center"><span className="text-emerald-500 mr-2">✔</span>Use nossa plataforma com sua marca</li>
-                        <li className="flex items-center"><span className="text-emerald-500 mr-2">✔</span>Ideal para empreendedores</li>
+                        <li className="flex items-center"><span className="text-emerald-500 mr-2">✔</span>Plataforma completa com sua identidade</li>
+                        <li className="flex items-center"><span className="text-emerald-500 mr-2">✔</span>Ideal para empreendedores e empresas</li>
+                        <li className="flex items-center"><span className="text-emerald-500 mr-2">✔</span>Modelo de receita escalável</li>
                     </ul>
                     <a href="#" className="w-full block text-center bg-gray-200 text-gray-800 font-semibold py-3 rounded-lg hover:bg-gray-300 transition-colors">Contate-nos</a>
                 </div>

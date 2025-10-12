@@ -64,24 +64,112 @@ A member of a `vaquinha` who contributes money.
 
 ## 💰 Monetization Model
 
-Vakinha Fácil generates revenue through a flexible, multi-tiered pricing structure:
+Vakinha Fácil generates revenue through a flexible, multi-tiered pricing structure.
 
-| Plan        | Price           | Key Features                                       | Target Audience      |
-|-------------|-----------------|----------------------------------------------------|----------------------|
-| **Básico**    | Free            | 1 active `vaquinha`, 5% fee on total amount collected. | Individuals, small groups |
-| **Premium**   | R$ 19,90/month  | Unlimited `vaquinhas`, reduced 3% fee, priority support. | Power users, teams |
-| **White-Label**| R$ 300/month    | Use the platform with your own brand.              | Entrepreneurs, businesses |
+| Modelo | Como Funciona | Lucro Estimado (Mês) |
+| :--- | :--- | :--- |
+| **Taxa por Vaquinha** | Cobra R$ 15–R$ 20 por vaquinha criada. | R$ 1.500–R$ 4.000 |
+| **% sobre Valor Total** | 3–5% do valor arrecadado (ex.: 5% de R$ 2.000 = R$ 100). | R$ 2.000–R$ 10.000 |
+| **Assinatura Mensal** | Plano de R$ 19,90/mês para administradores (vaquinhas ilimitadas). | R$ 1.000–R$ 5.000 |
+| **Pacotes Temáticos** | Venda templates prontos (ex.: "Vaquinha Viagem") por R$ 39,90. | R$ 1.000–R$ 4.000 |
+| **White-Label** | Licencie a plataforma para empreendedores por R$ 200–R$ 500/mês. | R$ 2.000–R$ 10.000 |
+
+**Combinação Recomendada:** Taxa por vaquinha (R$ 15) + 3% sobre valor total = **R$ 3.500–R$ 10.000/mês** com 100–200 vaquinhas ativas.
 
 ---
 
-## 🛠️ Technical Stack
+## 🛠️ Technologies & Integrations
 
-- **Frontend:** React, Tailwind CSS
-- **State Management:** React Hooks (`useState`)
-- **Backend (Conceptual):** Node.js with a framework like Express.js
-- **Database (Conceptual):** PostgreSQL or MongoDB for storing user and `vaquinha` data.
-- **Payment Gateway Integration:** Mercado Pago, PicPay
-- **Authentication:** JWT (JSON Web Tokens) for securing user sessions.
+| Área | Tecnologia/Integração | Custo Estimado (MVP) |
+| :--- | :--- | :--- |
+| **Frontend (Admin)** | React.js (painel superadmin) | R$ 5.000–R$ 10.000 |
+| **Frontend (Grupo)** | Flutter (app mobile) + React (web) | R$ 7.000–R$ 12.000 |
+| **Backend** | Node.js + PostgreSQL | R$ 4.000–R$ 8.000 |
+| **Pagamentos** | Mercado Pago, PicPay, Stripe | Grátis (taxas por transação) |
+| **Automação** | Twilio (SMS), SendGrid (e-mails), Firebase (notificações) | R$ 500–R$ 1.000/mês |
+| **Segurança** | Validação de CPF (Serasa), criptografia (SSL) | R$ 1.500–R$ 3.000 |
+| **Hosting** | AWS ou DigitalOcean | R$ 500–R$ 1.000/mês |
+| **Custo Total do MVP** | | **R$ 25.000–R$ 50.000** |
+
+---
+
+## 🗃️ Database Structure
+
+### `Usuários`
+- `id`
+- `nome`
+- `email`
+- `cpf`
+- `telefone`
+- `tipo` (admin_sistema/admin_grupo/participante)
+- `data_cadastro`
+- `status`
+
+### `Vaquinhas`
+- `id`
+- `nome`
+- `descricao`
+- `valor_mensal`
+- `prazo_meses`
+- `data_inicio`
+- `data_fim`
+- `status`
+- `admin_grupo_id`
+- `taxa_aplicada`
+
+### `Participantes`
+- `id`
+- `vaquinha_id`
+- `usuario_id`
+- `status_pagamento`
+- `data_adesao`
+- `valor_pago`
+
+### `Pagamentos`
+- `id`
+- `participante_id`
+- `valor`
+- `data_pagamento`
+- `metodo` (Pix/cartão/boleto)
+- `comprovante`
+- `status`
+
+### `Distribuicoes`
+- `id`
+- `vaquinha_id`
+- `valor_total`
+- `data_distribuicao`
+- `status`
+- `metodo_saque` (Pix/conta)
+
+### `Taxas`
+- `id`
+- `vaquinha_id`
+- `valor_taxa`
+- `data_cobranca`
+- `status`
+- `tipo` (fixa/porcentagem)
+
+### `Assinaturas`
+- `id`
+- `usuario_id`
+- `plano` (mensal/anual)
+- `data_inicio`
+- `data_fim`
+- `valor`
+- `status`
+
+### `WhiteLabel`
+- `id`
+- `empresa`
+- `contato`
+- `plano`
+- `data_inicio`
+- `data_fim`
+- `valor_mensal`
+- `status`
+
+---
 
 ## 🚀 How to Run Locally
 
