@@ -890,54 +890,279 @@ const GroupAdminDashboard = () => {
     );
 };
 
-const SystemAdminCard = ({ title, items }: { title: string, items: { label: string, value: any }[] }) => (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-        <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider font-heading mb-4 border-b border-gray-200 pb-3">{title}</h3>
-        <ul className="space-y-3">
-            {items.map(item => (
-                <li key={item.label} className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">{item.label}</span>
-                    <span className="font-semibold text-gray-800">{item.value}</span>
-                </li>
-            ))}
-        </ul>
+// --- START: NEW SYSTEM ADMIN DASHBOARD ---
+
+type AdminView = 'dashboard' | 'users' | 'vaquinhas' | 'finance' | 'config' | 'white-label' | 'support';
+
+const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg> },
+    { id: 'users', label: 'Usuários', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg> },
+    { id: 'vaquinhas', label: 'Vaquinhas', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h12v4a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 6a2 2 0 00-2 2v4a2 2 0 002 2h12a2 2 0 002-2v-4a2 2 0 00-2-2H4zm2-4a1 1 0 100 2h8a1 1 0 100-2H6z" clipRule="evenodd" /></svg> },
+    { id: 'finance', label: 'Financeiro', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 4a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4zm2 2v10h12V6H4zm3 2h6v2H7V8z" /></svg> },
+    { id: 'config', label: 'Configurações', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg> },
+    { id: 'white-label', label: 'White-Label', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm10 2a1 1 0 10-2 0v2a1 1 0 102 0V4zm-4 4a1 1 0 112 0 3 3 0 01-6 0 1 1 0 112 0 1 1 0 002 0z" clipRule="evenodd" /></svg> },
+    { id: 'support', label: 'Suporte', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg> }
+];
+
+const Sidebar = ({ activeView, setActiveView }: { activeView: AdminView; setActiveView: (view: AdminView) => void }) => (
+    <aside className="w-64 bg-white shadow-md flex-shrink-0">
+        <div className="p-4">
+            <h2 className="text-xl font-bold text-gray-700 font-heading">Admin</h2>
+        </div>
+        <nav>
+            <ul>
+                {menuItems.map(item => (
+                    <li key={item.id}>
+                        <button
+                            onClick={() => setActiveView(item.id as AdminView)}
+                            className={`w-full text-left flex items-center space-x-3 px-4 py-3 transition-colors duration-200 ${
+                                activeView === item.id 
+                                ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-500' 
+                                : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                        >
+                            {item.icon}
+                            <span className="font-medium">{item.label}</span>
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        </nav>
+    </aside>
+);
+
+// MOCK DATA
+const mockAdminData = {
+    users: [
+        { id: 1, name: 'Ana Silva', email: 'ana@example.com', status: 'Ativo', date: '2024-07-20' },
+        { id: 2, name: 'Bruno Costa', email: 'bruno@example.com', status: 'Pendente', date: '2024-07-19' },
+        { id: 3, name: 'Carlos Dias', email: 'carlos@example.com', status: 'Bloqueado', date: '2024-07-18' },
+    ],
+    vaquinhas: [
+        { id: 1, name: 'Viagem Bahia', manager: 'João Pereira', status: 'Ativa', collected: 1500 },
+        { id: 2, name: 'Presente Léo', manager: 'Maria Oliveira', status: 'Finalizada', collected: 1200 },
+        { id: 3, name: 'Churrasco Fim de Ano', manager: 'Pedro Martins', status: 'Em Atraso', collected: 450 },
+    ],
+    transactions: [
+        { id: 1, date: '2024-07-20', value: 15, type: 'Taxa Fixa', status: 'Completo' },
+        { id: 2, date: '2024-07-20', value: 45, type: 'Taxa %', status: 'Completo' },
+        { id: 3, date: '2024-07-19', value: 19.90, type: 'Assinatura', status: 'Completo' },
+    ],
+    licensees: [
+        { id: 1, company: 'Clube Esportivo ABC', plan: 'Pro', status: 'Ativo' },
+        { id: 2, company: 'Formatura Med 2025', plan: 'Premium', status: 'Ativo' },
+    ],
+    tickets: [
+        { id: 1, date: '2024-07-20', user: 'Ana Silva', status: 'Aberto', priority: 'Alta' },
+        { id: 2, date: '2024-07-19', user: 'Bruno Costa', status: 'Pendente', priority: 'Média' },
+    ]
+};
+
+const DashboardView = () => {
+    // Dummy chart components
+    const LineChart = () => <div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">Gráfico de Linha (Receita)</div>;
+    const PieChart = () => <div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">Gráfico de Pizza (Status Vaquinhas)</div>;
+    return (
+        <div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="bg-white p-6 rounded-lg shadow"><h3 className="text-gray-500">Receita Total</h3><p className="text-3xl font-bold text-blue-600">R$ 15.000</p></div>
+                <div className="bg-white p-6 rounded-lg shadow"><h3 className="text-gray-500">Vaquinhas Ativas</h3><p className="text-3xl font-bold text-green-500">250</p></div>
+                <div className="bg-white p-6 rounded-lg shadow"><h3 className="text-gray-500">Novos Usuários</h3><p className="text-3xl font-bold text-gray-800">1.200</p></div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                 <div className="bg-white p-6 rounded-lg shadow"><h3 className="font-bold mb-4">Receita (Últimos 6 Meses)</h3><LineChart /></div>
+                 <div className="bg-white p-6 rounded-lg shadow"><h3 className="font-bold mb-4">Status das Vaquinhas</h3><PieChart /></div>
+            </div>
+        </div>
+    );
+};
+
+const UsersView = () => (
+    <div>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Gerenciamento de Usuários</h1>
+        <div className="bg-white p-6 rounded-lg shadow">
+            {/* Toolbar */}
+            <div className="flex justify-between items-center mb-4">
+                <input type="text" placeholder="Pesquisar usuário..." className="border rounded-md px-3 py-2 w-1/3"/>
+                <div>
+                    <select className="border rounded-md px-3 py-2 mr-2">
+                        <option>Filtrar por status</option>
+                        <option>Ativo</option>
+                        <option>Pendente</option>
+                        <option>Bloqueado</option>
+                    </select>
+                    <input type="date" className="border rounded-md px-3 py-2"/>
+                </div>
+            </div>
+            {/* Table */}
+            <table className="w-full text-left">
+                <thead>
+                    <tr className="bg-gray-50 border-b">
+                        <th className="p-3">Nome</th><th>E-mail</th><th>Status</th><th>Data de Cadastro</th><th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {mockAdminData.users.map(user => (
+                        <tr key={user.id} className="border-b hover:bg-gray-50">
+                            <td className="p-3">{user.name}</td>
+                            <td>{user.email}</td>
+                            <td><span className={`px-2 py-1 text-xs rounded-full ${user.status === 'Ativo' ? 'bg-green-100 text-green-700' : user.status === 'Pendente' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{user.status}</span></td>
+                            <td>{user.date}</td>
+                            <td className="space-x-2">
+                                <button className="text-blue-600 hover:underline text-sm">Bloquear</button>
+                                <button className="text-blue-600 hover:underline text-sm">Verificar CPF</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    </div>
+);
+
+const VaquinhasView = () => (
+     <div>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Gerenciamento de Vaquinhas</h1>
+        <div className="bg-white p-6 rounded-lg shadow">
+            <table className="w-full text-left">
+                <thead><tr className="bg-gray-50 border-b"><th className="p-3">Nome</th><th>Gestor</th><th>Status</th><th>Valor Arrecadado</th><th>Ações</th></tr></thead>
+                <tbody>
+                    {mockAdminData.vaquinhas.map(v => (
+                        <tr key={v.id} className="border-b hover:bg-gray-50">
+                            <td className="p-3">{v.name}</td><td>{v.manager}</td>
+                            <td><span className={`px-2 py-1 text-xs rounded-full ${v.status === 'Ativa' ? 'bg-green-100 text-green-700' : v.status === 'Finalizada' ? 'bg-gray-200 text-gray-700' : 'bg-red-100 text-red-700'}`}>{v.status}</span></td>
+                            <td>R$ {v.collected.toLocaleString('pt-BR')}</td>
+                            <td className="space-x-2"><button className="text-blue-600 hover:underline text-sm">Visualizar</button><button className="text-blue-600 hover:underline text-sm">Suspender</button></td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    </div>
+);
+
+const FinanceView = () => {
+    const BarChart = () => <div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">Gráfico de Barras (Receita por Modelo)</div>;
+    return (
+        <div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Financeiro</h1>
+            <div className="bg-white p-6 rounded-lg shadow mb-6"><h3 className="font-bold mb-4">Receita por Modelo</h3><BarChart /></div>
+            <div className="bg-white p-6 rounded-lg shadow">
+                <h3 className="font-bold mb-4">Transações Recentes</h3>
+                 <table className="w-full text-left">
+                    <thead><tr className="bg-gray-50 border-b"><th className="p-3">Data</th><th>Valor</th><th>Tipo</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {mockAdminData.transactions.map(t => (
+                            <tr key={t.id} className="border-b hover:bg-gray-50">
+                                <td className="p-3">{t.date}</td><td>R$ {t.value.toLocaleString('pt-BR')}</td><td>{t.type}</td><td><span className="text-green-700">{t.status}</span></td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+const ConfigView = () => (
+    <div>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Configurações Gerais</h1>
+        <div className="bg-white p-6 rounded-lg shadow space-y-6">
+            <div>
+                <label className="block font-medium">Taxa Fixa por Vaquinha (R$)</label>
+                <input type="number" defaultValue="15" className="border rounded-md px-3 py-2 mt-1 w-full"/>
+            </div>
+            <div>
+                <label className="block font-medium">Taxa Percentual (%)</label>
+                <input type="number" defaultValue="3" className="border rounded-md px-3 py-2 mt-1 w-full"/>
+            </div>
+            <div>
+                <label className="block font-medium">Valor Máximo por Vaquinha (R$)</label>
+                <input type="number" defaultValue="10000" className="border rounded-md px-3 py-2 mt-1 w-full"/>
+            </div>
+            <div>
+                <h3 className="font-medium mb-2">Integrações de Pagamento</h3>
+                <div className="flex items-center space-x-4">
+                    <label className="flex items-center"><input type="checkbox" defaultChecked className="mr-2"/> Mercado Pago</label>
+                    <label className="flex items-center"><input type="checkbox" defaultChecked className="mr-2"/> PicPay</label>
+                </div>
+            </div>
+            <button className="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700">Salvar Alterações</button>
+        </div>
+    </div>
+);
+
+const WhiteLabelView = () => (
+     <div>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Licenças White-Label</h1>
+         <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex justify-end mb-4"><button className="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700">Adicionar Licenciado</button></div>
+             <table className="w-full text-left">
+                <thead><tr className="bg-gray-50 border-b"><th className="p-3">Empresa</th><th>Plano</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody>
+                    {mockAdminData.licensees.map(l => (
+                        <tr key={l.id} className="border-b hover:bg-gray-50">
+                            <td className="p-3">{l.company}</td><td>{l.plan}</td>
+                            <td><span className="text-green-700">{l.status}</span></td>
+                            <td><button className="text-blue-600 hover:underline text-sm">Ver Detalhes</button></td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    </div>
+);
+
+const SupportView = () => (
+     <div>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Tickets de Suporte</h1>
+         <div className="bg-white p-6 rounded-lg shadow">
+             <table className="w-full text-left">
+                <thead><tr className="bg-gray-50 border-b"><th className="p-3">Data</th><th>Usuário</th><th>Status</th><th>Prioridade</th><th>Ações</th></tr></thead>
+                <tbody>
+                    {mockAdminData.tickets.map(t => (
+                        <tr key={t.id} className="border-b hover:bg-gray-50">
+                            <td className="p-3">{t.date}</td><td>{t.user}</td><td>{t.status}</td>
+                            <td><span className={`${t.priority === 'Alta' ? 'text-red-600' : 'text-yellow-600'}`}>{t.priority}</span></td>
+                            <td className="space-x-2"><button className="text-blue-600 hover:underline text-sm">Responder</button><button className="text-blue-600 hover:underline text-sm">Fechar</button></td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     </div>
 );
 
 const SystemAdminDashboard = () => {
-    const adminData = {
-        dashboard: { title: "DASHBOARD", items: [{ label: "Receita", value: "R$ 15.000" }, { label: "Vaquinhas", value: "250" }, { label: "Usuários", value: "1.200" }] },
-        users: { title: "USUÁRIOS", items: [{ label: "Listar", value: <button className="text-emerald-600 hover:underline text-sm font-semibold">Ver</button> }, { label: "Bloquear", value: <button className="text-emerald-600 hover:underline text-sm font-semibold">Gerenciar</button> }, { label: "Verificar CPF", value: <button className="text-emerald-600 hover:underline text-sm font-semibold">Consultar</button> }, { label: "Exportar CSV", value: <button className="text-emerald-600 hover:underline text-sm font-semibold">Baixar</button> }] },
-        vaquinhas: { title: "VAQUINHAS", items: [{ label: "Ativas", value: 250 }, { label: "Finalizadas", value: 120 }, { label: "Em atraso", value: 30 }] },
-        finance: { title: "FINANCEIRO", items: [{ label: "Total", value: "R$ 15K" }, { label: "Taxas", value: "R$ 3K" }, { label: "Assinaturas", value: "R$ 5K" }] },
-        config: { title: "CONFIG.", items: [{ label: "Taxas", value: "5%" }, { label: "Planos", value: <button className="text-emerald-600 hover:underline text-sm font-semibold">Editar</button> }] },
-        whiteLabel: { title: "WHITE-LABEL", items: [{ label: "Licenças", value: 10 }, { label: "Receita", value: "R$ 3K" }] },
-        support: { title: "SUPORTE", items: [{ label: "Tickets", value: 15 }, { label: "Responder (Chat)", value: <button className="text-emerald-600 hover:underline text-sm font-semibold">Abrir</button> }] },
-        reports: { title: "RELATÓRIOS", items: [{ label: "Exportar PDF/CSV", value: <button className="text-emerald-600 hover:underline text-sm font-semibold">Gerar</button> }, { label: "Gráficos", value: <button className="text-emerald-600 hover:underline text-sm font-semibold">Visualizar</button> }] },
-    };
+    const [activeView, setActiveView] = useState<AdminView>('dashboard');
 
+    const renderContent = () => {
+        switch (activeView) {
+            case 'dashboard': return <DashboardView />;
+            case 'users': return <UsersView />;
+            case 'vaquinhas': return <VaquinhasView />;
+            case 'finance': return <FinanceView />;
+            case 'config': return <ConfigView />;
+            case 'white-label': return <WhiteLabelView />;
+            case 'support': return <SupportView />;
+            default: return <DashboardView />;
+        }
+    };
+    
     return (
-        <div className="bg-slate-100 min-h-screen">
-            <div className="pt-24">
-                <main className="container mx-auto px-6 py-8">
-                    <div className="flex justify-between items-center mb-8">
-                        <h1 className="text-3xl font-bold text-gray-800 font-heading">Painel Admin <span className="text-base font-medium text-gray-500">(Google AI Studios)</span></h1>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <SystemAdminCard title={adminData.dashboard.title} items={adminData.dashboard.items} />
-                        <SystemAdminCard title={adminData.users.title} items={adminData.users.items} />
-                        <SystemAdminCard title={adminData.vaquinhas.title} items={adminData.vaquinhas.items} />
-                        <SystemAdminCard title={adminData.finance.title} items={adminData.finance.items} />
-                        <SystemAdminCard title={adminData.config.title} items={adminData.config.items} />
-                        <SystemAdminCard title={adminData.whiteLabel.title} items={adminData.whiteLabel.items} />
-                        <SystemAdminCard title={adminData.support.title} items={adminData.support.items} />
-                        <SystemAdminCard title={adminData.reports.title} items={adminData.reports.items} />
-                    </div>
+        <div className="bg-slate-100 min-h-screen pt-20">
+            <div className="flex h-[calc(100vh-80px)]">
+                <Sidebar activeView={activeView} setActiveView={setActiveView} />
+                <main className="flex-1 p-6 md:p-8 overflow-y-auto">
+                    {renderContent()}
                 </main>
             </div>
         </div>
     );
 };
+
+// --- END: NEW SYSTEM ADMIN DASHBOARD ---
 
 
 const App = () => {
