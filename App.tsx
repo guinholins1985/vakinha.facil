@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { GoogleGenAI } from "@google/genai";
 
 const LogoIcon = () => (
     <svg className="w-9 h-9 text-emerald-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -1164,6 +1165,148 @@ const SystemAdminDashboard = () => {
 
 // --- END: NEW SYSTEM ADMIN DASHBOARD ---
 
+// --- START: NEW AI CHATBOT ---
+
+const ChatbotIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+    </svg>
+);
+const CloseIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+);
+const SendIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+    </svg>
+);
+
+interface Message {
+    sender: 'user' | 'ai';
+    text: string;
+}
+
+const Chatbot = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState<Message[]>([
+        { sender: 'ai', text: 'Olá! Sou o assistente virtual do Vakinha Fácil. Como posso te ajudar hoje?' }
+    ]);
+    const [inputValue, setInputValue] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const chatEndRef = useRef<HTMLDivElement | null>(null);
+
+    const scrollToBottom = () => {
+        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(scrollToBottom, [messages, isLoading]);
+
+    const handleSendMessage = async () => {
+        if (!inputValue.trim() || isLoading) return;
+
+        const userMessage: Message = { sender: 'user', text: inputValue };
+        setMessages(prev => [...prev, userMessage]);
+        setInputValue('');
+        setIsLoading(true);
+
+        try {
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: inputValue,
+                config: {
+                    systemInstruction: "Você é um assistente de suporte amigável para a plataforma 'Vakinha Fácil', que automatiza arrecadações de dinheiro em grupo. Suas características principais são: automação de cobranças, transparência total, segurança com validação de CPF e pagamentos via Mercado Pago/PicPay, flexibilidade para diversos objetivos (viagens, presentes, etc.), e múltiplos modelos de monetização (taxa única, assinatura, white-label). Responda de forma concisa e amigável, focando em ajudar o usuário a entender a plataforma. Não invente funcionalidades."
+                }
+            });
+
+            const aiMessage: Message = { sender: 'ai', text: response.text };
+            setMessages(prev => [...prev, aiMessage]);
+        } catch (error) {
+            console.error("Error calling Gemini API:", error);
+            const errorMessage: Message = { sender: 'ai', text: 'Desculpe, não consegui processar sua solicitação no momento. Tente novamente mais tarde.' };
+            setMessages(prev => [...prev, errorMessage]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    const transitionClasses = isOpen 
+        ? 'opacity-100 transform translate-y-0' 
+        : 'opacity-0 transform translate-y-4 pointer-events-none';
+
+    return (
+        <>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="fixed bottom-6 right-6 bg-emerald-600 text-white p-4 rounded-full shadow-lg hover:bg-emerald-700 transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 z-50"
+                aria-label="Abrir chat de ajuda"
+            >
+                {isOpen ? <CloseIcon /> : <ChatbotIcon />}
+            </button>
+
+            <div className={`fixed bottom-24 right-6 w-[calc(100vw-3rem)] max-w-sm h-[32rem] bg-white rounded-xl shadow-2xl flex flex-col z-50 transition-all duration-300 ease-in-out ${transitionClasses}`}>
+                <div className="flex justify-between items-center p-4 bg-emerald-600 text-white rounded-t-xl">
+                    <h3 className="font-bold font-heading text-lg">Assistente Virtual</h3>
+                    <button onClick={() => setIsOpen(false)} aria-label="Fechar chat" className="hover:text-emerald-200 transition-colors">
+                        <CloseIcon />
+                    </button>
+                </div>
+                <div className="flex-1 p-4 overflow-y-auto bg-slate-50 space-y-4">
+                    {messages.map((msg, index) => (
+                        <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-xs md:max-w-md lg:max-w-xs rounded-2xl px-4 py-2 ${
+                                msg.sender === 'user' 
+                                ? 'bg-emerald-500 text-white rounded-br-lg' 
+                                : 'bg-white text-gray-800 shadow-sm rounded-bl-lg'
+                            }`}>
+                                <p className="text-sm">{msg.text}</p>
+                            </div>
+                        </div>
+                    ))}
+                    {isLoading && (
+                         <div className="flex justify-start">
+                             <div className="bg-white text-gray-800 shadow-sm rounded-2xl rounded-bl-lg px-4 py-3">
+                                 <div className="flex items-center space-x-2">
+                                     <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse delay-75"></div>
+                                     <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse delay-150"></div>
+                                     <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse delay-300"></div>
+                                 </div>
+                             </div>
+                         </div>
+                    )}
+                    <div ref={chatEndRef} />
+                </div>
+                <div className="p-3 bg-white border-t border-gray-200">
+                    <div className="flex space-x-2">
+                        <input
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                            placeholder="Digite sua dúvida..."
+                            aria-label="Mensagem para o chatbot"
+                            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+                        />
+                        <button 
+                            onClick={handleSendMessage} 
+                            disabled={isLoading || !inputValue.trim()} 
+                            className="bg-emerald-500 text-white p-3 rounded-lg hover:bg-emerald-600 disabled:bg-emerald-300 disabled:cursor-not-allowed transition-colors"
+                            aria-label="Enviar mensagem"
+                        >
+                            <SendIcon />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+};
+
+
+// --- END: NEW AI CHATBOT ---
+
 
 const App = () => {
     const [userType, setUserType] = useState<string | null>(null); // null, 'groupAdmin', 'systemAdmin'
@@ -1192,6 +1335,7 @@ const App = () => {
                 onLogout={handleLogout}
             />
             {renderContent()}
+            {userType === null && <Chatbot />}
         </div>
     );
 };
