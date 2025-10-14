@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useRef, useContext, createContext } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
@@ -618,10 +617,52 @@ const Footer = () => (
     </footer>
 );
 
+// --- START: SHARED DASHBOARD COMPONENTS ---
+
+interface CardProps {
+    children?: React.ReactNode;
+    className?: string;
+}
+const Card: React.FC<CardProps> = ({ children, className = '' }) => (
+    <div className={`bg-white p-6 rounded-xl shadow-md ${className}`}>
+        {children}
+    </div>
+);
+
+// FIX: Made the children prop optional to prevent TypeScript errors when the component is used without children.
+interface CardTitleProps {
+    children?: React.ReactNode;
+}
+const CardTitle: React.FC<CardTitleProps> = ({ children }) => (
+    <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">{children}</h2>
+);
+
+const StatCard = ({ title, value, change }: { title: string; value: string | number; change?: string }) => (
+    <div className="bg-white p-6 rounded-xl shadow-md">
+        <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">{title}</h3>
+        <div className="flex items-baseline space-x-2 mt-2">
+            <p className="text-3xl font-bold text-gray-800">{value}</p>
+            {change && (
+                <span className={`text-sm font-semibold ${change.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>
+                    {change}
+                </span>
+            )}
+        </div>
+    </div>
+);
+
+const ChartPlaceholder = ({ height = 'h-64' }: { height?: string }) => (
+    <div className={`w-full ${height} bg-slate-50 rounded-lg flex items-center justify-center border border-dashed`}>
+        <p className="text-sm text-gray-500">[ Visualização de Gráfico ]</p>
+    </div>
+);
+// --- END: SHARED DASHBOARD COMPONENTS ---
+
+
 // --- START: GROUP ADMIN DASHBOARD ---
 const GroupAdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('Resumo');
-    const tabs = ['Resumo', 'Participantes', 'Pagamentos', 'Convites', 'Mensagens', 'Metas e Prêmios', 'Enquetes', 'Relatórios', 'Configurações'];
+    const tabs = ['Resumo', 'Participantes', 'Pagamentos', 'Orçamento', 'Convites', 'Mensagens', 'Metas e Prêmios', 'Enquetes', 'Relatórios', 'Configurações'];
     const mockData = {
         name: "Viagem para Bahia",
         goal: 10000,
@@ -632,14 +673,26 @@ const GroupAdminDashboard = () => {
             { id: 3, name: "Carlos Souza", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704c", status: "Pago", amount: 500 },
             { id: 4, name: "Ana Pereira", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d", status: "Pendente", amount: 0 },
             { id: 5, name: "Lucas Costa", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e", status: "Pago", amount: 500 },
+            { id: 6, name: "Juliana Moraes", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704f", status: "Pago", amount: 750 },
+            { id: 7, name: "Ricardo Gomes", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704g", status: "Pago", amount: 500 },
         ],
         payments: [
             { id: 1, name: 'João Silva', date: '2024-07-15', amount: 500, method: 'Pix' },
             { id: 2, name: 'Carlos Souza', date: '2024-07-14', amount: 500, method: 'Cartão' },
             { id: 3, name: 'Lucas Costa', date: '2024-07-12', amount: 500, method: 'Boleto' },
+            { id: 4, name: 'Juliana Moraes', date: '2024-07-11', amount: 750, method: 'Pix' },
+            { id: 5, name: 'Ricardo Gomes', date: '2024-07-10', amount: 500, method: 'Cartão' },
         ],
+        budget: {
+            total: 7500,
+            spent: 4200,
+            items: [
+                { id: 1, description: "Passagens Aéreas", category: "Transporte", amount: 3500, date: "2024-07-18", receipt: true },
+                { id: 2, description: "Sinal da Pousada", category: "Hospedagem", amount: 700, date: "2024-07-20", receipt: true },
+            ]
+        },
         messages: [
-            { id: 1, subject: "Lembrete de Pagamento", date: "2024-07-10", content: "Olá pessoal, passando para lembrar que o prazo para o pagamento da nossa vaquinha se encerra em 5 dias!" }
+            { id: 1, subject: "Lembrete de Pagamento", date: "2024-07-10", content: "Olá pessoal, passando para lembrar que o prazo para o pagamento da nossa vaquinha se encerra em 5 dias!", type: "Enviada" }
         ],
         milestones: [
             { id: 1, name: "50% Arrecadado!", value: 5000, achieved: true },
@@ -650,32 +703,28 @@ const GroupAdminDashboard = () => {
             { id: 1, name: "Prêmio Top Contribuidor", description: "O maior contribuidor ganha um brinde especial!" }
         ],
         polls: [
-            { id: 1, question: "Qual a data da festa de confraternização?", options: [{text: "Sexta-feira (20/12)", votes: 3}, {text: "Sábado (21/12)", votes: 2}], status: "Fechada" }
+            { id: 1, question: "Qual a data da festa de confraternização?", options: [{text: "Sexta-feira (20/12)", votes: 5}, {text: "Sábado (21/12)", votes: 2}], status: "Fechada" }
+        ],
+        activityFeed: [
+             { id: 1, type: "Pagamento", text: "Juliana Moraes pagou R$ 750,00.", time: "2 dias atrás" },
+             { id: 2, type: "Participante", text: "Ricardo Gomes entrou no grupo.", time: "3 dias atrás" },
+             { id: 3, type: "Mensagem", text: "Você enviou um lembrete para todos.", time: "4 dias atrás" },
         ]
     };
     
     const renderContent = () => {
         switch(activeTab) {
-            case 'Resumo':
-                return <GroupResumoView data={mockData} />;
-            case 'Participantes':
-                return <GroupParticipantesView data={mockData} />;
-            case 'Pagamentos':
-                return <GroupPagamentosView data={mockData} />;
-            case 'Convites':
-                return <GroupConvitesView />;
-            case 'Mensagens':
-                return <GroupMensagensView data={mockData} />;
-            case 'Metas e Prêmios':
-                return <GroupMetasView data={mockData} />;
-            case 'Enquetes':
-                return <GroupEnquetesView data={mockData} />;
-            case 'Relatórios':
-                return <GroupRelatoriosView />;
-            case 'Configurações':
-                return <GroupConfiguracoesView data={mockData} />;
-            default:
-                return null;
+            case 'Resumo': return <GroupResumoView data={mockData} />;
+            case 'Participantes': return <GroupParticipantesView data={mockData} />;
+            case 'Pagamentos': return <GroupPagamentosView data={mockData} />;
+            case 'Orçamento': return <GroupOrcamentoView data={mockData} />;
+            case 'Convites': return <GroupConvitesView />;
+            case 'Mensagens': return <GroupMensagensView data={mockData} />;
+            case 'Metas e Prêmios': return <GroupMetasView data={mockData} />;
+            case 'Enquetes': return <GroupEnquetesView data={mockData} />;
+            case 'Relatórios': return <GroupRelatoriosView />;
+            case 'Configurações': return <GroupConfiguracoesView data={mockData} />;
+            default: return null;
         }
     }
 
@@ -686,7 +735,7 @@ const GroupAdminDashboard = () => {
                     <h1 className="text-3xl font-bold text-gray-800 font-heading">{mockData.name}</h1>
                     <div className="flex space-x-3">
                          <button onClick={() => setActiveTab('Configurações')} className="bg-white text-gray-700 font-semibold px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block -mt-1 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0L7.86 6.81c-.46.12-.9.29-1.31.52l-3.23-1.61c-1.48-.74-3.15.5-2.73 2.13l1.58 3.16c.31.62.31 1.33 0 1.95l-1.58 3.16c-.42 1.63 1.25 2.87 2.73 2.13l3.23-1.61c.41.23.85.4 1.31.52l.65 3.64c.38 1.56 2.6 1.56 2.98 0l.65-3.64c.46-.12.9-.29 1.31-.52l3.23 1.61c1.48.74 3.15-.5 2.73-2.13l-1.58-3.16a2.035 2.035 0 010-1.95l1.58-3.16c.42 1.63-1.25-2.87-2.73-2.13l-3.23 1.61a4.93 4.93 0 00-1.31-.52L11.49 3.17zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block -mt-1 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0L7.86 6.81c-.46.12-.9.29-1.31.52l-3.23-1.61c-1.48-.74-3.15.5-2.73 2.13l1.58 3.16c.31.62.31 1.33 0 1.95l-1.58 3.16c-.42 1.63 1.25 2.87 2.73 2.13l3.23-1.61c.41.23.85.4 1.31.52l.65 3.64c.38 1.56 2.6 1.56 2.98 0l.65-3.64c.46-.12.9-.29 1.31.52l3.23 1.61c1.48.74 3.15-.5 2.73-2.13l-1.58-3.16a2.035 2.035 0 010-1.95l1.58-3.16c.42 1.63-1.25-2.87-2.73-2.13l-3.23 1.61a4.93 4.93 0 00-1.31-.52L11.49 3.17zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
                             Configurar
                         </button>
                         <button onClick={() => setActiveTab('Convites')} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">
@@ -717,32 +766,50 @@ const GroupAdminDashboard = () => {
 const GroupResumoView = ({data}: {data: any}) => {
     const progress = (data.raised / data.goal) * 100;
     return (
-        <div className="space-y-8">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard title="Valor Arrecadado" value={`R$ ${data.raised.toLocaleString('pt-BR')}`} />
-                <StatCard title="Meta Final" value={`R$ ${data.goal.toLocaleString('pt-BR')}`} />
-                <StatCard title="Participantes" value={data.participants.length} />
-                <StatCard title="Progresso" value={`${progress.toFixed(0)}%`} />
-            </div>
+        <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <StatCard title="Arrecadado" value={`R$ ${data.raised.toLocaleString('pt-BR')}`} />
+                    <StatCard title="Meta" value={`R$ ${data.goal.toLocaleString('pt-BR')}`} />
+                    <StatCard title="Participantes" value={data.participants.length} />
+                    <StatCard title="Progresso" value={`${progress.toFixed(0)}%`} />
+                </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-md">
-                 <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">Progresso da Vaquinha</h2>
-                <div className="w-full bg-gray-200 rounded-full h-4">
-                    <div className="bg-emerald-500 h-4 rounded-full text-center text-white text-xs" style={{ width: `${progress}%` }}>
-                        {progress.toFixed(0)}%
+                <Card>
+                    <CardTitle>Progresso da Vaquinha</CardTitle>
+                    <div className="w-full bg-gray-200 rounded-full h-4">
+                        <div className="bg-emerald-500 h-4 rounded-full text-center text-white text-xs" style={{ width: `${progress}%` }}></div>
                     </div>
-                </div>
-                 <div className="mt-4 flex justify-between text-sm font-medium text-gray-600">
-                    <span>R$ {data.raised.toLocaleString('pt-BR')}</span>
-                    <span>R$ {data.goal.toLocaleString('pt-BR')}</span>
-                </div>
+                    <div className="mt-4 flex justify-between text-sm font-medium text-gray-600">
+                        <span>R$ {data.raised.toLocaleString('pt-BR')}</span>
+                        <span>R$ {data.goal.toLocaleString('pt-BR')}</span>
+                    </div>
+                </Card>
+                <Card>
+                    <CardTitle>Ações Rápidas</CardTitle>
+                    <div className="flex flex-wrap gap-4">
+                        <button className="bg-sky-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-sky-600 transition">Enviar Lembrete a Todos</button>
+                        <button className="bg-green-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition">Solicitar Distribuição</button>
+                    </div>
+                </Card>
             </div>
-             <div className="bg-white p-6 rounded-xl shadow-md">
-                <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">Ações Rápidas</h2>
-                <div className="flex flex-wrap gap-4">
-                     <button className="bg-sky-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-sky-600 transition">Enviar Lembrete a Todos</button>
-                     <button className="bg-green-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition">Solicitar Distribuição</button>
-                </div>
+            <div className="lg:col-span-1">
+                 <Card>
+                    <CardTitle>Atividade Recente</CardTitle>
+                    <ul className="space-y-4">
+                        {data.activityFeed.map((item: any) => (
+                            <li key={item.id} className="flex items-start space-x-3">
+                                 <div className="flex-shrink-0 h-6 w-6 rounded-full bg-slate-200 flex items-center justify-center mt-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                 </div>
+                                <div>
+                                    <p className="text-sm text-gray-700">{item.text}</p>
+                                    <p className="text-xs text-gray-500">{item.time}</p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </Card>
             </div>
         </div>
     );
@@ -777,7 +844,7 @@ const GroupParticipantesView = ({data}: {data: any}) => {
         "Pendente": "bg-yellow-100 text-yellow-800",
     }
     return (
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <Card className="p-0 overflow-hidden">
             <div className="p-6 border-b flex justify-between items-center flex-wrap gap-4">
                 <h2 className="text-xl font-bold text-gray-800 font-heading">Painel de Participantes</h2>
                 <div className="flex items-center gap-2">
@@ -818,7 +885,7 @@ const GroupParticipantesView = ({data}: {data: any}) => {
                                     <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusPill[p.status]}`}>{p.status}</span>
                                 </td>
                                 <td className="p-4 font-medium text-gray-700 whitespace-nowrap">R$ {p.amount.toLocaleString('pt-BR')}</td>
-                                <td className="p-4">
+                                <td className="p-4 space-x-3">
                                     <button 
                                         onClick={() => addToast(`Lembrete enviado para ${p.name}!`, 'info')}
                                         className="text-emerald-600 hover:text-emerald-800 font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
@@ -826,13 +893,16 @@ const GroupParticipantesView = ({data}: {data: any}) => {
                                     >
                                         Lembrete
                                     </button>
+                                    <button onClick={() => addToast(`Visualizando histórico de ${p.name}.`, "info")} className="text-gray-500 hover:text-gray-700 font-medium">
+                                        Histórico
+                                    </button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
              </div>
-        </div>
+        </Card>
     );
 }
 
@@ -843,7 +913,7 @@ const GroupPagamentosView = ({data}: {data: any}) => {
         "Boleto": "bg-orange-100 text-orange-800",
     }
     return (
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <Card className="p-0 overflow-hidden">
             <div className="p-6 border-b flex justify-between items-center">
                 <h2 className="text-xl font-bold text-gray-800 font-heading">Histórico de Pagamentos</h2>
                 <button className="text-sm bg-gray-200 text-gray-700 font-semibold px-3 py-1 rounded-md hover:bg-gray-300">Exportar PDF</button>
@@ -872,9 +942,67 @@ const GroupPagamentosView = ({data}: {data: any}) => {
                     </tbody>
                 </table>
             </div>
-        </div>
+        </Card>
     );
 }
+
+const GroupOrcamentoView = ({ data }: { data: any }) => {
+    const { addToast } = useToast();
+    const spentPercentage = (data.budget.spent / data.budget.total) * 100;
+    const remaining = data.budget.total - data.budget.spent;
+
+    return (
+        <div className="space-y-8">
+            <div className="grid md:grid-cols-3 gap-6">
+                <StatCard title="Total Arrecadado" value={`R$ ${data.budget.total.toLocaleString('pt-BR')}`} />
+                <StatCard title="Total Gasto" value={`R$ ${data.budget.spent.toLocaleString('pt-BR')}`} />
+                <StatCard title="Saldo Disponível" value={`R$ ${remaining.toLocaleString('pt-BR')}`} />
+            </div>
+            <Card>
+                <CardTitle>Balanço do Orçamento</CardTitle>
+                 <div className="w-full bg-gray-200 rounded-full h-4">
+                    <div className="bg-sky-500 h-4 rounded-full" style={{ width: `${spentPercentage}%` }}></div>
+                </div>
+                <div className="mt-4 flex justify-between text-sm font-medium text-gray-600">
+                    <span>Gasto: R$ {data.budget.spent.toLocaleString('pt-BR')}</span>
+                    <span>Disponível: R$ {remaining.toLocaleString('pt-BR')}</span>
+                </div>
+            </Card>
+            <Card className="p-0 overflow-hidden">
+                <div className="p-6 border-b flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-gray-800 font-heading">Despesas</h2>
+                    <button onClick={() => addToast("Funcionalidade em desenvolvimento.", "info")} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Adicionar Despesa</button>
+                </div>
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                            <tr>
+                                <th className="p-4">Descrição</th>
+                                <th className="p-4">Categoria</th>
+                                <th className="p-4">Data</th>
+                                <th className="p-4">Valor</th>
+                                <th className="p-4">Comprovante</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {data.budget.items.map((item: any) => (
+                                <tr key={item.id}>
+                                    <td className="p-4 font-medium text-gray-800">{item.description}</td>
+                                    <td className="p-4"><span className="px-2 py-1 bg-slate-200 text-slate-800 rounded-full text-xs font-semibold">{item.category}</span></td>
+                                    <td className="p-4 text-gray-600">{item.date}</td>
+                                    <td className="p-4 font-medium text-red-600">- R$ {item.amount.toLocaleString('pt-BR')}</td>
+                                    <td className="p-4">
+                                        {item.receipt ? <button className="text-emerald-600 hover:underline">Ver</button> : <button className="text-gray-400 cursor-not-allowed">N/A</button>}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                 </div>
+            </Card>
+        </div>
+    );
+};
 
 const GroupConvitesView = () => {
     const { addToast } = useToast();
@@ -886,8 +1014,8 @@ const GroupConvitesView = () => {
     }
 
     return (
-        <div className="bg-white p-8 rounded-xl shadow-md">
-             <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">Convidar Participantes</h2>
+        <Card>
+             <CardTitle>Convidar Participantes</CardTitle>
             <p className="text-gray-600 mb-4">Compartilhe o link abaixo com seus amigos para que eles possam participar da vaquinha.</p>
             <div className="flex items-center space-x-2 p-3 bg-slate-100 rounded-lg">
                 <input type="text" readOnly value={inviteLink} className="w-full bg-transparent focus:outline-none text-gray-700"/>
@@ -897,7 +1025,7 @@ const GroupConvitesView = () => {
                 <button className="flex-1 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition min-w-[200px]">Compartilhar no WhatsApp</button>
                 <button className="flex-1 bg-sky-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-sky-600 transition min-w-[200px]">Enviar por E-mail</button>
             </div>
-        </div>
+        </Card>
     );
 };
 
@@ -911,8 +1039,12 @@ const GroupMensagensView = ({ data }: { data: any }) => {
     };
     return (
         <div className="space-y-8">
-            <div className="bg-white p-8 rounded-xl shadow-md">
-                <h2 className="text-xl font-bold text-gray-800 font-heading mb-6">Enviar Mensagem para o Grupo</h2>
+            <Card>
+                <CardTitle>Enviar Mensagem para o Grupo</CardTitle>
+                 <div className="flex items-center space-x-2 mb-4">
+                    <button className="text-sm bg-gray-200 text-gray-700 font-semibold px-3 py-1 rounded-md hover:bg-gray-300">Usar Template</button>
+                    <button className="text-sm bg-gray-200 text-gray-700 font-semibold px-3 py-1 rounded-md hover:bg-gray-300">Agendar Envio</button>
+                </div>
                 <form onSubmit={handleSendMessage} className="space-y-4">
                     <div>
                         <label htmlFor="messageSubject" className="block text-sm font-medium text-gray-700 mb-1">Assunto</label>
@@ -926,10 +1058,10 @@ const GroupMensagensView = ({ data }: { data: any }) => {
                         <button type="submit" className="bg-emerald-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">Enviar para Todos</button>
                     </div>
                 </form>
-            </div>
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                <div className="p-6 border-b"><h2 className="text-xl font-bold text-gray-800 font-heading">Histórico de Mensagens</h2></div>
-                <div className="p-6 space-y-4">
+            </Card>
+            <Card>
+                <CardTitle>Histórico de Mensagens</CardTitle>
+                <div className="space-y-4">
                     {data.messages.map((msg: any) => (
                         <div key={msg.id} className="p-4 border rounded-lg bg-slate-50">
                             <div className="flex justify-between items-center mb-1">
@@ -940,12 +1072,17 @@ const GroupMensagensView = ({ data }: { data: any }) => {
                         </div>
                     ))}
                 </div>
-            </div>
+            </Card>
         </div>
     );
 };
 
 const GroupMetasView = ({ data }: { data: any }) => {
+    const topContributors = [...data.participants]
+        .filter((p: any) => p.status === 'Pago')
+        .sort((a: any, b: any) => b.amount - a.amount)
+        .slice(0, 3);
+
     return (
         <div className="space-y-8">
             <Card>
@@ -955,4 +1092,510 @@ const GroupMetasView = ({ data }: { data: any }) => {
                     {data.milestones.map((m: any) => (
                          <div key={m.id} className="flex items-center p-3 border rounded-lg">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 ${m.achieved ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-600'}`}>
-                                {m.achieved ? <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20
+                                {m.achieved ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                )}
+                            </div>
+                            <div className="flex-1">
+                                <p className="font-semibold text-gray-800">{m.name}</p>
+                                <p className="text-sm text-gray-500">Meta: R$ {m.value.toLocaleString('pt-BR')}</p>
+                            </div>
+                            {m.achieved && <span className="text-xs font-bold text-emerald-600">Alcançado!</span>}
+                        </div>
+                    ))}
+                </div>
+            </Card>
+
+            <div className="grid md:grid-cols-2 gap-8">
+                 <Card>
+                    <CardTitle>Prêmios e Recompensas</CardTitle>
+                    <p className="text-gray-600 mb-4 text-sm">Ofereça recompensas para os maiores contribuidores e incentive a participação.</p>
+                     {data.rewards.map((r: any) => (
+                        <div key={r.id} className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p className="font-semibold text-yellow-800">{r.name}</p>
+                            <p className="text-sm text-yellow-700">{r.description}</p>
+                        </div>
+                     ))}
+                </Card>
+
+                <Card>
+                    <CardTitle>Ranking de Contribuições</CardTitle>
+                    <p className="text-gray-600 mb-4 text-sm">Veja quem são os maiores apoiadores da sua vaquinha.</p>
+                    <ul className="space-y-3">
+                        {topContributors.map((p: any, index: number) => (
+                            <li key={p.id} className="flex items-center">
+                                <span className={`font-bold text-lg w-8 ${index === 0 ? 'text-yellow-500' : index === 1 ? 'text-gray-400' : 'text-orange-400'}`}>{index + 1}</span>
+                                <img src={p.avatar} alt={p.name} className="w-8 h-8 rounded-full mr-3" />
+                                <span className="font-medium text-gray-800 flex-1">{p.name}</span>
+                                <span className="font-semibold text-emerald-600">R$ {p.amount.toLocaleString('pt-BR')}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </Card>
+            </div>
+        </div>
+    );
+};
+
+const GroupEnquetesView = ({ data }: { data: any }) => {
+    const { addToast } = useToast();
+
+    return (
+        <div className="space-y-8">
+            <Card>
+                 <div className="flex justify-between items-center mb-4">
+                    <CardTitle>Enquetes do Grupo</CardTitle>
+                    <button onClick={() => addToast("Funcionalidade em desenvolvimento.", "info")} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition text-sm">
+                        + Criar Enquete
+                    </button>
+                </div>
+                <p className="text-gray-600 mb-6 text-sm">Tome decisões em conjunto com os participantes.</p>
+                {data.polls.map((poll: any) => (
+                    <div key={poll.id} className="p-4 border rounded-lg">
+                        <div className="flex justify-between items-start mb-3">
+                            <h3 className="font-bold text-gray-800">{poll.question}</h3>
+                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${poll.status === "Fechada" ? "bg-gray-200 text-gray-800" : "bg-green-100 text-green-800"}`}>
+                                {poll.status}
+                            </span>
+                        </div>
+                        <div className="space-y-2">
+                            {poll.options.map((opt: any, index: number) => {
+                                const totalVotes = poll.options.reduce((sum: number, o: any) => sum + o.votes, 0);
+                                const percentage = totalVotes > 0 ? (opt.votes / totalVotes) * 100 : 0;
+                                return (
+                                    <div key={index}>
+                                        <div className="flex justify-between text-sm mb-1">
+                                            <span className="font-medium text-gray-700">{opt.text}</span>
+                                            <span className="text-gray-500">{opt.votes} votos</span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div className="bg-emerald-500 h-2.5 rounded-full" style={{width: `${percentage}%`}}></div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                ))}
+            </Card>
+        </div>
+    );
+};
+
+const GroupRelatoriosView = () => {
+    const { addToast } = useToast();
+    const handleExport = (type: string) => {
+        addToast(`Relatório ${type} gerado com sucesso!`, 'success');
+    };
+    return (
+        <Card>
+            <CardTitle>Exportar Relatórios</CardTitle>
+            <p className="text-gray-600 mb-6">Gere relatórios detalhados para sua contabilidade e organização.</p>
+            <div className="grid md:grid-cols-2 gap-6">
+                <div className="p-6 border rounded-lg bg-slate-50">
+                    <h3 className="font-bold text-lg text-gray-800 mb-2">Relatório Financeiro Completo</h3>
+                    <p className="text-gray-600 text-sm mb-4">Inclui todos os pagamentos, datas, valores e participantes.</p>
+                    <div className="flex gap-3">
+                        <button onClick={() => handleExport('Financeiro PDF')} className="bg-red-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-red-600 transition text-sm">Exportar PDF</button>
+                        <button onClick={() => handleExport('Financeiro CSV')} className="bg-green-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-600 transition text-sm">Exportar CSV</button>
+                    </div>
+                </div>
+                <div className="p-6 border rounded-lg bg-slate-50">
+                    <h3 className="font-bold text-lg text-gray-800 mb-2">Lista de Participantes</h3>
+                    <p className="text-gray-600 text-sm mb-4">Lista com nomes, status de pagamento e valores contribuídos.</p>
+                     <div className="flex gap-3">
+                        <button onClick={() => handleExport('Participantes PDF')} className="bg-red-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-red-600 transition text-sm">Exportar PDF</button>
+                        <button onClick={() => handleExport('Participantes CSV')} className="bg-green-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-600 transition text-sm">Exportar CSV</button>
+                    </div>
+                </div>
+            </div>
+        </Card>
+    );
+};
+
+const GroupConfiguracoesView = ({data}: {data: any}) => {
+    const { addToast } = useToast();
+    const handleDelete = () => {
+        if (window.confirm("Tem certeza que deseja apagar esta vaquinha? Esta ação é irreversível.")) {
+            addToast("Vaquinha apagada com sucesso.", "success");
+        }
+    }
+    return (
+        <div className="space-y-8 max-w-3xl">
+            <Card>
+                <CardTitle>Configurações Gerais</CardTitle>
+                <form className="space-y-4">
+                     <div>
+                        <label htmlFor="vakinhaName" className="block text-sm font-medium text-gray-700">Nome da Vaquinha</label>
+                        <input type="text" id="vakinhaName" defaultValue={data.name} className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
+                    </div>
+                     <div>
+                        <label htmlFor="vakinhaGoal" className="block text-sm font-medium text-gray-700">Meta (R$)</label>
+                        <input type="number" id="vakinhaGoal" defaultValue={data.goal} className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
+                    </div>
+                    <div className="pt-2">
+                        <button type="button" onClick={() => addToast("Configurações salvas!", "success")} className="bg-emerald-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">Salvar Alterações</button>
+                    </div>
+                </form>
+            </Card>
+             <Card>
+                <CardTitle>Automações</CardTitle>
+                 <p className="text-gray-600 mb-4 text-sm">Configure mensagens automáticas para economizar seu tempo.</p>
+                 <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 border rounded-lg">
+                        <div>
+                            <p className="font-medium text-gray-800">Lembretes de pagamento</p>
+                            <p className="text-sm text-gray-500">Enviar 3 dias antes do vencimento para pendentes.</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" value="" className="sr-only peer" defaultChecked />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+                     <div className="flex justify-between items-center p-3 border rounded-lg">
+                        <div>
+                            <p className="font-medium text-gray-800">Mensagem de agradecimento</p>
+                            <p className="text-sm text-gray-500">Enviar assim que um pagamento for confirmado.</p>
+                        </div>
+                         <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" value="" className="sr-only peer" defaultChecked />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+                 </div>
+            </Card>
+            <Card>
+                <CardTitle>Zona de Perigo</CardTitle>
+                <div className="p-4 border border-red-300 bg-red-50 rounded-lg">
+                    <h3 className="font-bold text-red-800">Apagar Vaquinha</h3>
+                    <p className="text-red-700 text-sm mt-1 mb-3">Esta ação não pode ser desfeita. Todos os dados, participantes e pagamentos serão permanentemente removidos.</p>
+                    <button onClick={handleDelete} className="bg-red-600 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-red-700 transition">Apagar Permanentemente</button>
+                </div>
+            </Card>
+        </div>
+    );
+}
+// --- END: GROUP ADMIN DASHBOARD ---
+
+
+// --- START: SYSTEM ADMIN DASHBOARD ---
+const SystemAdminDashboard = () => {
+    const [activeTab, setActiveTab] = useState('Dashboard');
+    const tabs = ['Dashboard', 'Usuários', 'Vaquinhas', 'Financeiro', 'Analytics', 'Marketing', 'Compliance e Fraude', 'API e Integrações', 'Suporte', 'Logs', 'Configurações'];
+    
+    const mockData = {
+        stats: {
+            totalUsers: 1250, totalUsersChange: "+12%",
+            activeVaquinhas: 312, activeVaquinhasChange: "+5%",
+            totalRaised: 157890.50, totalRaisedChange: "+21%",
+            monthlyRevenue: 4736.71, monthlyRevenueChange: "+8%",
+            ltv: 89.50, churn: 4.2
+        },
+        users: Array.from({ length: 20 }, (_, i) => ({
+            id: i + 1, name: `Usuário ${i + 1}`, email: `user${i+1}@example.com`, joinDate: "2024-07-20", status: i % 3 === 0 ? "Pendente" : "Verificado", plan: i % 2 === 0 ? "Premium" : "Básico"
+        })),
+        transactions: Array.from({ length: 10 }, (_, i) => ({
+             id: `tr_${i+1}`, user: `Usuário ${i+1}`, date: '2024-07-21', amount: 19.90, type: 'Assinatura', status: i % 4 === 0 ? "Disputa" : "Confirmado"
+        })),
+        campaigns: [
+            { id: 1, name: "Boas-vindas novos usuários", segment: "Novos Usuários", status: "Ativa", sent: 150, openRate: "45%" },
+            { id: 2, name: "Upgrade para Premium", segment: "Usuários Básicos", status: "Agendada", sent: 800, openRate: "N/A" },
+        ],
+        logs: [
+            { id: 1, user: "admin@vakinha.com", action: "ALTEROU_CONFIGURAÇÃO", details: "Modo Manutenção ativado", timestamp: "2024-07-21 10:00:00", ip: "192.168.1.1" },
+            { id: 2, user: "joao.silva@example.com", action: "LOGIN_FALHOU", details: "Senha incorreta", timestamp: "2024-07-21 09:58:30", ip: "200.1.2.3" },
+             { id: 3, user: "maria.o@example.com", action: "CRIOU_VAQUINHA", details: "ID: VK-84920", timestamp: "2024-07-21 09:45:10", ip: "189.5.6.7" },
+        ]
+    };
+
+    const renderContent = () => {
+        switch (activeTab) {
+            case 'Dashboard': return <SystemDashboardView data={mockData} />;
+            case 'Usuários': return <SystemUsuariosView data={mockData} />;
+            case 'Financeiro': return <SystemFinanceiroView data={mockData} />;
+            case 'Analytics': return <SystemAnalyticsView />;
+            case 'Marketing': return <SystemMarketingView data={mockData} />;
+            case 'Compliance e Fraude': return <SystemComplianceView />;
+            case 'API e Integrações': return <SystemApiView />;
+            case 'Logs': return <SystemLogsView data={mockData} />;
+            case 'Configurações': return <SystemConfiguracoesView />;
+            default: return <Card><CardTitle>Página de {activeTab}</CardTitle><p>Conteúdo em desenvolvimento.</p></Card>;
+        }
+    };
+    
+    return (
+         <main className="bg-slate-100 min-h-screen pt-32 pb-16">
+            <div className="container mx-auto px-6">
+                 <h1 className="text-3xl font-bold text-gray-800 font-heading mb-2">Painel do Administrador</h1>
+                 <p className="text-gray-600 mb-8">Visão geral da plataforma Vakinha Fácil.</p>
+                <div className="flex flex-col lg:flex-row gap-8">
+                    {/* Sidebar */}
+                    <aside className="lg:w-1/5">
+                        <nav className="flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible pb-4 lg:pb-0">
+                            {tabs.map(tab => (
+                                <button key={tab} onClick={() => setActiveTab(tab)} className={`w-full text-left px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${activeTab === tab ? 'bg-emerald-500 text-white shadow' : 'text-gray-600 hover:bg-gray-200'}`}>
+                                    {tab}
+                                </button>
+                            ))}
+                        </nav>
+                    </aside>
+                     {/* Content */}
+                    <div className="flex-1">
+                        {renderContent()}
+                    </div>
+                </div>
+            </div>
+        </main>
+    )
+};
+
+const SystemDashboardView = ({data}: {data: any}) => (
+    <div className="space-y-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard title="Total de Usuários" value={data.stats.totalUsers.toLocaleString('pt-BR')} change={data.stats.totalUsersChange}/>
+            <StatCard title="Vaquinhas Ativas" value={data.stats.activeVaquinhas.toLocaleString('pt-BR')} change={data.stats.activeVaquinhasChange} />
+            <StatCard title="Receita Mensal (MRR)" value={`R$ ${data.stats.monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} change={data.stats.monthlyRevenueChange} />
+             <StatCard title="Valor Total Arrecadado" value={`R$ ${data.stats.totalRaised.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace("R$", "")}`} />
+        </div>
+        <Card>
+            <CardTitle>Visão Geral Financeira</CardTitle>
+            <ChartPlaceholder />
+        </Card>
+    </div>
+);
+
+const SystemUsuariosView = ({data}: {data: any}) => {
+    const { addToast } = useToast();
+    return (
+        <Card className="p-0 overflow-hidden">
+            <div className="p-6 border-b"><CardTitle>Gerenciamento de Usuários</CardTitle></div>
+             <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                        <tr>
+                            <th className="p-4">Nome</th>
+                            <th className="p-4">Plano</th>
+                            <th className="p-4">Status</th>
+                            <th className="p-4">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 text-sm">
+                        {data.users.slice(0, 10).map((u: any) => ( // Paginate later
+                            <tr key={u.id}>
+                                <td className="p-4">
+                                    <p className="font-medium text-gray-800">{u.name}</p>
+                                    <p className="text-gray-500">{u.email}</p>
+                                </td>
+                                <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${u.plan === 'Premium' ? 'bg-purple-100 text-purple-800' : 'bg-slate-100 text-slate-800'}`}>{u.plan}</span></td>
+                                <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${u.status === 'Verificado' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{u.status}</span></td>
+                                <td className="p-4"><button onClick={() => addToast(`Personificando ${u.name}...`, 'info')} className="text-emerald-600 font-semibold hover:underline">Personificar</button></td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+             </div>
+        </Card>
+    );
+};
+
+const SystemFinanceiroView = ({data}: {data: any}) => {
+    const { addToast } = useToast();
+    return (
+        <Card className="p-0 overflow-hidden">
+            <div className="p-6 border-b"><CardTitle>Transações Recentes</CardTitle></div>
+             <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                        <tr>
+                            <th className="p-4">Usuário</th>
+                            <th className="p-4">Data</th>
+                            <th className="p-4">Valor</th>
+                            <th className="p-4">Status</th>
+                            <th className="p-4">Ações</th>
+                        </tr>
+                    </thead>
+                     <tbody className="divide-y divide-gray-200 text-sm">
+                        {data.transactions.map((t: any) => (
+                             <tr key={t.id}>
+                                <td className="p-4 font-medium">{t.user}</td>
+                                <td className="p-4 text-gray-600">{t.date}</td>
+                                <td className="p-4 font-medium">R$ {t.amount.toFixed(2)}</td>
+                                <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${t.status === 'Confirmado' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{t.status}</span></td>
+                                <td className="p-4"><button onClick={() => addToast(`Reembolsando ${t.id}...`, 'info')} className="text-emerald-600 font-semibold hover:underline">Reembolsar</button></td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+             </div>
+        </Card>
+    );
+};
+
+const SystemAnalyticsView = () => (
+    <div className="space-y-8">
+        <Card><CardTitle>Funil de Conversão de Usuários</CardTitle><ChartPlaceholder /></Card>
+        <Card><CardTitle>Análise de Coorte de Retenção</CardTitle><ChartPlaceholder /></Card>
+        <Card><CardTitle>Receita por Plano (MRR)</CardTitle><ChartPlaceholder /></Card>
+    </div>
+);
+
+const SystemMarketingView = ({data}: {data: any}) => {
+    const { addToast } = useToast();
+     return (
+        <Card className="p-0 overflow-hidden">
+            <div className="p-6 border-b flex justify-between items-center">
+                <CardTitle>Campanhas de Marketing</CardTitle>
+                <button onClick={() => addToast("Criando nova campanha...", 'info')} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Nova Campanha</button>
+            </div>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                     <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                        <tr>
+                            <th className="p-4">Nome</th>
+                            <th className="p-4">Segmento</th>
+                            <th className="p-4">Taxa de Abertura</th>
+                            <th className="p-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 text-sm">
+                        {data.campaigns.map((c: any) => (
+                            <tr key={c.id}>
+                                <td className="p-4 font-medium">{c.name}</td>
+                                <td className="p-4 text-gray-600">{c.segment}</td>
+                                <td className="p-4 font-medium">{c.openRate}</td>
+                                <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${c.status === 'Ativa' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{c.status}</span></td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </Card>
+    );
+}
+
+const SystemComplianceView = () => (
+    <div className="space-y-8">
+        <Card><CardTitle>Verificação de Identidade (KYC) em Andamento</CardTitle><p>Nenhum pedido pendente.</p></Card>
+        <Card><CardTitle>Alertas de Atividade Suspeita (AML)</CardTitle><p>Nenhum alerta recente.</p></Card>
+        <Card><CardTitle>Disputas e Chargebacks</CardTitle><p>Nenhuma disputa aberta.</p></Card>
+    </div>
+);
+
+const SystemApiView = () => (
+     <Card>
+        <CardTitle>API e Integrações</CardTitle>
+        <p className="text-gray-600 mb-4">Gerencie chaves de API para clientes White-Label e configure webhooks.</p>
+        <button className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Gerar Nova Chave de API</button>
+    </Card>
+);
+
+const SystemLogsView = ({data}: {data: any}) => (
+    <Card className="p-0 overflow-hidden">
+        <div className="p-6 border-b"><CardTitle>Logs de Atividade da Plataforma</CardTitle></div>
+         <div className="overflow-x-auto">
+            <table className="w-full text-left">
+                 <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                    <tr>
+                        <th className="p-4">Timestamp</th>
+                        <th className="p-4">Usuário</th>
+                        <th className="p-4">Ação</th>
+                        <th className="p-4">Detalhes</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 text-sm font-mono">
+                    {data.logs.map((log: any) => (
+                        <tr key={log.id}>
+                            <td className="p-4 text-gray-500 whitespace-nowrap">{log.timestamp}</td>
+                            <td className="p-4 text-gray-800 whitespace-nowrap">{log.user}</td>
+                            <td className="p-4"><span className="px-2 py-1 bg-slate-200 text-slate-800 rounded-md text-xs font-sans font-semibold">{log.action}</span></td>
+                            <td className="p-4 text-gray-800 whitespace-nowrap">{log.details}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    </Card>
+);
+
+const SystemConfiguracoesView = () => {
+    const { addToast } = useToast();
+    return (
+        <div className="space-y-8 max-w-3xl">
+            <Card>
+                <CardTitle>Configurações Gerais da Plataforma</CardTitle>
+                 <div className="flex justify-between items-center p-3 border rounded-lg">
+                    <div>
+                        <p className="font-medium text-gray-800">Modo Manutenção</p>
+                        <p className="text-sm text-gray-500">Desativa o acesso público ao site, exceto para admins.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" value="" className="sr-only peer" />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                    </label>
+                </div>
+            </Card>
+             <Card>
+                <CardTitle>Feature Flags</CardTitle>
+                <div className="flex justify-between items-center p-3 border rounded-lg">
+                    <div>
+                        <p className="font-medium text-gray-800">Novo Dashboard para Gestores</p>
+                        <p className="text-sm text-gray-500">Habilitar a nova interface do dashboard para 10% dos usuários.</p>
+                    </div>
+                     <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" value="" className="sr-only peer" defaultChecked/>
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                    </label>
+                </div>
+            </Card>
+        </div>
+    )
+};
+// --- END: SYSTEM ADMIN DASHBOARD ---
+
+const App = () => {
+    const [userType, setUserType] = useState<string | null>(null);
+
+    const handleGroupAdminLogin = () => setUserType('groupAdmin');
+    const handleSystemAdminLogin = () => setUserType('systemAdmin');
+    const handleLogout = () => setUserType(null);
+    
+    const renderContent = () => {
+        switch (userType) {
+            case 'groupAdmin':
+                return <GroupAdminDashboard />;
+            case 'systemAdmin':
+                return <SystemAdminDashboard />;
+            default:
+                return <LandingPage />;
+        }
+    }
+
+    return (
+        <ToastProvider>
+            <div className="bg-white text-gray-800 font-sans">
+                <Header 
+                    userType={userType} 
+                    onGroupAdminLogin={handleGroupAdminLogin}
+                    onSystemAdminLogin={handleSystemAdminLogin}
+                    onLogout={handleLogout}
+                />
+                {renderContent()}
+                {userType === null && <AiChatbot />}
+            </div>
+        </ToastProvider>
+    );
+}
+
+export default App;
+// FIX: The CardTitleProps interface incorrectly required the `children` prop.
+// This interface is defined multiple times; consolidating for clarity
+// Actually, it's defined once and this comment is a leftover. Keeping as is.
+// interface CardTitleProps {
+//     children?: React.ReactNode;
+// }
