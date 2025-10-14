@@ -662,19 +662,20 @@ const ChartPlaceholder = ({ height = 'h-64' }: { height?: string }) => (
 // --- START: GROUP ADMIN DASHBOARD ---
 const GroupAdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('Resumo');
-    const tabs = ['Resumo', 'Participantes', 'Pagamentos', 'Orçamento', 'Convites', 'Mensagens', 'Metas e Prêmios', 'Enquetes', 'Relatórios', 'Configurações'];
+    const tabs = ['Resumo', 'Participantes', 'Pagamentos', 'Orçamento', 'Tarefas', 'Documentos', 'Convites', 'Mensagens', 'Metas e Prêmios', 'Enquetes', 'Relatórios', 'Configurações'];
     const mockData = {
         name: "Viagem para Bahia",
         goal: 10000,
         raised: 7500,
+        deadline: "2024-08-30",
         participants: [
-            { id: 1, name: "João Silva", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704a", status: "Pago", amount: 500 },
-            { id: 2, name: "Maria Oliveira", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704b", status: "Atrasado", amount: 0 },
-            { id: 3, name: "Carlos Souza", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704c", status: "Pago", amount: 500 },
-            { id: 4, name: "Ana Pereira", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d", status: "Pendente", amount: 0 },
-            { id: 5, name: "Lucas Costa", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e", status: "Pago", amount: 500 },
-            { id: 6, name: "Juliana Moraes", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704f", status: "Pago", amount: 750 },
-            { id: 7, name: "Ricardo Gomes", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704g", status: "Pago", amount: 500 },
+            { id: 1, name: "João Silva", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704a", status: "Pago", amount: 500, tags: ['Amigo'] },
+            { id: 2, name: "Maria Oliveira", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704b", status: "Atrasado", amount: 0, tags: ['Família'] },
+            { id: 3, name: "Carlos Souza", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704c", status: "Pago", amount: 500, tags: ['Colega'] },
+            { id: 4, name: "Ana Pereira", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d", status: "Pendente", amount: 0, tags: ['Amigo'] },
+            { id: 5, name: "Lucas Costa", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e", status: "Pago", amount: 500, tags: ['Amigo'] },
+            { id: 6, name: "Juliana Moraes", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704f", status: "Pago", amount: 750, tags: ['VIP'] },
+            { id: 7, name: "Ricardo Gomes", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704g", status: "Pago", amount: 500, tags: [] },
         ],
         payments: [
             { id: 1, name: 'João Silva', date: '2024-07-15', amount: 500, method: 'Pix' },
@@ -689,8 +690,17 @@ const GroupAdminDashboard = () => {
             items: [
                 { id: 1, description: "Passagens Aéreas", category: "Transporte", amount: 3500, date: "2024-07-18", receipt: true },
                 { id: 2, description: "Sinal da Pousada", category: "Hospedagem", amount: 700, date: "2024-07-20", receipt: true },
-            ]
+            ],
+            categories: { "Transporte": 3500, "Hospedagem": 700 }
         },
+        tasks: [
+            { id: 1, title: "Reservar hotel", assignedTo: "João Silva", dueDate: "2024-08-01", completed: true },
+            { id: 2, title: "Comprar passagens", assignedTo: "Admin", dueDate: "2024-07-25", completed: false },
+        ],
+        documents: [
+            { id: 1, name: "Roteiro da Viagem.pdf", size: "1.2 MB", uploadedBy: "Admin", date: "2024-07-19" },
+            { id: 2, name: "Contrato Pousada.docx", size: "350 KB", uploadedBy: "Admin", date: "2024-07-20" },
+        ],
         messages: [
             { id: 1, subject: "Lembrete de Pagamento", date: "2024-07-10", content: "Olá pessoal, passando para lembrar que o prazo para o pagamento da nossa vaquinha se encerra em 5 dias!", type: "Enviada" }
         ],
@@ -709,7 +719,12 @@ const GroupAdminDashboard = () => {
              { id: 1, type: "Pagamento", text: "Juliana Moraes pagou R$ 750,00.", time: "2 dias atrás" },
              { id: 2, type: "Participante", text: "Ricardo Gomes entrou no grupo.", time: "3 dias atrás" },
              { id: 3, type: "Mensagem", text: "Você enviou um lembrete para todos.", time: "4 dias atrás" },
-        ]
+        ],
+        settings: {
+            privacy: 'Invite-only',
+            notifications: { email: true, push: false },
+            allowInstallments: true,
+        }
     };
     
     const renderContent = () => {
@@ -718,6 +733,8 @@ const GroupAdminDashboard = () => {
             case 'Participantes': return <GroupParticipantesView data={mockData} />;
             case 'Pagamentos': return <GroupPagamentosView data={mockData} />;
             case 'Orçamento': return <GroupOrcamentoView data={mockData} />;
+            case 'Tarefas': return <GroupTarefasView data={mockData} />;
+            case 'Documentos': return <GroupDocumentosView data={mockData} />;
             case 'Convites': return <GroupConvitesView />;
             case 'Mensagens': return <GroupMensagensView data={mockData} />;
             case 'Metas e Prêmios': return <GroupMetasView data={mockData} />;
@@ -772,7 +789,7 @@ const GroupResumoView = ({data}: {data: any}) => {
                     <StatCard title="Arrecadado" value={`R$ ${data.raised.toLocaleString('pt-BR')}`} />
                     <StatCard title="Meta" value={`R$ ${data.goal.toLocaleString('pt-BR')}`} />
                     <StatCard title="Participantes" value={data.participants.length} />
-                    <StatCard title="Progresso" value={`${progress.toFixed(0)}%`} />
+                    <StatCard title="Prazo Final" value={new Date(data.deadline).toLocaleDateString('pt-BR')} />
                 </div>
 
                 <Card>
@@ -781,15 +798,16 @@ const GroupResumoView = ({data}: {data: any}) => {
                         <div className="bg-emerald-500 h-4 rounded-full text-center text-white text-xs" style={{ width: `${progress}%` }}></div>
                     </div>
                     <div className="mt-4 flex justify-between text-sm font-medium text-gray-600">
-                        <span>R$ {data.raised.toLocaleString('pt-BR')}</span>
-                        <span>R$ {data.goal.toLocaleString('pt-BR')}</span>
+                        <span>R$ {data.raised.toLocaleString('pt-BR')} ({progress.toFixed(0)}%)</span>
+                        <span>Meta: R$ {data.goal.toLocaleString('pt-BR')}</span>
                     </div>
                 </Card>
                 <Card>
                     <CardTitle>Ações Rápidas</CardTitle>
                     <div className="flex flex-wrap gap-4">
-                        <button className="bg-sky-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-sky-600 transition">Enviar Lembrete a Todos</button>
+                        <button className="bg-sky-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-sky-600 transition">Enviar Lembrete para Pendentes</button>
                         <button className="bg-green-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition">Solicitar Distribuição</button>
+                         <button className="bg-gray-200 text-gray-800 font-semibold px-4 py-2 rounded-lg hover:bg-gray-300 transition">Pausar Arrecadação</button>
                     </div>
                 </Card>
             </div>
@@ -846,7 +864,10 @@ const GroupParticipantesView = ({data}: {data: any}) => {
     return (
         <Card className="p-0 overflow-hidden">
             <div className="p-6 border-b flex justify-between items-center flex-wrap gap-4">
-                <h2 className="text-xl font-bold text-gray-800 font-heading">Painel de Participantes</h2>
+                 <div>
+                    <h2 className="text-xl font-bold text-gray-800 font-heading">Painel de Participantes</h2>
+                    <input type="text" placeholder="Buscar participante..." className="mt-2 w-full md:w-64 px-3 py-1.5 border border-gray-300 rounded-md text-sm" />
+                </div>
                 <div className="flex items-center gap-2">
                     {selected.length > 0 && (
                         <button onClick={handleBulkAction} className="bg-sky-500 text-white font-semibold px-3 py-1 rounded-md hover:bg-sky-600 text-sm">
@@ -1003,6 +1024,74 @@ const GroupOrcamentoView = ({ data }: { data: any }) => {
         </div>
     );
 };
+
+const GroupTarefasView = ({ data }: { data: any }) => {
+    const { addToast } = useToast();
+    return (
+        <Card>
+            <div className="flex justify-between items-center mb-4">
+                <CardTitle>Lista de Tarefas do Grupo</CardTitle>
+                <button onClick={() => addToast("Funcionalidade em desenvolvimento.", "info")} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Nova Tarefa</button>
+            </div>
+            <p className="text-gray-600 mb-6 text-sm">Organize as responsabilidades para que nada seja esquecido.</p>
+            <div className="space-y-3">
+                {data.tasks.map((task: any) => (
+                    <div key={task.id} className="flex items-center p-3 border rounded-lg bg-slate-50">
+                        <input type="checkbox" defaultChecked={task.completed} className="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 mr-4" />
+                        <div className="flex-1">
+                            <p className={`font-medium text-gray-800 ${task.completed ? 'line-through text-gray-500' : ''}`}>{task.title}</p>
+                            <p className="text-xs text-gray-500">
+                                Responsável: {task.assignedTo} | Prazo: {task.dueDate}
+                            </p>
+                        </div>
+                        <button className="text-gray-400 hover:text-red-500">&hellip;</button>
+                    </div>
+                ))}
+            </div>
+        </Card>
+    );
+};
+
+const GroupDocumentosView = ({ data }: { data: any }) => {
+    const { addToast } = useToast();
+    return (
+        <Card>
+            <div className="flex justify-between items-center mb-4">
+                <CardTitle>Documentos Compartilhados</CardTitle>
+                <button onClick={() => addToast("Funcionalidade em desenvolvimento.", "info")} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block mr-1 -mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
+                    Upload
+                </button>
+            </div>
+            <p className="text-gray-600 mb-6 text-sm">Guarde roteiros, contratos e outros arquivos importantes em um só lugar.</p>
+             <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                        <tr>
+                            <th className="p-4">Nome do Arquivo</th>
+                            <th className="p-4">Tamanho</th>
+                            <th className="p-4">Enviado por</th>
+                            <th className="p-4">Data</th>
+                            <th className="p-4">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                        {data.documents.map((doc: any) => (
+                            <tr key={doc.id}>
+                                <td className="p-4 font-medium text-emerald-700 hover:underline cursor-pointer">{doc.name}</td>
+                                <td className="p-4 text-gray-600">{doc.size}</td>
+                                <td className="p-4 text-gray-600">{doc.uploadedBy}</td>
+                                <td className="p-4 text-gray-600">{doc.date}</td>
+                                <td className="p-4"><button className="text-red-500 hover:text-red-700">Excluir</button></td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+             </div>
+        </Card>
+    );
+};
+
 
 const GroupConvitesView = () => {
     const { addToast } = useToast();
@@ -1239,6 +1328,13 @@ const GroupConfiguracoesView = ({data}: {data: any}) => {
                         <label htmlFor="vakinhaGoal" className="block text-sm font-medium text-gray-700">Meta (R$)</label>
                         <input type="number" id="vakinhaGoal" defaultValue={data.goal} className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
                     </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Privacidade</label>
+                        <div className="mt-2 flex gap-4">
+                            <label className="flex items-center"><input type="radio" name="privacy" defaultChecked={data.settings.privacy === 'Public'} className="h-4 w-4 text-emerald-600 border-gray-300 focus:ring-emerald-500"/> <span className="ml-2">Pública</span></label>
+                             <label className="flex items-center"><input type="radio" name="privacy" defaultChecked={data.settings.privacy === 'Invite-only'} className="h-4 w-4 text-emerald-600 border-gray-300 focus:ring-emerald-500"/> <span className="ml-2">Apenas Convidados</span></label>
+                        </div>
+                    </div>
                     <div className="pt-2">
                         <button type="button" onClick={() => addToast("Configurações salvas!", "success")} className="bg-emerald-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">Salvar Alterações</button>
                     </div>
@@ -1272,10 +1368,17 @@ const GroupConfiguracoesView = ({data}: {data: any}) => {
             </Card>
             <Card>
                 <CardTitle>Zona de Perigo</CardTitle>
-                <div className="p-4 border border-red-300 bg-red-50 rounded-lg">
-                    <h3 className="font-bold text-red-800">Apagar Vaquinha</h3>
-                    <p className="text-red-700 text-sm mt-1 mb-3">Esta ação não pode ser desfeita. Todos os dados, participantes e pagamentos serão permanentemente removidos.</p>
-                    <button onClick={handleDelete} className="bg-red-600 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-red-700 transition">Apagar Permanentemente</button>
+                <div className="p-4 border border-red-300 bg-red-50 rounded-lg space-y-4">
+                    <div>
+                         <h3 className="font-bold text-red-800">Clonar Vaquinha</h3>
+                        <p className="text-red-700 text-sm mt-1 mb-3">Cria uma cópia exata desta vaquinha com todos os participantes e configurações, mas sem os pagamentos.</p>
+                        <button onClick={() => addToast("Vaquinha clonada com sucesso!", "success")} className="bg-yellow-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-yellow-600 transition text-sm">Clonar Vaquinha</button>
+                    </div>
+                    <div className="border-t border-red-200 pt-4">
+                        <h3 className="font-bold text-red-800">Apagar Vaquinha</h3>
+                        <p className="text-red-700 text-sm mt-1 mb-3">Esta ação não pode ser desfeita. Todos os dados, participantes e pagamentos serão permanentemente removidos.</p>
+                        <button onClick={handleDelete} className="bg-red-600 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-red-700 transition">Apagar Permanentemente</button>
+                    </div>
                 </div>
             </Card>
         </div>
@@ -1295,10 +1398,13 @@ const SystemAdminDashboard = () => {
             activeVaquinhas: 312, activeVaquinhasChange: "+5%",
             totalRaised: 157890.50, totalRaisedChange: "+21%",
             monthlyRevenue: 4736.71, monthlyRevenueChange: "+8%",
-            ltv: 89.50, churn: 4.2
+            ltv: 89.50, churn: 4.2, apiUptime: "99.98%", avgResponseTime: "120ms"
         },
         users: Array.from({ length: 20 }, (_, i) => ({
             id: i + 1, name: `Usuário ${i + 1}`, email: `user${i+1}@example.com`, joinDate: "2024-07-20", status: i % 3 === 0 ? "Pendente" : "Verificado", plan: i % 2 === 0 ? "Premium" : "Básico"
+        })),
+         vaquinhas: Array.from({ length: 10 }, (_, i) => ({
+            id: `vk-${i+1}`, name: `Vakinha #${i+1}`, creator: `Usuário ${i+1}`, raised: Math.random() * 10000, goal: 10000, status: i % 3 === 0 ? "Suspensa" : "Ativa"
         })),
         transactions: Array.from({ length: 10 }, (_, i) => ({
              id: `tr_${i+1}`, user: `Usuário ${i+1}`, date: '2024-07-21', amount: 19.90, type: 'Assinatura', status: i % 4 === 0 ? "Disputa" : "Confirmado"
@@ -1306,6 +1412,11 @@ const SystemAdminDashboard = () => {
         campaigns: [
             { id: 1, name: "Boas-vindas novos usuários", segment: "Novos Usuários", status: "Ativa", sent: 150, openRate: "45%" },
             { id: 2, name: "Upgrade para Premium", segment: "Usuários Básicos", status: "Agendada", sent: 800, openRate: "N/A" },
+        ],
+        supportTickets: [
+            { id: 1, subject: "Problema com pagamento", user: "user5@example.com", status: "Aberto", priority: "Alta", agent: "Ana" },
+            { id: 2, subject: "Dúvida sobre White-Label", user: "user10@example.com", status: "Em Andamento", priority: "Média", agent: "Bruno" },
+            { id: 3, subject: "Como convido amigos?", user: "user2@example.com", status: "Fechado", priority: "Baixa", agent: "Ana" },
         ],
         logs: [
             { id: 1, user: "admin@vakinha.com", action: "ALTEROU_CONFIGURAÇÃO", details: "Modo Manutenção ativado", timestamp: "2024-07-21 10:00:00", ip: "192.168.1.1" },
@@ -1318,11 +1429,13 @@ const SystemAdminDashboard = () => {
         switch (activeTab) {
             case 'Dashboard': return <SystemDashboardView data={mockData} />;
             case 'Usuários': return <SystemUsuariosView data={mockData} />;
+            case 'Vaquinhas': return <SystemVaquinhasView data={mockData} />;
             case 'Financeiro': return <SystemFinanceiroView data={mockData} />;
             case 'Analytics': return <SystemAnalyticsView />;
             case 'Marketing': return <SystemMarketingView data={mockData} />;
             case 'Compliance e Fraude': return <SystemComplianceView />;
             case 'API e Integrações': return <SystemApiView />;
+            case 'Suporte': return <SystemSuporteView data={mockData} />;
             case 'Logs': return <SystemLogsView data={mockData} />;
             case 'Configurações': return <SystemConfiguracoesView />;
             default: return <Card><CardTitle>Página de {activeTab}</CardTitle><p>Conteúdo em desenvolvimento.</p></Card>;
@@ -1364,6 +1477,15 @@ const SystemDashboardView = ({data}: {data: any}) => (
              <StatCard title="Valor Total Arrecadado" value={`R$ ${data.stats.totalRaised.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace("R$", "")}`} />
         </div>
         <Card>
+            <CardTitle>Saúde da Plataforma</CardTitle>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+                <div><p className="text-sm text-gray-500">Uptime (24h)</p><p className="text-2xl font-bold text-green-600">{data.stats.apiUptime}</p></div>
+                <div><p className="text-sm text-gray-500">Resp. Média API</p><p className="text-2xl font-bold">{data.stats.avgResponseTime}</p></div>
+                <div><p className="text-sm text-gray-500">Churn (30d)</p><p className="text-2xl font-bold">{data.stats.churn}%</p></div>
+                <div><p className="text-sm text-gray-500">LTV</p><p className="text-2xl font-bold">R$ {data.stats.ltv.toFixed(2)}</p></div>
+            </div>
+        </Card>
+        <Card>
             <CardTitle>Visão Geral Financeira</CardTitle>
             <ChartPlaceholder />
         </Card>
@@ -1395,6 +1517,39 @@ const SystemUsuariosView = ({data}: {data: any}) => {
                                 <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${u.plan === 'Premium' ? 'bg-purple-100 text-purple-800' : 'bg-slate-100 text-slate-800'}`}>{u.plan}</span></td>
                                 <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${u.status === 'Verificado' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{u.status}</span></td>
                                 <td className="p-4"><button onClick={() => addToast(`Personificando ${u.name}...`, 'info')} className="text-emerald-600 font-semibold hover:underline">Personificar</button></td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+             </div>
+        </Card>
+    );
+};
+
+const SystemVaquinhasView = ({data}: {data: any}) => {
+    const { addToast } = useToast();
+    return (
+        <Card className="p-0 overflow-hidden">
+            <div className="p-6 border-b"><CardTitle>Gerenciamento de Vaquinhas</CardTitle></div>
+             <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                        <tr>
+                            <th className="p-4">Nome</th>
+                            <th className="p-4">Criador</th>
+                            <th className="p-4">Progresso</th>
+                            <th className="p-4">Status</th>
+                            <th className="p-4">Ações</th>
+                        </tr>
+                    </thead>
+                     <tbody className="divide-y divide-gray-200 text-sm">
+                        {data.vaquinhas.map((v: any) => (
+                             <tr key={v.id}>
+                                <td className="p-4 font-medium">{v.name}</td>
+                                <td className="p-4 text-gray-600">{v.creator}</td>
+                                <td className="p-4 font-medium">{`R$ ${v.raised.toFixed(2)} / ${v.goal.toFixed(2)}`}</td>
+                                <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${v.status === 'Ativa' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{v.status}</span></td>
+                                <td className="p-4"><button onClick={() => addToast(`Suspendendo ${v.name}...`, 'error')} className="text-red-600 font-semibold hover:underline">Suspender</button></td>
                             </tr>
                         ))}
                     </tbody>
@@ -1481,9 +1636,9 @@ const SystemMarketingView = ({data}: {data: any}) => {
 
 const SystemComplianceView = () => (
     <div className="space-y-8">
-        <Card><CardTitle>Verificação de Identidade (KYC) em Andamento</CardTitle><p>Nenhum pedido pendente.</p></Card>
-        <Card><CardTitle>Alertas de Atividade Suspeita (AML)</CardTitle><p>Nenhum alerta recente.</p></Card>
-        <Card><CardTitle>Disputas e Chargebacks</CardTitle><p>Nenhuma disputa aberta.</p></Card>
+        <Card><CardTitle>Verificação de Identidade (KYC) em Andamento</CardTitle><p className="text-gray-600">Nenhum pedido pendente.</p></Card>
+        <Card><CardTitle>Alertas de Atividade Suspeita (AML)</CardTitle><p className="text-gray-600">Nenhum alerta recente.</p></Card>
+        <Card><CardTitle>Disputas e Chargebacks</CardTitle><p className="text-gray-600">Nenhuma disputa aberta.</p></Card>
     </div>
 );
 
@@ -1494,6 +1649,43 @@ const SystemApiView = () => (
         <button className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Gerar Nova Chave de API</button>
     </Card>
 );
+
+const SystemSuporteView = ({ data }: { data: any }) => {
+    const priorityColors: { [key: string]: string } = {
+        'Alta': 'bg-red-100 text-red-800',
+        'Média': 'bg-yellow-100 text-yellow-800',
+        'Baixa': 'bg-blue-100 text-blue-800'
+    };
+    return (
+        <Card className="p-0 overflow-hidden">
+            <div className="p-6 border-b"><CardTitle>Tickets de Suporte</CardTitle></div>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                        <tr>
+                            <th className="p-4">Assunto</th>
+                            <th className="p-4">Usuário</th>
+                            <th className="p-4">Prioridade</th>
+                            <th className="p-4">Status</th>
+                            <th className="p-4">Responsável</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 text-sm">
+                        {data.supportTickets.map((ticket: any) => (
+                            <tr key={ticket.id}>
+                                <td className="p-4 font-medium text-gray-800">{ticket.subject}</td>
+                                <td className="p-4 text-gray-500">{ticket.user}</td>
+                                <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${priorityColors[ticket.priority]}`}>{ticket.priority}</span></td>
+                                <td className="p-4">{ticket.status}</td>
+                                <td className="p-4 text-gray-600">{ticket.agent}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </Card>
+    );
+};
 
 const SystemLogsView = ({data}: {data: any}) => (
     <Card className="p-0 overflow-hidden">
@@ -1553,6 +1745,11 @@ const SystemConfiguracoesView = () => {
                     </label>
                 </div>
             </Card>
+            <Card>
+                <CardTitle>Gerenciamento de Papéis (RBAC)</CardTitle>
+                <p className="text-sm text-gray-600 mb-4">Controle o acesso de sua equipe administrativa.</p>
+                <button onClick={() => addToast("Gerenciando papéis...", "info")} className="bg-sky-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Adicionar Papel</button>
+            </Card>
         </div>
     )
 };
@@ -1598,4 +1795,10 @@ export default App;
 // Actually, it's defined once and this comment is a leftover. Keeping as is.
 // interface CardTitleProps {
 //     children?: React.ReactNode;
+// }
+// FIX: The CardTitleProps interface incorrectly required the `children` prop.
+// This interface is defined multiple times; consolidating for clarity
+// Actually, it's defined once and this comment is a leftover. Keeping as is.
+// interface CardTitleProps {
+//     children: React.ReactNode;
 // }
