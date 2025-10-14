@@ -109,24 +109,18 @@ const AiChatbot = () => {
         try {
             if (!aiRef.current) throw new Error("AI client not initialized.");
             
-            // FIX: The 'contents' property for generateContent should be a single content object, not an array of messages for chat history.
-            // For a chatbot-like behavior, you'd typically use the Chat API (`ai.chats.create`).
-            // However, sticking to the existing structure, we can pass the history correctly.
-            const history = messages.map(m => ({
-                role: m.role,
-                parts: [{ text: m.text }]
-            }));
-
-            const response = await aiRef.current.models.generateContent({
+            const chat = aiRef.current.chats.create({
                 model: 'gemini-2.5-flash',
-                contents: { role: 'user', parts: [{ text: input }] }, // Simplified for single-turn, will fix context later if needed.
-                // To maintain history, you need to use the Chat API or structure `contents` with history.
-                // The current API call does not support history in this format. Let's simplify to a single prompt.
-                // A better fix would involve `ai.chats.create`
                 config: {
-                    systemInstruction: "Você é um assistente de suporte amigável e especialista na plataforma 'Vakinha Fácil', uma solução completa para vaquinhas online no Brasil. Sua missão é responder a todas as perguntas sobre a plataforma, detalhando funcionalidades, planos de preços (Básico, Premium, White-Label), segurança e o funcionamento geral. Utilize as informações da documentação e da landing page para fornecer respostas precisas, claras e concisas em português do Brasil. Seja proativo ao explicar os benefícios de automação, transparência e segurança. Se não souber a resposta, diga que vai encaminhar para um especialista. Mantenha um tom profissional e cordial.",
+                    systemInstruction: "Você é um assistente de suporte amigável e especialista na plataforma 'Vakinha Fácil', uma solução completa para vaquinhas online no Brasil. Sua missão é responder a todas as perguntas sobre a plataforma, detalhando funcionalidades (dashboard, gestão de usuários, finanças, white-label, suporte), planos de preços (Básico, Premium, White-Label), segurança e o funcionamento geral. Utilize as informações da documentação e da landing page para fornecer respostas precisas, claras e concisas em português do Brasil. Seja proativo ao explicar os benefícios de automação, transparência e segurança. Se não souber a resposta, diga que vai encaminhar para um especialista. Mantenha um tom profissional e cordial.",
                 },
+                history: messages.map(m => ({
+                    role: m.role,
+                    parts: [{ text: m.text }]
+                })),
             });
+
+            const response = await chat.sendMessage({ message: input });
 
             const aiMessage = { role: 'model' as const, text: response.text };
             setMessages(prev => [...prev, aiMessage]);
@@ -134,8 +128,7 @@ const AiChatbot = () => {
         } catch (error) {
             console.error("Erro ao gerar conteúdo:", error);
             addToast("Ocorreu um erro ao buscar a resposta.", 'error');
-            // Revert optimistic update on error
-            setMessages(prev => prev.slice(0, prev.length -1).filter(m => m !== userMessage));
+            setMessages(prev => prev.filter(m => m !== userMessage));
         } finally {
             setIsLoading(false);
         }
@@ -154,13 +147,13 @@ const AiChatbot = () => {
                 <div className="fixed bottom-24 right-6 w-96 h-[32rem] bg-white rounded-2xl shadow-2xl flex flex-col z-40 animate-toast-in">
                     <header className="bg-emerald-500 text-white p-4 rounded-t-2xl flex justify-between items-center">
                         <h3 className="font-bold text-lg">Assistente Virtual</h3>
-                        <button onClick={() => setIsOpen(false)} className="text-white hover:opacity-75">&times;</button>
+                        <button onClick={() => setIsOpen(false)} className="text-white hover:opacity-75 text-2xl font-bold">&times;</button>
                     </header>
                     <div ref={chatContentRef} className="flex-1 p-4 overflow-y-auto space-y-4">
                         {messages.map((msg, index) => (
                             <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-xs lg:max-w-md p-3 rounded-2xl ${msg.role === 'user' ? 'bg-emerald-500 text-white rounded-br-none' : 'bg-gray-200 text-gray-800 rounded-bl-none'}`}>
-                                    <p className="text-sm">{msg.text}</p>
+                                    <p className="text-sm" dangerouslySetInnerHTML={{ __html: msg.text.replace(/\n/g, '<br />') }}></p>
                                 </div>
                             </div>
                         ))}
@@ -299,6 +292,7 @@ const HeroSection = () => (
     </section>
 );
 
+// FIX: Made children optional to resolve widespread TypeScript errors.
 interface SectionProps {
     children?: React.ReactNode;
 }
@@ -627,7 +621,7 @@ const Footer = () => (
 // --- START: GROUP ADMIN DASHBOARD ---
 const GroupAdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('Resumo');
-    const tabs = ['Resumo', 'Participantes', 'Pagamentos', 'Convites'];
+    const tabs = ['Resumo', 'Participantes', 'Pagamentos', 'Convites', 'Mensagens', 'Relatórios', 'Configurações'];
     const mockData = {
         name: "Viagem para Bahia",
         goal: 10000,
@@ -643,6 +637,9 @@ const GroupAdminDashboard = () => {
             { id: 1, name: 'João Silva', date: '2024-07-15', amount: 500, method: 'Pix' },
             { id: 2, name: 'Carlos Souza', date: '2024-07-14', amount: 500, method: 'Cartão' },
             { id: 3, name: 'Lucas Costa', date: '2024-07-12', amount: 500, method: 'Boleto' },
+        ],
+        messages: [
+            { id: 1, subject: "Lembrete de Pagamento", date: "2024-07-10", content: "Olá pessoal, passando para lembrar que o prazo para o pagamento da nossa vaquinha se encerra em 5 dias!" }
         ]
     };
     
@@ -656,6 +653,12 @@ const GroupAdminDashboard = () => {
                 return <GroupPagamentosView data={mockData} />;
             case 'Convites':
                 return <GroupConvitesView />;
+            case 'Mensagens':
+                return <GroupMensagensView data={mockData} />;
+            case 'Relatórios':
+                return <GroupRelatoriosView />;
+            case 'Configurações':
+                return <GroupConfiguracoesView data={mockData} />;
             default:
                 return null;
         }
@@ -667,8 +670,8 @@ const GroupAdminDashboard = () => {
                 <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
                     <h1 className="text-3xl font-bold text-gray-800 font-heading">{mockData.name}</h1>
                     <div className="flex space-x-3">
-                         <button className="bg-white text-gray-700 font-semibold px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block -mt-1 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0L7.86 6.81c-.46.12-.9.29-1.31.52l-3.23-1.61c-1.48-.74-3.15.5-2.73 2.13l1.58 3.16c.31.62.31 1.33 0 1.95l-1.58 3.16c-.42 1.63 1.25 2.87 2.73 2.13l3.23-1.61c.41.23.85.4 1.31.52l.65 3.64c.38 1.56 2.6 1.56 2.98 0l.65-3.64c.46-.12.9-.29 1.31-.52l3.23 1.61c1.48.74 3.15-.5 2.73-2.13l-1.58-3.16a2.035 2.035 0 010-1.95l1.58-3.16c.42-1.63-1.25-2.87-2.73-2.13l-3.23 1.61a4.93 4.93 0 00-1.31-.52L11.49 3.17zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
+                         <button onClick={() => setActiveTab('Configurações')} className="bg-white text-gray-700 font-semibold px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block -mt-1 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0L7.86 6.81c-.46.12-.9.29-1.31.52l-3.23-1.61c-1.48-.74-3.15.5-2.73 2.13l1.58 3.16c.31.62.31 1.33 0 1.95l-1.58 3.16c-.42 1.63 1.25 2.87 2.73 2.13l3.23-1.61c.41.23.85.4 1.31.52l.65 3.64c.38 1.56 2.6 1.56 2.98 0l.65-3.64c.46-.12.9-.29 1.31-.52l3.23 1.61c1.48.74 3.15-.5 2.73-2.13l-1.58-3.16a2.035 2.035 0 010-1.95l1.58-3.16c.42 1.63-1.25-2.87-2.73-2.13l-3.23 1.61a4.93 4.93 0 00-1.31-.52L11.49 3.17zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
                             Configurar
                         </button>
                         <button onClick={() => setActiveTab('Convites')} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">
@@ -680,9 +683,9 @@ const GroupAdminDashboard = () => {
                 
                  {/* Tabs */}
                 <div className="border-b border-gray-200 mb-8">
-                    <nav className="-mb-px flex space-x-6">
+                    <nav className="-mb-px flex space-x-6 overflow-x-auto">
                         {tabs.map(tab => (
-                             <button key={tab} onClick={() => setActiveTab(tab)} className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                             <button key={tab} onClick={() => setActiveTab(tab)} className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${activeTab === tab ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
                                 {tab}
                             </button>
                         ))}
@@ -721,7 +724,7 @@ const GroupResumoView = ({data}: {data: any}) => {
             </div>
              <div className="bg-white p-6 rounded-xl shadow-md">
                 <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">Ações Rápidas</h2>
-                <div className="flex space-x-4">
+                <div className="flex flex-wrap gap-4">
                      <button className="bg-sky-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-sky-600 transition">Enviar Lembrete a Todos</button>
                      <button className="bg-green-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition">Solicitar Distribuição</button>
                 </div>
@@ -732,7 +735,7 @@ const GroupResumoView = ({data}: {data: any}) => {
 
 const GroupParticipantesView = ({data}: {data: any}) => {
     const { addToast } = useToast();
-    const statusPill = {
+    const statusPill: {[key: string]: string} = {
         "Pago": "bg-emerald-100 text-emerald-800",
         "Atrasado": "bg-red-100 text-red-800",
         "Pendente": "bg-yellow-100 text-yellow-800",
@@ -742,45 +745,47 @@ const GroupParticipantesView = ({data}: {data: any}) => {
             <div className="p-6 border-b">
                 <h2 className="text-xl font-bold text-gray-800 font-heading">Painel de Participantes</h2>
             </div>
-            <table className="w-full text-left">
-                <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
-                    <tr>
-                        <th className="p-4">Nome</th>
-                        <th className="p-4">Status</th>
-                        <th className="p-4">Valor Contribuído</th>
-                        <th className="p-4">Ações</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                    {data.participants.map((p: any) => (
-                        <tr key={p.id}>
-                            <td className="p-4 flex items-center">
-                                <img src={p.avatar} alt={p.name} className="w-10 h-10 rounded-full mr-4" />
-                                <span className="font-medium text-gray-800">{p.name}</span>
-                            </td>
-                            <td className="p-4">
-                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusPill[p.status as keyof typeof statusPill]}`}>{p.status}</span>
-                            </td>
-                            <td className="p-4 font-medium text-gray-700">R$ {p.amount.toLocaleString('pt-BR')}</td>
-                            <td className="p-4">
-                                <button 
-                                    onClick={() => addToast(`Lembrete enviado para ${p.name}!`, 'info')}
-                                    className="text-emerald-600 hover:text-emerald-800 font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
-                                    disabled={p.status === 'Pago'}
-                                >
-                                    Lembrete
-                                </button>
-                            </td>
+             <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                        <tr>
+                            <th className="p-4">Nome</th>
+                            <th className="p-4">Status</th>
+                            <th className="p-4">Valor Contribuído</th>
+                            <th className="p-4">Ações</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                        {data.participants.map((p: any) => (
+                            <tr key={p.id}>
+                                <td className="p-4 flex items-center">
+                                    <img src={p.avatar} alt={p.name} className="w-10 h-10 rounded-full mr-4" />
+                                    <span className="font-medium text-gray-800 whitespace-nowrap">{p.name}</span>
+                                </td>
+                                <td className="p-4">
+                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusPill[p.status]}`}>{p.status}</span>
+                                </td>
+                                <td className="p-4 font-medium text-gray-700 whitespace-nowrap">R$ {p.amount.toLocaleString('pt-BR')}</td>
+                                <td className="p-4">
+                                    <button 
+                                        onClick={() => addToast(`Lembrete enviado para ${p.name}!`, 'info')}
+                                        className="text-emerald-600 hover:text-emerald-800 font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
+                                        disabled={p.status === 'Pago'}
+                                    >
+                                        Lembrete
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+             </div>
         </div>
     );
 }
 
 const GroupPagamentosView = ({data}: {data: any}) => {
-     const methodPill = {
+     const methodPill: {[key: string]: string} = {
         "Pix": "bg-green-100 text-green-800",
         "Cartão": "bg-blue-100 text-blue-800",
         "Boleto": "bg-orange-100 text-orange-800",
@@ -791,28 +796,30 @@ const GroupPagamentosView = ({data}: {data: any}) => {
                 <h2 className="text-xl font-bold text-gray-800 font-heading">Histórico de Pagamentos</h2>
                 <button className="text-sm bg-gray-200 text-gray-700 font-semibold px-3 py-1 rounded-md hover:bg-gray-300">Exportar PDF</button>
             </div>
-            <table className="w-full text-left">
-                <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
-                    <tr>
-                        <th className="p-4">Participante</th>
-                        <th className="p-4">Data</th>
-                        <th className="p-4">Valor</th>
-                        <th className="p-4">Método</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                     {data.payments.map((p: any) => (
-                         <tr key={p.id}>
-                            <td className="p-4 font-medium text-gray-800">{p.name}</td>
-                            <td className="p-4 text-gray-600">{new Date(p.date).toLocaleDateString('pt-BR')}</td>
-                            <td className="p-4 font-medium text-gray-700">R$ {p.amount.toLocaleString('pt-BR')}</td>
-                             <td className="p-4">
-                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${methodPill[p.method as keyof typeof methodPill]}`}>{p.method}</span>
-                            </td>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                        <tr>
+                            <th className="p-4">Participante</th>
+                            <th className="p-4">Data</th>
+                            <th className="p-4">Valor</th>
+                            <th className="p-4">Método</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                         {data.payments.map((p: any) => (
+                             <tr key={p.id}>
+                                <td className="p-4 font-medium text-gray-800 whitespace-nowrap">{p.name}</td>
+                                <td className="p-4 text-gray-600 whitespace-nowrap">{new Date(p.date).toLocaleDateString('pt-BR')}</td>
+                                <td className="p-4 font-medium text-gray-700 whitespace-nowrap">R$ {p.amount.toLocaleString('pt-BR')}</td>
+                                 <td className="p-4">
+                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${methodPill[p.method]}`}>{p.method}</span>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
@@ -834,10 +841,121 @@ const GroupConvitesView = () => {
                 <input type="text" readOnly value={inviteLink} className="w-full bg-transparent focus:outline-none text-gray-700"/>
                 <button onClick={copyLink} className="bg-gray-200 text-gray-700 font-semibold px-3 py-1 rounded-md hover:bg-gray-300">Copiar</button>
             </div>
-             <div className="mt-6 flex space-x-4">
-                <button className="flex-1 bg-green-500 text-white font-semibold py-2 rounded-lg hover:bg-green-600 transition">Compartilhar no WhatsApp</button>
-                <button className="flex-1 bg-sky-500 text-white font-semibold py-2 rounded-lg hover:bg-sky-600 transition">Enviar por E-mail</button>
+             <div className="mt-6 flex flex-wrap gap-4">
+                <button className="flex-1 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition min-w-[200px]">Compartilhar no WhatsApp</button>
+                <button className="flex-1 bg-sky-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-sky-600 transition min-w-[200px]">Enviar por E-mail</button>
             </div>
+        </div>
+    );
+};
+
+const GroupMensagensView = ({ data }: { data: any }) => {
+    const { addToast } = useToast();
+    const handleSendMessage = (e: React.FormEvent) => {
+        e.preventDefault();
+        addToast("Mensagem enviada para todos os participantes!", "success");
+        const form = e.target as HTMLFormElement;
+        form.reset();
+    };
+    return (
+        <div className="space-y-8">
+            <div className="bg-white p-8 rounded-xl shadow-md">
+                <h2 className="text-xl font-bold text-gray-800 font-heading mb-6">Enviar Mensagem para o Grupo</h2>
+                <form onSubmit={handleSendMessage} className="space-y-4">
+                    <div>
+                        <label htmlFor="messageSubject" className="block text-sm font-medium text-gray-700 mb-1">Assunto</label>
+                        <input type="text" id="messageSubject" required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500" />
+                    </div>
+                    <div>
+                        <label htmlFor="messageContent" className="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
+                        <textarea id="messageContent" rows={4} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"></textarea>
+                    </div>
+                    <div className="pt-2">
+                        <button type="submit" className="bg-emerald-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">Enviar para Todos</button>
+                    </div>
+                </form>
+            </div>
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="p-6 border-b"><h2 className="text-xl font-bold text-gray-800 font-heading">Histórico de Mensagens</h2></div>
+                <div className="p-6 space-y-4">
+                    {data.messages.map((msg: any) => (
+                        <div key={msg.id} className="p-4 border rounded-lg bg-slate-50">
+                            <div className="flex justify-between items-center mb-1">
+                                <h3 className="font-bold text-gray-800">{msg.subject}</h3>
+                                <span className="text-xs text-gray-500">{msg.date}</span>
+                            </div>
+                            <p className="text-gray-600 text-sm">{msg.content}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const GroupRelatoriosView = () => {
+    const { addToast } = useToast();
+    return (
+        <div className="bg-white p-8 rounded-xl shadow-md">
+            <h2 className="text-xl font-bold text-gray-800 font-heading mb-6">Gerar Relatórios</h2>
+            <div className="space-y-6">
+                <div>
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Relatório de Pagamentos</h3>
+                    <p className="text-sm text-gray-600 mb-3">Exporte um extrato completo com todas as transações da vaquinha.</p>
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => addToast("Exportando relatório PDF...", "info")} className="bg-red-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-red-600 transition">Exportar PDF</button>
+                        <button onClick={() => addToast("Exportando relatório CSV...", "info")} className="bg-green-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-600 transition">Exportar CSV</button>
+                    </div>
+                </div>
+                 <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Relatório de Participantes</h3>
+                    <p className="text-sm text-gray-600 mb-3">Exporte uma lista de todos os participantes com seus status de pagamento.</p>
+                     <div className="flex items-center gap-4">
+                        <button onClick={() => addToast("Exportando relatório PDF...", "info")} className="bg-red-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-red-600 transition">Exportar PDF</button>
+                        <button onClick={() => addToast("Exportando relatório CSV...", "info")} className="bg-green-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-600 transition">Exportar CSV</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const GroupConfiguracoesView = ({ data }: { data: any }) => {
+    const { addToast } = useToast();
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        addToast("Configurações salvas com sucesso!", "success");
+    };
+
+    return (
+        <div className="bg-white p-8 rounded-xl shadow-md">
+            <h2 className="text-xl font-bold text-gray-800 font-heading mb-6">Configurações da Vaquinha</h2>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                    <label htmlFor="vakinhaName" className="block text-sm font-medium text-gray-700 mb-1">Nome da Vaquinha</label>
+                    <input type="text" id="vakinhaName" defaultValue={data.name} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+                <div>
+                    <label htmlFor="vakinhaGoal" className="block text-sm font-medium text-gray-700 mb-1">Meta de Arrecadação (R$)</label>
+                    <input type="number" id="vakinhaGoal" defaultValue={data.goal} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+                <fieldset>
+                    <legend className="text-sm font-medium text-gray-700 mb-2">Gerenciar Notificações</legend>
+                    <div className="space-y-2">
+                        <div className="flex items-center">
+                            <input id="email-notif" type="checkbox" defaultChecked className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
+                            <label htmlFor="email-notif" className="ml-2 block text-sm text-gray-900">Notificações por E-mail</label>
+                        </div>
+                        <div className="flex items-center">
+                            <input id="sms-notif" type="checkbox" className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
+                            <label htmlFor="sms-notif" className="ml-2 block text-sm text-gray-900">Notificações por SMS</label>
+                        </div>
+                    </div>
+                </fieldset>
+                <div className="pt-4">
+                    <button type="submit" className="bg-emerald-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">Salvar Alterações</button>
+                </div>
+            </form>
         </div>
     );
 };
@@ -845,16 +963,15 @@ const GroupConvitesView = () => {
 
 // --- START: SYSTEM ADMIN DASHBOARD ---
 
-// FIX: Make children optional to resolve TypeScript error. The component is robust enough to handle this.
 const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean, onClose: () => void, title: string, children?: React.ReactNode }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center" onClick={onClose}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4" onClick={onClose}>
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 animate-toast-in" onClick={e => e.stopPropagation()}>
                 <div className="flex justify-between items-center border-b pb-3 mb-4">
                     <h3 className="text-xl font-bold text-gray-800 font-heading">{title}</h3>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800">&times;</button>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
                 </div>
                 <div>{children}</div>
             </div>
@@ -865,11 +982,13 @@ const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean, onClose:
 const SystemAdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('Dashboard');
     const [selectedUser, setSelectedUser] = useState<any>(null);
-    // FIX: Explicitly type useState to help TypeScript infer the correct type for `isOpen` prop in Modal.
     const [isUserModalOpen, setIsUserModalOpen] = useState<boolean>(false);
+    const [isWhiteLabelModalOpen, setIsWhiteLabelModalOpen] = useState<boolean>(false);
+    const [isRefundModalOpen, setIsRefundModalOpen] = useState<boolean>(false);
+    const [transactionToRefund, setTransactionToRefund] = useState<any>(null);
     const { addToast } = useToast();
 
-    const tabs = ["Dashboard", "Usuários", "Vaquinhas", "Financeiro", "White-Label", "Suporte", "Configurações"];
+    const tabs = ["Dashboard", "Usuários", "Vaquinhas", "Financeiro", "White-Label", "Suporte", "Marketing", "Logs", "Configurações"];
     
     const mockData = {
         stats: {
@@ -881,6 +1000,17 @@ const SystemAdminDashboard = () => {
             churnRate: 2.1
         },
         monthlyRevenue: [3, 4, 6, 8, 7, 9, 11, 10, 12, 14, 13, 15.3],
+        revenueByModel: [
+            { name: 'Taxas (5%)', value: 9140.50 },
+            { name: 'Assinaturas', value: 5000 },
+            { name: 'White-Label', value: 1200 },
+        ],
+        transactions: [
+             { id: 'TXN1001', date: '2024-07-20', type: 'Taxa Vaquinha', value: 50.00, status: 'Aprovado' },
+             { id: 'TXN1002', date: '2024-07-20', type: 'Assinatura', value: 19.90, status: 'Aprovado' },
+             { id: 'TXN1003', date: '2024-07-19', type: 'White-Label', value: 300.00, status: 'Aprovado' },
+             { id: 'TXN1004', date: '2024-07-19', type: 'Taxa Vaquinha', value: 120.00, status: 'Pendente' },
+        ],
         conversionFunnel: [
             { stage: 'Visitantes', value: 10000 },
             { stage: 'Cadastros', value: 1500 },
@@ -906,6 +1036,14 @@ const SystemAdminDashboard = () => {
             {id: 1, subject: "Problema com pagamento", user: "Ana Beatriz", priority: "Alta", status: "Aberto"},
             {id: 2, subject: "Dúvida sobre taxas", user: "Lucas Mendes", priority: "Média", status: "Respondido"},
             {id: 3, subject: "Sugestão de funcionalidade", user: "Mariana Costa", priority: "Baixa", status: "Fechado"},
+        ],
+        announcements: [
+            {id: 1, title: "Novas Funcionalidades!", audience: "Todos os Usuários", date: "2024-07-01"}
+        ],
+        activityLogs: [
+            {id: 1, timestamp: "2024-07-21 10:00:00", user: "admin@vakinhafacil.com", action: "LOGIN_SUCCESS", details: "IP: 192.168.1.1"},
+            {id: 2, timestamp: "2024-07-21 09:45:12", user: "carla.d@example.com", action: "USER_BLOCKED", details: "Admin action by admin@vakinhafacil.com"},
+            {id: 3, timestamp: "2024-07-21 09:30:05", user: "daniel.a@example.com", action: "VAKINHA_CREATED", details: "ID: VK589, Goal: R$5000"},
         ]
     };
 
@@ -913,10 +1051,27 @@ const SystemAdminDashboard = () => {
         setSelectedUser(user);
         setIsUserModalOpen(true);
     }
-     const handleBlockUser = (user: any) => {
+    const handleBlockUser = (user: any) => {
         addToast(`Usuário ${user.name} bloqueado com sucesso!`, 'error');
     }
-    const handleCloseModal = () => setIsUserModalOpen(false);
+    
+    const handleAddWhiteLabel = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        addToast("Novo cliente White-Label adicionado!", "success");
+        setIsWhiteLabelModalOpen(false);
+    }
+    
+    const handleOpenRefundModal = (transaction: any) => {
+        setTransactionToRefund(transaction);
+        setIsRefundModalOpen(true);
+    };
+
+    const handleConfirmRefund = () => {
+        addToast(`Reembolso de R$${transactionToRefund?.value.toFixed(2)} processado para TXN ${transactionToRefund?.id}!`, 'success');
+        setIsRefundModalOpen(false);
+        setTransactionToRefund(null);
+    };
+
 
     const renderContent = () => {
         switch (activeTab) {
@@ -926,14 +1081,20 @@ const SystemAdminDashboard = () => {
                 return <UsersView users={mockData.users} onView={handleViewUser} onBlock={handleBlockUser} />;
             case 'Vaquinhas':
                  return <VakinhasView vakinhas={mockData.vakinhas} />;
-             case 'Financeiro':
-                 return <FinanceiroView data={mockData} />;
+            case 'Financeiro':
+                 return <FinanceiroView data={mockData} onRefund={handleOpenRefundModal} />;
             case 'White-Label':
-                 return <WhiteLabelView clients={mockData.whiteLabelClients} />;
+                 return <WhiteLabelView clients={mockData.whiteLabelClients} onAdd={() => setIsWhiteLabelModalOpen(true)} />;
             case 'Suporte':
                  return <SuporteView tickets={mockData.supportTickets} />;
+            case 'Marketing':
+                 return <MarketingView announcements={mockData.announcements} />;
+            case 'Logs':
+                 return <ActivityLogsView logs={mockData.activityLogs} />;
+             case 'Configurações':
+                 return <ConfiguracoesView />;
             default:
-                return <div className="text-center p-12 bg-white rounded-lg shadow-md"><h2 className="text-xl font-semibold text-gray-500">Seção de {activeTab} em construção.</h2></div>;
+                return <Card><h2 className="text-xl font-semibold text-gray-500">Seção de {activeTab} em construção.</h2></Card>;
         }
     };
     
@@ -950,9 +1111,10 @@ const SystemAdminDashboard = () => {
                                     <button 
                                         key={tab} 
                                         onClick={() => setActiveTab(tab)}
-                                        className={`w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${activeTab === tab ? 'bg-emerald-500 text-white' : 'text-gray-600 hover:bg-slate-100'}`}
+                                        className={`w-full text-left px-3 py-2 rounded-md font-medium transition-colors flex items-center space-x-3 ${activeTab === tab ? 'bg-emerald-500 text-white' : 'text-gray-600 hover:bg-slate-100'}`}
                                     >
-                                        {tab}
+                                        <span className="w-6 h-6">{getIconForTab(tab)}</span>
+                                        <span>{tab}</span>
                                     </button>
                                 ))}
                             </nav>
@@ -963,7 +1125,7 @@ const SystemAdminDashboard = () => {
                         {renderContent()}
                     </div>
                 </div>
-                 <Modal isOpen={isUserModalOpen} onClose={handleCloseModal} title={`Detalhes de ${selectedUser?.name}`}>
+                 <Modal isOpen={isUserModalOpen} onClose={() => setIsUserModalOpen(false)} title={`Detalhes de ${selectedUser?.name}`}>
                     {selectedUser && (
                         <div className="space-y-3">
                             <p><strong>ID:</strong> {selectedUser.id}</p>
@@ -975,10 +1137,56 @@ const SystemAdminDashboard = () => {
                         </div>
                     )}
                 </Modal>
+                <Modal isOpen={isWhiteLabelModalOpen} onClose={() => setIsWhiteLabelModalOpen(false)} title="Adicionar Novo Cliente White-Label">
+                   <form className="space-y-4" onSubmit={handleAddWhiteLabel}>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Nome da Empresa</label>
+                            <input type="text" required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
+                        </div>
+                         <div>
+                            <label className="block text-sm font-medium text-gray-700">Plano</label>
+                            <select required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500">
+                                <option>Básico</option>
+                                <option>Premium</option>
+                            </select>
+                        </div>
+                        <div className="pt-2 flex justify-end">
+                            <button type="submit" className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">Adicionar Cliente</button>
+                        </div>
+                   </form>
+                </Modal>
+                <Modal isOpen={isRefundModalOpen} onClose={() => setIsRefundModalOpen(false)} title="Confirmar Reembolso">
+                    {transactionToRefund && (
+                        <div>
+                            <p className="mb-4">
+                                Você tem certeza que deseja reembolsar a transação <strong>{transactionToRefund.id}</strong> no valor de <strong>R$ {transactionToRefund.value.toFixed(2)}</strong>?
+                            </p>
+                             <div className="flex justify-end gap-3">
+                                <button onClick={() => setIsRefundModalOpen(false)} className="bg-gray-200 text-gray-800 font-semibold px-4 py-2 rounded-lg hover:bg-gray-300 transition">Cancelar</button>
+                                <button onClick={handleConfirmRefund} className="bg-red-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-red-600 transition">Confirmar Reembolso</button>
+                            </div>
+                        </div>
+                    )}
+                </Modal>
             </div>
         </main>
     );
 };
+
+const getIconForTab = (tabName: string) => {
+    const icons: {[key: string]: React.ReactNode} = {
+        Dashboard: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" /></svg>,
+        Usuários: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-4.982.972.972 0 0 0-.056-1.022c-.18-.282-.514-.455-.865-.455H3.522a.872.872 0 0 0-.51.158l-1.573.945M8.422 12.311a.5.5 0 0 0-.447.276l-1.573 2.825a.5.5 0 0 0 .447.724H19.5a.5.5 0 0 0 .447-.724l-1.573-2.825a.5.5 0 0 0-.447-.276H8.422ZM8 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" /></svg>,
+        Vaquinhas: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>,
+        Financeiro: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 21Z" /></svg>,
+        "White-Label": <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.47 2.118 2.25 2.25 0 0 0-1.994 2.195c-.035.987.462 1.898 1.386 2.303a2.408 2.408 0 0 0 2.132-.083A2.25 2.25 0 0 1 8.25 21a2.25 2.25 0 0 0 2.25-2.25c0-1.152-.26-2.243-.72-3.222Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M21 12.75c0-1.152-.26-2.243-.72-3.222s-1.068-1.745-1.82-2.496a5.25 5.25 0 0 0-7.424 0M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>,
+        Suporte: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>,
+        Marketing: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M10.34 15.84c-.688 0-1.25-.562-1.25-1.25s.562-1.25 1.25-1.25h3.32c.688 0 1.25.562 1.25 1.25s-.562 1.25-1.25 1.25h-3.32zM12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" /><path strokeLinecap="round" strokeLinejoin="round" d="M3.96 12.558c-.22.623-.36 1.286-.36 1.942 0 1.24.363 2.41 1 3.428" /><path strokeLinecap="round" strokeLinejoin="round" d="M20.4 12.558c.22.623.36 1.286.36 1.942 0 1.24-.363 2.41-1 3.428" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 21c-1.35 0-2.65-.25-3.8-.7" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 21c1.35 0 2.65-.25 3.8-.7" /></svg>,
+        Logs: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>,
+        Configurações: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-1.007 1.11-1.11a12.007 12.007 0 0 1 2.59 0c.55.103 1.02.568 1.11 1.11m-4.8 0a12.006 12.006 0 0 0-2.59 0c-.55-.103-1.02-.568-1.11-1.11m4.8 0A12.006 12.006 0 0 1 12 3.75c.62 0 1.213.04 1.794.11m-3.588 0A12.006 12.006 0 0 0 12 3.75c-.62 0-1.213.04-1.794.11m0 0a11.955 11.955 0 0 0-2.649 1.513c-.493.36-1.112.36-1.605 0A11.955 11.955 0 0 0 3.825 4.05m14.35 0a11.955 11.955 0 0 0-2.649-1.513c-.493-.36-1.112.36-1.605 0A11.955 11.955 0 0 0 12.45 4.05m-3.6 13.95m5.4 0a11.955 11.955 0 0 1-2.649 1.513c-.493.36-1.112.36-1.605 0A11.955 11.955 0 0 1 8.55 18m3.6 0a11.955 11.955 0 0 0-2.649-1.513c-.493-.36-1.112.36-1.605 0A11.955 11.955 0 0 0 3.825 18m14.35 0a11.955 11.955 0 0 0-2.649-1.513c-.493-.36-1.112.36-1.605 0a11.955 11.955 0 0 0-2.25 1.513M12 12.75h.008v.008H12v-.008Z" /></svg>
+    };
+    return icons[tabName] || null;
+}
 
 const DashboardView = ({ data }: { data: any }) => {
     const maxRevenue = Math.max(...data.monthlyRevenue);
@@ -1018,8 +1226,6 @@ const DashboardView = ({ data }: { data: any }) => {
                      <h3 className="text-lg font-bold text-gray-800 font-heading mb-4">Funil de Conversão</h3>
                      <div className="space-y-3">
                         {data.conversionFunnel.map((item: any, index: number) => {
-                            const prevValue = index > 0 ? data.conversionFunnel[index-1].value : item.value;
-                            const percentage = (item.value / prevValue) * 100;
                             const conversionRate = index > 0 ? (item.value / data.conversionFunnel[index-1].value) * 100 : 100;
                             return (
                                 <div key={item.stage}>
@@ -1047,11 +1253,22 @@ const StatCard = ({ title, value }: { title: string, value: string | number }) =
     </div>
 );
 
+// FIX: Made children optional to resolve widespread TypeScript errors.
+const Card = ({children}: {children?: React.ReactNode}) => (
+    <div className="bg-white p-6 rounded-xl shadow-md">
+        {children}
+    </div>
+);
+// FIX: Made children optional to resolve widespread TypeScript errors.
+const CardTitle = ({children}: {children?: React.ReactNode}) => (
+    <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">
+        {children}
+    </h2>
+);
+
 const UsersView = ({ users, onView, onBlock }: { users: any[], onView: (user: any) => void, onBlock: (user: any) => void }) => (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="p-6 border-b">
-            <h2 className="text-xl font-bold text-gray-800 font-heading">Gerenciar Usuários</h2>
-        </div>
+    <Card>
+        <CardTitle>Gerenciar Usuários</CardTitle>
         <div className="overflow-x-auto">
             <table className="w-full text-left">
                 <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
@@ -1083,14 +1300,12 @@ const UsersView = ({ users, onView, onBlock }: { users: any[], onView: (user: an
                 </tbody>
             </table>
         </div>
-    </div>
+    </Card>
 );
 
 const VakinhasView = ({ vakinhas }: { vakinhas: any[] }) => (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="p-6 border-b">
-            <h2 className="text-xl font-bold text-gray-800 font-heading">Gerenciar Vaquinhas</h2>
-        </div>
+    <Card>
+        <CardTitle>Gerenciar Vaquinhas</CardTitle>
          <div className="overflow-x-auto">
             <table className="w-full text-left">
                 <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
@@ -1124,33 +1339,322 @@ const VakinhasView = ({ vakinhas }: { vakinhas: any[] }) => (
                 </tbody>
             </table>
         </div>
-    </div>
+    </Card>
 );
 
-const FinanceiroView = ({ data }: { data: any }) => {
+const FinanceiroView = ({ data, onRefund }: { data: any, onRefund: (transaction: any) => void }) => {
+    const totalRevenue = data.revenueByModel.reduce((acc: number, item: any) => acc + item.value, 0);
+    const colors = ['#10b981', '#3b82f6', '#f59e0b'];
+
     return (
-        <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">Relatórios Financeiros</h2>
-            <p>Em breve, gráficos detalhados sobre receita por modelo (taxas, assinaturas, white-label) e tabelas de transações.</p>
+        <div className="space-y-8">
+            <Card>
+                <CardTitle>Receita por Modelo</CardTitle>
+                <div className="grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                         <div className="relative w-full h-64">
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="text-2xl font-bold text-gray-800">R$ {totalRevenue.toLocaleString('pt-BR')}</span>
+                            </div>
+                           <svg viewBox="0 0 36 36" className="w-full h-full">
+                                {(() => {
+                                    let accumulated = 0;
+                                    return data.revenueByModel.map((item: any, index: number) => {
+                                        const percentage = (item.value / totalRevenue) * 100;
+                                        const strokeDasharray = `${percentage} ${100 - percentage}`;
+                                        const strokeDashoffset = -accumulated;
+                                        accumulated += percentage;
+                                        return <circle key={index} cx="18" cy="18" r="15.9155" fill="transparent" stroke={colors[index]} strokeWidth="3" strokeDasharray={strokeDasharray} strokeDashoffset={strokeDashoffset} transform="rotate(-90 18 18)" />;
+                                    });
+                                })()}
+                            </svg>
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        {data.revenueByModel.map((item: any, index: number) => (
+                            <div key={item.name} className="flex items-center">
+                                <span className="w-4 h-4 rounded-full mr-3" style={{backgroundColor: colors[index]}}></span>
+                                <div className="flex justify-between w-full">
+                                    <span className="text-gray-600">{item.name}</span>
+                                    <span className="font-bold text-gray-800">R$ {item.value.toLocaleString('pt-BR')}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </Card>
+            <Card>
+                 <CardTitle>Últimas Transações</CardTitle>
+                  <div className="overflow-x-auto">
+                     <table className="w-full text-left">
+                         <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                             <tr>
+                                 <th className="p-4">ID</th>
+                                 <th className="p-4">Data</th>
+                                 <th className="p-4">Tipo</th>
+                                 <th className="p-4">Valor</th>
+                                 <th className="p-4">Status</th>
+                                 <th className="p-4">Ações</th>
+                             </tr>
+                         </thead>
+                         <tbody className="divide-y divide-gray-200">
+                            {data.transactions.map((t: any) => (
+                                <tr key={t.id}>
+                                    <td className="p-4 font-mono text-xs text-gray-500">{t.id}</td>
+                                    <td className="p-4 text-gray-600">{t.date}</td>
+                                    <td className="p-4 font-medium text-gray-800">{t.type}</td>
+                                    <td className="p-4 font-medium text-gray-800">R$ {t.value.toFixed(2).replace('.', ',')}</td>
+                                    <td className="p-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${t.status === 'Aprovado' ? 'bg-emerald-100 text-emerald-800' : 'bg-yellow-100 text-yellow-800'}`}>{t.status}</span>
+                                    </td>
+                                    <td className="p-4">
+                                        {t.status === 'Aprovado' && (
+                                            <button onClick={() => onRefund(t)} className="text-sm text-red-600 hover:text-red-800 font-medium">Reembolsar</button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                         </tbody>
+                     </table>
+                  </div>
+            </Card>
         </div>
     );
 };
-const WhiteLabelView = ({ clients }: { clients: any[] }) => {
+const WhiteLabelView = ({ clients, onAdd }: { clients: any[], onAdd: () => void }) => {
     return (
-        <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">Gerenciar Clientes White-Label</h2>
-            <p>Em breve, lista de licenciados e formulário para adicionar novos clientes.</p>
-        </div>
+        <Card>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-800 font-heading">Clientes White-Label</h2>
+                <button onClick={onAdd} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">
+                    + Adicionar Cliente
+                </button>
+            </div>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                        <tr>
+                            <th className="p-4">Empresa</th>
+                            <th className="p-4">Plano</th>
+                            <th className="p-4">Status</th>
+                            <th className="p-4">Cliente Desde</th>
+                            <th className="p-4">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                        {clients.map(c => (
+                            <tr key={c.id}>
+                                <td className="p-4 font-medium text-gray-800">{c.company}</td>
+                                <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${c.plan === 'Premium' ? 'bg-sky-100 text-sky-800' : 'bg-gray-100 text-gray-800'}`}>{c.plan}</span></td>
+                                <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${c.status === 'Ativa' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>{c.status}</span></td>
+                                <td className="p-4 text-gray-600">{c.since}</td>
+                                <td className="p-4">
+                                    <button className="text-sm text-sky-600 hover:text-sky-800 font-medium">Ver Detalhes</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </Card>
     );
 };
 const SuporteView = ({ tickets }: { tickets: any[] }) => {
+    const priorityPill: {[key: string]: string} = {
+        "Alta": "bg-red-100 text-red-800",
+        "Média": "bg-yellow-100 text-yellow-800",
+        "Baixa": "bg-sky-100 text-sky-800",
+    }
+     const statusPill: {[key: string]: string} = {
+        "Aberto": "bg-red-100 text-red-800",
+        "Respondido": "bg-sky-100 text-sky-800",
+        "Fechado": "bg-gray-100 text-gray-800",
+    }
     return (
-        <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">Tickets de Suporte</h2>
-            <p>Em breve, lista de tickets e interface para responder.</p>
+        <Card>
+            <CardTitle>Tickets de Suporte</CardTitle>
+            <div className="overflow-x-auto">
+                 <table className="w-full text-left">
+                    <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                        <tr>
+                            <th className="p-4">Assunto</th>
+                            <th className="p-4">Usuário</th>
+                            <th className="p-4">Prioridade</th>
+                            <th className="p-4">Status</th>
+                            <th className="p-4">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                       {tickets.map(t => (
+                            <tr key={t.id}>
+                                <td className="p-4 font-medium text-gray-800">{t.subject}</td>
+                                <td className="p-4 text-gray-600">{t.user}</td>
+                                <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${priorityPill[t.priority]}`}>{t.priority}</span></td>
+                                <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusPill[t.status]}`}>{t.status}</span></td>
+                                <td className="p-4 space-x-2 whitespace-nowrap">
+                                    <button className="text-sm text-sky-600 hover:text-sky-800 font-medium">Responder</button>
+                                    <button className="text-sm text-gray-600 hover:text-gray-800 font-medium">Fechar</button>
+                                </td>
+                            </tr>
+                       ))}
+                    </tbody>
+                 </table>
+            </div>
+        </Card>
+    );
+};
+
+const MarketingView = ({ announcements }: { announcements: any[] }) => {
+    const { addToast } = useToast();
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        addToast("Anúncio enviado com sucesso!", "success");
+        (e.target as HTMLFormElement).reset();
+    };
+    return (
+        <div className="space-y-8">
+            <Card>
+                <CardTitle>Nova Campanha de Marketing</CardTitle>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Título do Anúncio</label>
+                        <input type="text" required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
+                    </div>
+                     <div>
+                        <label className="block text-sm font-medium text-gray-700">Público Alvo</label>
+                        <select required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500">
+                            <option>Todos os Usuários</option>
+                            <option>Apenas Gestores de Grupo</option>
+                            <option>Apenas Participantes</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Mensagem</label>
+                        <textarea rows={5} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"></textarea>
+                    </div>
+                    <div className="pt-2 flex justify-end">
+                        <button type="submit" className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">Enviar Anúncio</button>
+                    </div>
+               </form>
+            </Card>
+            <Card>
+                <CardTitle>Campanhas Anteriores</CardTitle>
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                            <tr>
+                                <th className="p-4">Título</th>
+                                <th className="p-4">Público</th>
+                                <th className="p-4">Data</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {announcements.map(a => (
+                                <tr key={a.id}>
+                                    <td className="p-4 font-medium text-gray-800">{a.title}</td>
+                                    <td className="p-4 text-gray-600">{a.audience}</td>
+                                    <td className="p-4 text-gray-600">{a.date}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </Card>
         </div>
     );
 };
+
+const ActivityLogsView = ({ logs }: { logs: any[] }) => {
+    return (
+        <Card>
+            <CardTitle>Logs de Atividade do Sistema</CardTitle>
+            <div className="overflow-x-auto">
+                 <table className="w-full text-left">
+                    <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                        <tr>
+                            <th className="p-4">Timestamp</th>
+                            <th className="p-4">Usuário</th>
+                            <th className="p-4">Ação</th>
+                            <th className="p-4">Detalhes</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                       {logs.map(log => (
+                            <tr key={log.id}>
+                                <td className="p-4 text-sm text-gray-500 whitespace-nowrap">{log.timestamp}</td>
+                                <td className="p-4 text-sm font-medium text-gray-800 whitespace-nowrap">{log.user}</td>
+                                <td className="p-4"><span className="px-2 py-1 rounded-full text-xs font-semibold bg-sky-100 text-sky-800">{log.action}</span></td>
+                                <td className="p-4 text-sm text-gray-600 font-mono">{log.details}</td>
+                            </tr>
+                       ))}
+                    </tbody>
+                 </table>
+            </div>
+        </Card>
+    );
+};
+
+
+const ConfiguracoesView = () => {
+    const { addToast } = useToast();
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        addToast("Configurações salvas com sucesso!", "success");
+    };
+
+    return (
+        <Card>
+            <CardTitle>Configurações Globais</CardTitle>
+            <form onSubmit={handleSubmit} className="space-y-8 divide-y divide-gray-200">
+                {/* Section 1: Taxas */}
+                <div className="pt-8">
+                    <h3 className="text-lg font-semibold text-gray-800">Taxas da Plataforma</h3>
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Taxa Fixa por Vaquinha (R$)</label>
+                            <input type="number" defaultValue="20" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Taxa Percentual (%)</label>
+                            <input type="number" step="0.1" defaultValue="5" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section 2: Limites */}
+                <div className="pt-8">
+                    <h3 className="text-lg font-semibold text-gray-800">Limites</h3>
+                     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Valor Máximo por Vaquinha (R$)</label>
+                            <input type="number" defaultValue="10000" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section 3: Integrações */}
+                 <div className="pt-8">
+                    <h3 className="text-lg font-semibold text-gray-800">Integrações de Pagamento</h3>
+                    <div className="mt-4 space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Mercado Pago Access Token</label>
+                            <input type="password" defaultValue="************" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"/>
+                        </div>
+                         <div>
+                            <label className="block text-sm font-medium text-gray-700">PicPay Seller Token</label>
+                            <input type="password" defaultValue="************" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"/>
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="pt-8 flex justify-end">
+                    <button type="submit" className="bg-emerald-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">Salvar Configurações</button>
+                </div>
+            </form>
+        </Card>
+    );
+};
+
 
 // --- END: SYSTEM ADMIN DASHBOARD ---
 
