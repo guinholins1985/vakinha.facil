@@ -88,16 +88,13 @@ const HeroSection = () => (
     </section>
 );
 
-// FIX: Defined a reusable 'SectionProps' interface for components requiring children to resolve TypeScript errors. This improves code clarity and resolves potential type inference issues.
 interface SectionProps {
     children: React.ReactNode;
 }
-// FIX: Explicitly typing the component with React.FC to resolve a TypeScript error where the 'children' prop was not being correctly inferred at the call sites.
 const SectionTitle: React.FC<SectionProps> = ({ children }) => (
     <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4 font-heading">{children}</h2>
 );
 
-// FIX: Explicitly typing the component with React.FC to resolve a TypeScript error where the 'children' prop was not being correctly inferred at the call sites.
 const SectionSubtitle: React.FC<SectionProps> = ({ children }) => (
     <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">{children}</p>
 );
@@ -950,8 +947,8 @@ const mockAdminData = {
         { id: 3, date: '2024-07-19', value: 19.90, type: 'Assinatura', status: 'Completo' },
     ],
     licensees: [
-        { id: 1, company: 'Clube Esportivo ABC', plan: 'Pro', status: 'Ativo' },
-        { id: 2, company: 'Formatura Med 2025', plan: 'Premium', status: 'Ativo' },
+        { id: 1, company: 'Clube Esportivo ABC', plan: 'Premium', status: 'Ativo', logo: null, color1: '#3B82F6', color2: '#10B981', domain: 'clube.vakinhafacil.com' },
+        { id: 2, company: 'Formatura Med 2025', plan: 'Básico', status: 'Ativo', logo: null, color1: '#8B5CF6', color2: '#F59E0B', domain: 'formatura.vakinhafacil.com' },
     ],
     tickets: [
         { id: 1, date: '2024-07-20', user: 'Ana Silva', status: 'Aberto', priority: 'Alta' },
@@ -1094,26 +1091,193 @@ const ConfigView = () => (
     </div>
 );
 
-const WhiteLabelView = () => (
-     <div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Licenças White-Label</h1>
-         <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex justify-end mb-4"><button className="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700">Adicionar Licenciado</button></div>
-             <table className="w-full text-left">
-                <thead><tr className="bg-gray-50 border-b"><th className="p-3">Empresa</th><th>Plano</th><th>Status</th><th>Ações</th></tr></thead>
-                <tbody>
-                    {mockAdminData.licensees.map(l => (
-                        <tr key={l.id} className="border-b hover:bg-gray-50">
-                            <td className="p-3">{l.company}</td><td>{l.plan}</td>
-                            <td><span className="text-green-700">{l.status}</span></td>
-                            <td><button className="text-blue-600 hover:underline text-sm">Ver Detalhes</button></td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+const AddLicenseeForm = ({ licensee, onSave, onClose }: { licensee?: any, onSave: (data: any) => void, onClose: () => void }) => {
+    const [formData, setFormData] = useState({
+        company: licensee?.company || '',
+        plan: licensee?.plan || 'Básico',
+        status: licensee?.status || 'Ativo',
+        logo: licensee?.logo || null,
+        color1: licensee?.color1 || '#3B82F6',
+        color2: licensee?.color2 || '#10B981',
+        domain: licensee?.domain || '',
+    });
+    const [logoPreview, setLogoPreview] = useState(licensee?.logo || null);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setLogoPreview(reader.result as string);
+                setFormData(prev => ({ ...prev, logo: reader.result as string }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSave({ ...licensee, ...formData });
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+                <div className="flex justify-between items-center p-4 border-b">
+                    <h2 className="text-xl font-bold">{licensee ? 'Editar' : 'Adicionar'} Licenciado</h2>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800">&times;</button>
+                </div>
+                <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Nome da Empresa</label>
+                        <input type="text" name="company" value={formData.company} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" required />
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Plano</label>
+                            <select name="plan" value={formData.plan} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option>Básico</option>
+                                <option>Premium</option>
+                            </select>
+                        </div>
+                         <div>
+                            <label className="block text-sm font-medium text-gray-700">Status</label>
+                            <select name="status" value={formData.status} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option>Ativo</option>
+                                <option>Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                     <div>
+                        <label className="block text-sm font-medium text-gray-700">Domínio Personalizado</label>
+                        <div className="flex items-center mt-1">
+                             <input type="text" name="domain" value={formData.domain} onChange={handleChange} className="flex-1 block w-full border border-gray-300 rounded-l-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="ex: minha-empresa" />
+                             <span className="inline-flex items-center px-3 text-gray-500 bg-gray-50 border border-l-0 border-gray-300 rounded-r-md">.vakinhafacil.com</span>
+                        </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Logo</label>
+                            <input type="file" onChange={handleLogoChange} accept="image/*" className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                        </div>
+                        <div className="col-span-2">
+                             {logoPreview && <img src={logoPreview} alt="Preview" className="h-16 mt-2 border rounded" />}
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Cor Primária</label>
+                            <div className="flex items-center mt-1">
+                                <input type="color" name="color1" value={formData.color1} onChange={handleChange} className="h-10 w-10 p-1 border border-gray-300 rounded-md"/>
+                                <span className="ml-2">{formData.color1}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Cor Secundária</label>
+                            <div className="flex items-center mt-1">
+                                <input type="color" name="color2" value={formData.color2} onChange={handleChange} className="h-10 w-10 p-1 border border-gray-300 rounded-md"/>
+                                 <span className="ml-2">{formData.color2}</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div className="flex justify-end p-4 border-t bg-gray-50 rounded-b-lg">
+                    <button onClick={onClose} type="button" className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Cancelar</button>
+                    <button onClick={handleSubmit} type="submit" className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">Salvar</button>
+                </div>
+            </div>
         </div>
-    </div>
-);
+    );
+};
+
+const WhiteLabelView = () => {
+    const [licensees, setLicensees] = useState(mockAdminData.licensees);
+    const [showForm, setShowForm] = useState(false);
+    const [selectedLicensee, setSelectedLicensee] = useState(null);
+
+    const handleSave = (data: any) => {
+        if (data.id) {
+            // Update existing
+            setLicensees(licensees.map(l => l.id === data.id ? data : l));
+        } else {
+            // Add new
+            const newLicensee = { ...data, id: Date.now() }; // simple id generation
+            setLicensees([...licensees, newLicensee]);
+        }
+        setShowForm(false);
+        setSelectedLicensee(null);
+    };
+
+    const handleEdit = (licensee: any) => {
+        setSelectedLicensee(licensee);
+        setShowForm(true);
+    };
+
+    const handleAddNew = () => {
+        setSelectedLicensee(null);
+        setShowForm(true);
+    };
+
+    return (
+        <div>
+            {showForm && <AddLicenseeForm licensee={selectedLicensee} onSave={handleSave} onClose={() => setShowForm(false)} />}
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Licenças White-Label</h1>
+            <div className="bg-white p-6 rounded-lg shadow">
+                <div className="flex justify-end mb-4">
+                    <button onClick={handleAddNew} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700">
+                        + Adicionar Licenciado
+                    </button>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-gray-50 border-b">
+                                <th className="p-3">Empresa</th>
+                                <th>Plano</th>
+                                <th>Status</th>
+                                <th>Cores</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {licensees.map(l => (
+                                <tr key={l.id} className="border-b hover:bg-gray-50">
+                                    <td className="p-3 font-medium">{l.company}</td>
+                                    <td>
+                                        <span className={`px-2 py-1 text-xs rounded-full ${l.plan === 'Premium' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                                            {l.plan}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span className={`px-2 py-1 text-xs rounded-full ${l.status === 'Ativo' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}`}>
+                                            {l.status}
+                                        </span>
+                                    </td>
+                                    <td className="flex items-center space-x-2 py-3">
+                                        <div className="w-5 h-5 rounded-full" style={{ backgroundColor: l.color1 }}></div>
+                                        <div className="w-5 h-5 rounded-full" style={{ backgroundColor: l.color2 }}></div>
+                                    </td>
+                                    <td>
+                                        <button onClick={() => handleEdit(l)} className="text-blue-600 hover:underline text-sm">Editar</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const SupportView = () => (
      <div>
