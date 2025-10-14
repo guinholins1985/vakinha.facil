@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef, useContext, createContext } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
@@ -5,11 +7,11 @@ import { GoogleGenAI } from "@google/genai";
 interface Toast {
     id: number;
     message: string;
-    type: 'success' | 'error';
+    type: 'success' | 'error' | 'info';
 }
 
 interface ToastContextType {
-    addToast: (message: string, type?: 'success' | 'error') => void;
+    addToast: (message: string, type?: 'success' | 'error' | 'info') => void;
 }
 
 const ToastContext = createContext<ToastContextType | null>(null);
@@ -17,28 +19,32 @@ const ToastContext = createContext<ToastContextType | null>(null);
 const ToastProvider = ({ children }: { children: React.ReactNode }) => {
     const [toasts, setToasts] = useState<Toast[]>([]);
 
-    const addToast = (message: string, type: 'success' | 'error' = 'success') => {
+    const addToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
         const id = Date.now();
         setToasts(prev => [...prev, { id, message, type }]);
         setTimeout(() => {
             removeToast(id);
-        }, 4000);
+        }, 5000);
     };
     
     const removeToast = (id: number) => {
         setToasts(prev => prev.filter(toast => toast.id !== id));
     };
 
+    const toastConfig = {
+        success: { bg: 'bg-emerald-500', icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /> },
+        error: { bg: 'bg-red-500', icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /> },
+        info: { bg: 'bg-sky-500', icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /> }
+    };
+
     return (
         <ToastContext.Provider value={{ addToast }}>
             {children}
-            <div className="fixed bottom-6 right-6 z-[100] space-y-2">
+            <div className="fixed bottom-6 right-6 z-[100] space-y-3">
                 {toasts.map(toast => (
-                    <div key={toast.id} className={`flex items-center px-4 py-3 rounded-lg shadow-2xl text-white animate-toast-in ${toast.type === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                    <div key={toast.id} className={`flex items-center px-4 py-3 rounded-lg shadow-2xl text-white animate-toast-in ${toastConfig[toast.type].bg}`}>
                         <svg className="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           {toast.type === 'success' 
-                           ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                           : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />}
+                           {toastConfig[toast.type].icon}
                         </svg>
                         <span className="font-medium">{toast.message}</span>
                     </div>
@@ -61,6 +67,127 @@ const useToast = () => {
     return context;
 };
 // --- END: TOAST NOTIFICATION SYSTEM ---
+
+// --- START: AI CHATBOT ---
+const AiChatbot = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState<{ role: 'user' | 'model', text: string }[]>([]);
+    const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const chatContentRef = useRef<HTMLDivElement>(null);
+    const { addToast } = useToast();
+    const aiRef = useRef<GoogleGenAI | null>(null);
+
+    useEffect(() => {
+        if (isOpen && !aiRef.current) {
+            try {
+                aiRef.current = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+                setMessages([{ role: 'model', text: 'Olá! Sou o assistente virtual do Vakinha Fácil. Como posso ajudar?' }]);
+            } catch (error) {
+                console.error("Erro ao inicializar a API Gemini:", error);
+                addToast("Não foi possível conectar ao assistente.", 'error');
+                setIsOpen(false);
+            }
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (chatContentRef.current) {
+            chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+        }
+    }, [messages]);
+
+    const handleSendMessage = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!input.trim() || isLoading) return;
+
+        const userMessage = { role: 'user' as const, text: input };
+        setMessages(prev => [...prev, userMessage]);
+        setInput('');
+        setIsLoading(true);
+
+        try {
+            if (!aiRef.current) throw new Error("AI client not initialized.");
+            
+            const response = await aiRef.current.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: [
+                    ...messages.map(m => ({ role: m.role, parts: [{text: m.text}]})),
+                    { role: 'user', parts: [{ text: input }] }
+                ],
+                config: {
+                    systemInstruction: "Você é um assistente de suporte amigável e prestativo para 'Vakinha Fácil', uma plataforma brasileira de vaquinhas online. Sua função é responder a perguntas sobre a plataforma, suas funcionalidades, preços e como funciona. Mantenha suas respostas concisas, claras e em português do Brasil. Use as informações do README e da landing page para basear suas respostas. Não invente funcionalidades que não existem. Seja sempre cordial.",
+                },
+            });
+
+            const aiMessage = { role: 'model' as const, text: response.text };
+            setMessages(prev => [...prev, aiMessage]);
+
+        } catch (error) {
+            console.error("Erro ao gerar conteúdo:", error);
+            addToast("Ocorreu um erro ao buscar a resposta.", 'error');
+            setMessages(prev => prev.filter(m => m !== userMessage));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    return (
+        <>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="fixed bottom-6 right-6 bg-emerald-500 text-white p-4 rounded-full shadow-lg hover:bg-emerald-600 transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 z-50"
+                aria-label="Abrir chat de ajuda"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.486 2 2 5.589 2 10c0 2.908 1.897 5.515 5 6.934V22l5.34-4.005C17.697 17.852 22 14.481 22 10c0-4.411-4.486-8-10-8zm-2.5 9.5c-.828 0-1.5-.672-1.5-1.5s.672-1.5 1.5-1.5 1.5.672 1.5 1.5-.672 1.5-1.5 1.5zm5 0c-.828 0-1.5-.672-1.5-1.5s.672-1.5 1.5-1.5 1.5.672 1.5 1.5-.672 1.5-1.5 1.5z"></path></svg>
+            </button>
+            {isOpen && (
+                <div className="fixed bottom-24 right-6 w-96 h-[32rem] bg-white rounded-2xl shadow-2xl flex flex-col z-40 animate-toast-in">
+                    <header className="bg-emerald-500 text-white p-4 rounded-t-2xl flex justify-between items-center">
+                        <h3 className="font-bold text-lg">Assistente Virtual</h3>
+                        <button onClick={() => setIsOpen(false)} className="text-white hover:opacity-75">&times;</button>
+                    </header>
+                    <div ref={chatContentRef} className="flex-1 p-4 overflow-y-auto space-y-4">
+                        {messages.map((msg, index) => (
+                            <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                <div className={`max-w-xs lg:max-w-md p-3 rounded-2xl ${msg.role === 'user' ? 'bg-emerald-500 text-white rounded-br-none' : 'bg-gray-200 text-gray-800 rounded-bl-none'}`}>
+                                    <p className="text-sm">{msg.text}</p>
+                                </div>
+                            </div>
+                        ))}
+                        {isLoading && (
+                            <div className="flex justify-start">
+                                <div className="p-3 rounded-2xl bg-gray-200 text-gray-800 rounded-bl-none">
+                                    <div className="flex items-center space-x-1">
+                                         <span className="w-2 h-2 bg-gray-400 rounded-full animate-pulse [animation-delay:-0.3s]"></span>
+                                         <span className="w-2 h-2 bg-gray-400 rounded-full animate-pulse [animation-delay:-0.15s]"></span>
+                                         <span className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200">
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                placeholder="Digite sua dúvida..."
+                                className="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                disabled={isLoading}
+                            />
+                            <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-500 text-white p-2 rounded-full hover:bg-emerald-600 disabled:bg-gray-400" disabled={isLoading || !input.trim()}>
+                               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+        </>
+    );
+};
+// --- END: AI CHATBOT ---
 
 
 const LogoIcon = () => (
@@ -89,15 +216,29 @@ const Header = ({ userType, onGroupAdminLogin, onSystemAdminLogin, onLogout }: {
                          <>
                             <button onClick={onSystemAdminLogin} className="text-sm text-gray-500 hover:text-emerald-600 font-medium transition-colors">Admin do Sistema</button>
                             <button onClick={onGroupAdminLogin} className="text-gray-600 hover:text-emerald-600 font-medium transition-colors">Entrar</button>
-                            <a href="#" className="hidden sm:inline-block bg-emerald-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition-all duration-300 transform hover:scale-105">
+                            <button className="hidden sm:inline-block bg-emerald-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition-all duration-300 transform hover:scale-105">
                                 Criar Vaquinha
-                            </a>
+                            </button>
                         </>
                     )}
                 </div>
             </nav>
         </div>
     </header>
+);
+
+const LandingPage = () => (
+    <>
+        <HeroSection />
+        <BenefitsSection />
+        <HowItWorksSection />
+        <UseCasesSection />
+        <TestimonialsSection />
+        <SecuritySection />
+        <PricingSection />
+        <FinalCTASection />
+        <Footer />
+    </>
 );
 
 const HeroSection = () => (
@@ -114,9 +255,9 @@ const HeroSection = () => (
                     <p className="text-lg md:text-xl text-gray-700 mb-10 max-w-xl mx-auto lg:mx-0">
                         Crie vaquinhas coletivas em 3 passos, convide participantes e acompanhe tudo em tempo real. Sem planilhas, sem dor de cabeça.
                     </p>
-                    <a href="#" className="inline-block bg-emerald-500 text-white font-bold text-lg px-8 py-4 rounded-lg shadow-lg hover:bg-emerald-600 transition-transform transform hover:scale-105 duration-300 ease-in-out">
+                    <button className="inline-block bg-emerald-500 text-white font-bold text-lg px-8 py-4 rounded-lg shadow-lg hover:bg-emerald-600 transition-transform transform hover:scale-105 duration-300 ease-in-out">
                         Comece agora – Grátis por 7 dias
-                    </a>
+                    </button>
                 </div>
                 
                 <div className="relative flex justify-center lg:justify-end">
@@ -149,8 +290,9 @@ const HeroSection = () => (
     </section>
 );
 
+// FIX: The 'children' prop is made optional to handle cases where components using these props are rendered without child elements, resolving a TypeScript error.
 interface SectionProps {
-    children: React.ReactNode;
+    children?: React.ReactNode;
 }
 const SectionTitle: React.FC<SectionProps> = ({ children }) => (
     <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4 font-heading">{children}</h2>
@@ -338,11 +480,6 @@ const SecuritySection = () => {
             icon: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" /></svg>,
             title: "Backup Automático",
             description: "Dados salvos diariamente e de forma segura na nuvem da AWS S3 para que nada seja perdido."
-        },
-        {
-            icon: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" /></svg>,
-            title: "Autenticação Segura",
-            description: "Acesso seguro para administradores do sistema com Google Auth e autenticação de dois fatores (2FA)."
         }
     ];
 
@@ -369,7 +506,433 @@ const SecuritySection = () => {
     );
 };
 
-const SupportSection = () => {
-    const supportFeatures = [
+const PricingSection = () => {
+     const plans = [
         {
-            icon: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193l-1.423.237c-.16.026-.321.037-.482.037h-.538c-.29.004-.574 0-.857-.011a6.379 6.379 0 0 1-.942-.093l-1.353-.346c-.255-.065-.515-.095-.778-.095h-.942c-.263 0-.523.03-.778.095l-1.353.346a6.379 6.379 0 0 1-.942.093h-.857c-.283-.011-.567-.015-.857-.011h-.538c-.16 0-.321.011-.482.037l-1.423-.
+            name: "Básico",
+            price: "Grátis",
+            description: "Ideal para vaquinhas pontuais e grupos pequenos.",
+            features: ["1 vaquinha ativa por vez", "Até 20 participantes", "Taxa de 5% sobre o valor arrecadado"],
+            cta: "Começar Agora",
+            primary: false,
+        },
+        {
+            name: "Premium",
+            price: "R$ 19,90",
+            period: "/mês",
+            description: "Perfeito para gestores de grupos recorrentes.",
+            features: ["Vaquinhas ilimitadas", "Participantes ilimitados", "Taxas de 3% sobre o valor", "Suporte prioritário"],
+            cta: "Experimente Grátis",
+            primary: true,
+        },
+        {
+            name: "White-Label",
+            price: "R$ 300",
+             period: "/mês",
+            description: "Use nossa plataforma com a sua própria marca.",
+            features: ["Plataforma personalizada", "Domínio próprio", "Seu próprio modelo de negócio", "Suporte dedicado"],
+            cta: "Saiba Mais",
+            primary: false,
+        },
+    ];
+    return (
+        <section className="py-20 bg-white">
+            <div className="container mx-auto px-6">
+                <SectionTitle>Planos flexíveis para cada necessidade</SectionTitle>
+                <SectionSubtitle>Comece de graça e evolua conforme seu grupo cresce. Sem burocracia, sem surpresas.</SectionSubtitle>
+                <div className="grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto items-start">
+                    {plans.map((plan, index) => (
+                        <div key={index} className={`rounded-2xl p-8 border ${plan.primary ? 'bg-gray-900 text-white border-emerald-500 shadow-2xl scale-105' : 'bg-slate-50 border-gray-200'}`}>
+                            <h3 className={`text-2xl font-bold font-heading ${plan.primary ? 'text-emerald-400' : 'text-emerald-600'}`}>{plan.name}</h3>
+                            <p className={`mt-2 mb-6 ${plan.primary ? 'text-gray-300' : 'text-gray-600'}`}>{plan.description}</p>
+                            <p className="text-5xl font-extrabold font-heading mb-1">
+                                {plan.price}
+                                {plan.period && <span className="text-lg font-medium">{plan.period}</span>}
+                            </p>
+                            <ul className="mt-8 space-y-4">
+                                {plan.features.map((feature, fIndex) => (
+                                    <li key={fIndex} className="flex items-center space-x-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 flex-shrink-0 ${plan.primary ? 'text-emerald-400' : 'text-emerald-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                                        <span>{feature}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                            <button className={`w-full mt-10 font-bold py-3 rounded-lg transition-colors duration-300 ${plan.primary ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-white hover:bg-gray-100 text-emerald-600 border border-gray-200'}`}>
+                                {plan.cta}
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+};
+
+const FinalCTASection = () => (
+    <section className="py-20 bg-emerald-600 text-white">
+        <div className="container mx-auto px-6 text-center">
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-4 font-heading">Pronto para começar?</h2>
+            <p className="text-lg md:text-xl text-emerald-100 mb-8 max-w-2xl mx-auto">
+                Crie sua primeira vaquinha em menos de 5 minutos e descubra como é fácil organizar as finanças do seu grupo.
+            </p>
+            <button className="bg-white text-emerald-600 font-bold text-lg px-8 py-4 rounded-lg shadow-lg hover:bg-gray-100 transition-transform transform hover:scale-105 duration-300 ease-in-out">
+                Criar minha vaquinha grátis
+            </button>
+        </div>
+    </section>
+);
+
+const Footer = () => (
+    <footer className="bg-gray-900 text-gray-400">
+        <div className="container mx-auto px-6 py-12">
+            <div className="grid md:grid-cols-3 gap-8">
+                <div>
+                    <div className="flex items-center space-x-3 mb-4">
+                        <LogoIcon />
+                        <span className="text-2xl font-bold text-white tracking-tight font-heading">Vakinha Fácil</span>
+                    </div>
+                    <p>Automatize vaquinhas coletivas em 3 cliques. Transparente, seguro e sem burocracia.</p>
+                </div>
+                <div>
+                    <h3 className="text-lg font-semibold text-white mb-4 font-heading">Links Rápidos</h3>
+                    <ul className="space-y-2">
+                        <li><a href="#" className="hover:text-emerald-400 transition-colors">Funcionalidades</a></li>
+                        <li><a href="#" className="hover:text-emerald-400 transition-colors">Preços</a></li>
+                        <li><a href="#" className="hover:text-emerald-400 transition-colors">Suporte</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 className="text-lg font-semibold text-white mb-4 font-heading">Legal</h3>
+                    <ul className="space-y-2">
+                        <li><a href="#" className="hover:text-emerald-400 transition-colors">Termos de Uso</a></li>
+                        <li><a href="#" className="hover:text-emerald-400 transition-colors">Política de Privacidade</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div className="mt-12 border-t border-gray-800 pt-8 text-center text-sm">
+                <p>&copy; {new Date().getFullYear()} Vakinha Fácil. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+);
+
+// --- START: GROUP ADMIN DASHBOARD ---
+const GroupAdminDashboard = () => {
+    const { addToast } = useToast();
+    const mockData = {
+        name: "Viagem para Bahia",
+        goal: 10000,
+        raised: 7500,
+        participants: [
+            { id: 1, name: "João Silva", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704a", status: "Pago", amount: 500 },
+            { id: 2, name: "Maria Oliveira", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704b", status: "Atrasado", amount: 0 },
+            { id: 3, name: "Carlos Souza", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704c", status: "Pago", amount: 500 },
+            { id: 4, name: "Ana Pereira", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d", status: "Pendente", amount: 0 },
+            { id: 5, name: "Lucas Costa", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e", status: "Pago", amount: 500 },
+        ]
+    };
+
+    const progress = (mockData.raised / mockData.goal) * 100;
+    
+    const statusPill = {
+        "Pago": "bg-emerald-100 text-emerald-800",
+        "Atrasado": "bg-red-100 text-red-800",
+        "Pendente": "bg-yellow-100 text-yellow-800",
+    }
+    
+    return (
+        <main className="bg-slate-50 min-h-screen pt-32 pb-16">
+            <div className="container mx-auto px-6">
+                <div className="flex justify-between items-center mb-8">
+                    <h1 className="text-3xl font-bold text-gray-800 font-heading">{mockData.name}</h1>
+                    <div className="flex space-x-3">
+                        <button className="bg-white text-gray-700 font-semibold px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition">Configurar</button>
+                        <button className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">Convidar Participante</button>
+                    </div>
+                </div>
+                
+                {/* Summary Cards */}
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div className="bg-white p-6 rounded-xl shadow-md">
+                        <h3 className="text-sm font-medium text-gray-500 mb-1">Valor Arrecadado</h3>
+                        <p className="text-3xl font-bold text-gray-800">R$ {mockData.raised.toLocaleString('pt-BR')}</p>
+                    </div>
+                     <div className="bg-white p-6 rounded-xl shadow-md">
+                        <h3 className="text-sm font-medium text-gray-500 mb-1">Meta Final</h3>
+                        <p className="text-3xl font-bold text-gray-800">R$ {mockData.goal.toLocaleString('pt-BR')}</p>
+                    </div>
+                     <div className="bg-white p-6 rounded-xl shadow-md">
+                        <h3 className="text-sm font-medium text-gray-500 mb-1">Participantes</h3>
+                        <p className="text-3xl font-bold text-gray-800">{mockData.participants.length}</p>
+                    </div>
+                     <div className="bg-white p-6 rounded-xl shadow-md">
+                        <h3 className="text-sm font-medium text-gray-500 mb-1">Progresso</h3>
+                        <div className="flex items-center">
+                            <p className="text-3xl font-bold text-gray-800 mr-2">{progress.toFixed(0)}%</p>
+                            <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                <div className="bg-emerald-500 h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Participants Table */}
+                <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div className="p-6 border-b">
+                        <h2 className="text-xl font-bold text-gray-800 font-heading">Painel de Participantes</h2>
+                    </div>
+                    <table className="w-full text-left">
+                        <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                            <tr>
+                                <th className="p-4">Nome</th>
+                                <th className="p-4">Status</th>
+                                <th className="p-4">Valor Contribuído</th>
+                                <th className="p-4">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {mockData.participants.map(p => (
+                                <tr key={p.id} className="border-t">
+                                    <td className="p-4 flex items-center">
+                                        <img src={p.avatar} alt={p.name} className="w-10 h-10 rounded-full mr-4" />
+                                        <span className="font-medium text-gray-800">{p.name}</span>
+                                    </td>
+                                    <td className="p-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusPill[p.status as keyof typeof statusPill]}`}>{p.status}</span>
+                                    </td>
+                                    <td className="p-4 font-medium text-gray-700">R$ {p.amount.toLocaleString('pt-BR')}</td>
+                                    <td className="p-4">
+                                        <button 
+                                            onClick={() => addToast(`Lembrete enviado para ${p.name}!`, 'info')}
+                                            className="text-emerald-600 hover:text-emerald-800 font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
+                                            disabled={p.status === 'Pago'}
+                                        >
+                                            Enviar Lembrete
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    );
+};
+// --- END: GROUP ADMIN DASHBOARD ---
+
+// --- START: SYSTEM ADMIN DASHBOARD ---
+const SystemAdminDashboard = () => {
+    const [activeTab, setActiveTab] = useState('Dashboard');
+    const tabs = ["Dashboard", "Usuários", "Vaquinhas", "Financeiro", "White-Label", "Suporte"];
+    
+    const mockData = {
+        stats: {
+            revenue: 15340.50,
+            activeVakinhas: 257,
+            activeUsers: 1245,
+            defaultRate: 12.5,
+        },
+        monthlyRevenue: [3, 4, 6, 8, 7, 9, 11, 10, 12, 14, 13, 15.3],
+        users: [
+            { id: 1, name: "Ana Beatriz", email: "ana.b@example.com", type: "Admin Grupo", status: "Ativo", date: "2023-10-15" },
+            { id: 2, name: "Bruno Gomes", email: "bruno.g@example.com", type: "Participante", status: "Ativo", date: "2023-10-14" },
+            { id: 3, name: "Carla Dias", email: "carla.d@example.com", type: "Admin Grupo", status: "Bloqueado", date: "2023-10-12" },
+        ],
+        vakinhas: [
+            { id: 1, name: "Formatura TI 2024", admin: "Carlos Souza", status: "Ativa", raised: 5400, goal: 12000 },
+            { id: 2, name: "Viagem de Férias", admin: "Juliana Lima", status: "Finalizada", raised: 8000, goal: 8000 },
+            { id: 3, name: "Presente Casamento", admin: "Marcos Andrade", status: "Risco", raised: 900, goal: 2000 },
+        ]
+    };
+
+    const renderContent = () => {
+        switch (activeTab) {
+            case 'Dashboard':
+                return <DashboardView data={mockData} />;
+            case 'Usuários':
+                return <UsersView users={mockData.users} />;
+            case 'Vaquinhas':
+                 return <VakinhasView vakinhas={mockData.vakinhas} />;
+            default:
+                return <div className="text-center p-12 bg-white rounded-lg shadow-md"><h2 className="text-xl font-semibold text-gray-500">Seção de {activeTab} em construção.</h2></div>;
+        }
+    };
+    
+    return (
+        <main className="bg-slate-100 min-h-screen pt-24">
+            <div className="container mx-auto px-6">
+                 <div className="lg:flex lg:space-x-8">
+                    {/* Sidebar */}
+                    <aside className="lg:w-1/4 mb-8 lg:mb-0">
+                        <div className="bg-white p-4 rounded-xl shadow-md">
+                            <h2 className="text-lg font-bold text-gray-800 mb-4 px-2">Painel do Sistema</h2>
+                            <nav className="space-y-1">
+                                {tabs.map(tab => (
+                                    <button 
+                                        key={tab} 
+                                        onClick={() => setActiveTab(tab)}
+                                        className={`w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${activeTab === tab ? 'bg-emerald-500 text-white' : 'text-gray-600 hover:bg-slate-100'}`}
+                                    >
+                                        {tab}
+                                    </button>
+                                ))}
+                            </nav>
+                        </div>
+                    </aside>
+                    {/* Content */}
+                    <div className="lg:w-3/4">
+                        {renderContent()}
+                    </div>
+                </div>
+            </div>
+        </main>
+    );
+};
+
+const DashboardView = ({ data }: { data: any }) => {
+    const maxRevenue = Math.max(...data.monthlyRevenue);
+
+    return (
+        <div className="space-y-8">
+            {/* Stat Cards */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard title="Receita Total (mês)" value={`R$ ${data.stats.revenue.toLocaleString('pt-BR')}`} />
+                <StatCard title="Vaquinhas Ativas" value={data.stats.activeVakinhas} />
+                <StatCard title="Usuários Ativos" value={data.stats.activeUsers} />
+                <StatCard title="Inadimplência Média" value={`${data.stats.defaultRate}%`} />
+            </div>
+
+            {/* Revenue Chart */}
+            <div className="bg-white p-6 rounded-xl shadow-md">
+                <h3 className="text-lg font-bold text-gray-800 font-heading mb-4">Receita Mensal (em milhares de R$)</h3>
+                <div className="flex items-end h-64 space-x-2">
+                    {data.monthlyRevenue.map((rev: number, index: number) => (
+                        <div key={index} className="flex-1 flex flex-col items-center justify-end">
+                             <div 
+                                className="w-full bg-emerald-400 hover:bg-emerald-500 rounded-t-md transition-all"
+                                style={{ height: `${(rev / maxRevenue) * 100}%` }}
+                                title={`Mês ${index+1}: R$${(rev*1000).toLocaleString('pt-BR')}`}
+                            ></div>
+                            <span className="text-xs text-gray-500 mt-1">{index+1}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+const StatCard = ({ title, value }: { title: string, value: string | number }) => (
+    <div className="bg-white p-6 rounded-xl shadow-md">
+        <h3 className="text-sm font-medium text-gray-500 mb-1">{title}</h3>
+        <p className="text-3xl font-bold text-gray-800">{value}</p>
+    </div>
+);
+
+const UsersView = ({ users }: { users: any[] }) => (
+    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="p-6 border-b">
+            <h2 className="text-xl font-bold text-gray-800 font-heading">Gerenciar Usuários</h2>
+        </div>
+        <table className="w-full text-left">
+            <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                <tr>
+                    <th className="p-4">Nome</th>
+                    <th className="p-4">Email</th>
+                    <th className="p-4">Tipo</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4">Data Cadastro</th>
+                    <th className="p-4">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {users.map(u => (
+                    <tr key={u.id} className="border-t">
+                        <td className="p-4 font-medium text-gray-800">{u.name}</td>
+                        <td className="p-4 text-gray-600">{u.email}</td>
+                        <td className="p-4 text-gray-600">{u.type}</td>
+                        <td className="p-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${u.status === 'Ativo' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>{u.status}</span>
+                        </td>
+                        <td className="p-4 text-gray-600">{u.date}</td>
+                        <td className="p-4 space-x-2">
+                             <button className="text-sm text-sky-600 hover:text-sky-800 font-medium">Detalhes</button>
+                             <button className="text-sm text-red-600 hover:text-red-800 font-medium">Bloquear</button>
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+);
+
+const VakinhasView = ({ vakinhas }: { vakinhas: any[] }) => (
+    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="p-6 border-b">
+            <h2 className="text-xl font-bold text-gray-800 font-heading">Gerenciar Vaquinhas</h2>
+        </div>
+        <table className="w-full text-left">
+            <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                <tr>
+                    <th className="p-4">Nome da Vaquinha</th>
+                    <th className="p-4">Admin</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4">Progresso</th>
+                    <th className="p-4">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {vakinhas.map(v => (
+                    <tr key={v.id} className="border-t">
+                        <td className="p-4 font-medium text-gray-800">{v.name}</td>
+                        <td className="p-4 text-gray-600">{v.admin}</td>
+                        <td className="p-4">
+                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${v.status === 'Ativa' ? 'bg-emerald-100 text-emerald-800' : v.status === 'Finalizada' ? 'bg-sky-100 text-sky-800' : 'bg-yellow-100 text-yellow-800'}`}>{v.status}</span>
+                        </td>
+                        <td className="p-4">
+                            <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                <div className="bg-emerald-500 h-2.5 rounded-full" style={{ width: `${(v.raised / v.goal) * 100}%` }}></div>
+                            </div>
+                        </td>
+                        <td className="p-4">
+                             <button className="text-sm text-sky-600 hover:text-sky-800 font-medium">Ver Detalhes</button>
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+);
+// --- END: SYSTEM ADMIN DASHBOARD ---
+
+export default function App() {
+    const [userType, setUserType] = useState<string | null>(null);
+
+    const handleGroupAdminLogin = () => setUserType('groupAdmin');
+    const handleSystemAdminLogin = () => setUserType('systemAdmin');
+    const handleLogout = () => setUserType(null);
+    
+    const renderPage = () => {
+        switch (userType) {
+            case 'groupAdmin':
+                return <GroupAdminDashboard />;
+            case 'systemAdmin':
+                return <SystemAdminDashboard />;
+            default:
+                return <LandingPage />;
+        }
+    };
+
+    return (
+        <ToastProvider>
+            <Header
+                userType={userType}
+                onGroupAdminLogin={handleGroupAdminLogin}
+                onSystemAdminLogin={handleSystemAdminLogin}
+                onLogout={handleLogout}
+            />
+            {renderPage()}
+            {!userType && <AiChatbot />}
+        </ToastProvider>
+    );
+}
