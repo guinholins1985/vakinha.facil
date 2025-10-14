@@ -618,6 +618,58 @@ const Footer = () => (
 );
 
 // --- START: SHARED DASHBOARD COMPONENTS ---
+// FIX: Made children prop optional.
+const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children?: React.ReactNode }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center" onClick={onClose}>
+            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg m-4 animate-modal-in" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center mb-4 pb-4 border-b">
+                    <h2 className="text-xl font-bold text-gray-800 font-heading">{title}</h2>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+                </div>
+                {children}
+            </div>
+             <style>{`
+                @keyframes modal-in {
+                    from { transform: translateY(-20px) scale(0.98); opacity: 0; }
+                    to { transform: translateY(0) scale(1); opacity: 1; }
+                }
+                .animate-modal-in { animation: modal-in 0.3s cubic-bezier(0.21, 1.02, 0.73, 1) forwards; }
+            `}</style>
+        </div>
+    );
+};
+
+// FIX: Made children prop optional.
+const FormField = ({ label, children }: { label: string; children?: React.ReactNode }) => (
+    <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        {children}
+    </div>
+);
+
+const TextInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
+    <input {...props} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500" />
+);
+
+const TextArea = (props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
+    <textarea {...props} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500" />
+);
+
+const Select = ({ children, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) => (
+    <select {...props} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 bg-white">
+        {children}
+    </select>
+);
+
+const PrimaryButton = ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+     <button {...props} className="bg-emerald-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+        {children}
+    </button>
+);
+
 
 interface CardProps {
     children?: React.ReactNode;
@@ -650,97 +702,98 @@ const StatCard = ({ title, value, change }: { title: string; value: string | num
         </div>
     </div>
 );
-
-const ChartPlaceholder = ({ height = 'h-64' }: { height?: string }) => (
-    <div className={`w-full ${height} bg-slate-50 rounded-lg flex items-center justify-center border border-dashed`}>
-        <p className="text-sm text-gray-500">[ Visualização de Gráfico ]</p>
-    </div>
-);
 // --- END: SHARED DASHBOARD COMPONENTS ---
 
 
 // --- START: GROUP ADMIN DASHBOARD ---
+const groupAdminMockData = {
+    name: "Viagem para Bahia",
+    goal: 10000,
+    raised: 7500,
+    deadline: "2024-08-30",
+    participants: [
+        { id: 1, name: "João Silva", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704a", status: "Pago", amount: 500, tags: ['Amigo'] },
+        { id: 2, name: "Maria Oliveira", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704b", status: "Atrasado", amount: 0, tags: ['Família'] },
+        { id: 3, name: "Carlos Souza", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704c", status: "Pago", amount: 500, tags: ['Colega'] },
+        { id: 4, name: "Ana Pereira", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d", status: "Pendente", amount: 0, tags: ['Amigo'] },
+        { id: 5, name: "Lucas Costa", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e", status: "Pago", amount: 500, tags: ['Amigo'] },
+        { id: 6, name: "Juliana Moraes", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704f", status: "Pago", amount: 750, tags: ['VIP'] },
+        { id: 7, name: "Ricardo Gomes", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704g", status: "Pago", amount: 500, tags: [] },
+    ],
+    payments: [
+        { id: 1, name: 'João Silva', date: '2024-07-15', amount: 500, method: 'Pix' },
+        { id: 2, name: 'Carlos Souza', date: '2024-07-14', amount: 500, method: 'Cartão' },
+        { id: 3, name: 'Lucas Costa', date: '2024-07-12', amount: 500, method: 'Boleto' },
+        { id: 4, name: 'Juliana Moraes', date: '2024-07-11', amount: 750, method: 'Pix' },
+        { id: 5, name: 'Ricardo Gomes', date: '2024-07-10', amount: 500, method: 'Cartão' },
+    ],
+    budget: {
+        total: 7500,
+        spent: 4200,
+        items: [
+            { id: 1, description: "Passagens Aéreas", category: "Transporte", amount: 3500, date: "2024-07-18", receipt: true },
+            { id: 2, description: "Sinal da Pousada", category: "Hospedagem", amount: 700, date: "2024-07-20", receipt: true },
+        ],
+        categories: { "Transporte": 3500, "Hospedagem": 700 }
+    },
+    tasks: [
+        { id: 1, title: "Reservar hotel", assignedTo: "João Silva", dueDate: "2024-08-01", completed: true },
+        { id: 2, title: "Comprar passagens", assignedTo: "Admin", dueDate: "2024-07-25", completed: false },
+    ],
+    documents: [
+        { id: 1, name: "Roteiro da Viagem.pdf", size: "1.2 MB", uploadedBy: "Admin", date: "2024-07-19" },
+        { id: 2, name: "Contrato Pousada.docx", size: "350 KB", uploadedBy: "Admin", date: "2024-07-20" },
+    ],
+    messages: [
+        { id: 1, subject: "Lembrete de Pagamento", date: "2024-07-10", content: "Olá pessoal, passando para lembrar que o prazo para o pagamento da nossa vaquinha se encerra em 5 dias!", type: "Enviada" }
+    ],
+    milestones: [
+        { id: 1, name: "50% Arrecadado!", value: 5000, achieved: true },
+        { id: 2, name: "75% Arrecadado!", value: 7500, achieved: true },
+        { id: 3, name: "Meta Batida!", value: 10000, achieved: false },
+    ],
+    rewards: [
+        { id: 1, name: "Prêmio Top Contribuidor", description: "O maior contribuidor ganha um brinde especial!" }
+    ],
+    polls: [
+        { id: 1, question: "Qual a data da festa de confraternização?", options: [{text: "Sexta-feira (20/12)", votes: 5}, {text: "Sábado (21/12)", votes: 2}], status: "Fechada" }
+    ],
+    activityFeed: [
+         { id: 1, type: "Pagamento", text: "Juliana Moraes pagou R$ 750,00.", time: "2 dias atrás" },
+         { id: 2, type: "Participante", text: "Ricardo Gomes entrou no grupo.", time: "3 dias atrás" },
+         { id: 3, type: "Mensagem", text: "Você enviou um lembrete para todos.", time: "4 dias atrás" },
+    ],
+    settings: {
+        privacy: 'Invite-only',
+        notifications: { email: true, push: false },
+        allowInstallments: true,
+        automations: {
+            paymentReminders: true,
+            thankYouMessages: true,
+        }
+    }
+};
+
 const GroupAdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('Resumo');
+    const [data, setData] = useState(groupAdminMockData);
+
     const tabs = ['Resumo', 'Participantes', 'Pagamentos', 'Orçamento', 'Tarefas', 'Documentos', 'Convites', 'Mensagens', 'Metas e Prêmios', 'Enquetes', 'Relatórios', 'Configurações'];
-    const mockData = {
-        name: "Viagem para Bahia",
-        goal: 10000,
-        raised: 7500,
-        deadline: "2024-08-30",
-        participants: [
-            { id: 1, name: "João Silva", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704a", status: "Pago", amount: 500, tags: ['Amigo'] },
-            { id: 2, name: "Maria Oliveira", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704b", status: "Atrasado", amount: 0, tags: ['Família'] },
-            { id: 3, name: "Carlos Souza", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704c", status: "Pago", amount: 500, tags: ['Colega'] },
-            { id: 4, name: "Ana Pereira", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d", status: "Pendente", amount: 0, tags: ['Amigo'] },
-            { id: 5, name: "Lucas Costa", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e", status: "Pago", amount: 500, tags: ['Amigo'] },
-            { id: 6, name: "Juliana Moraes", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704f", status: "Pago", amount: 750, tags: ['VIP'] },
-            { id: 7, name: "Ricardo Gomes", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704g", status: "Pago", amount: 500, tags: [] },
-        ],
-        payments: [
-            { id: 1, name: 'João Silva', date: '2024-07-15', amount: 500, method: 'Pix' },
-            { id: 2, name: 'Carlos Souza', date: '2024-07-14', amount: 500, method: 'Cartão' },
-            { id: 3, name: 'Lucas Costa', date: '2024-07-12', amount: 500, method: 'Boleto' },
-            { id: 4, name: 'Juliana Moraes', date: '2024-07-11', amount: 750, method: 'Pix' },
-            { id: 5, name: 'Ricardo Gomes', date: '2024-07-10', amount: 500, method: 'Cartão' },
-        ],
-        budget: {
-            total: 7500,
-            spent: 4200,
-            items: [
-                { id: 1, description: "Passagens Aéreas", category: "Transporte", amount: 3500, date: "2024-07-18", receipt: true },
-                { id: 2, description: "Sinal da Pousada", category: "Hospedagem", amount: 700, date: "2024-07-20", receipt: true },
-            ],
-            categories: { "Transporte": 3500, "Hospedagem": 700 }
-        },
-        tasks: [
-            { id: 1, title: "Reservar hotel", assignedTo: "João Silva", dueDate: "2024-08-01", completed: true },
-            { id: 2, title: "Comprar passagens", assignedTo: "Admin", dueDate: "2024-07-25", completed: false },
-        ],
-        documents: [
-            { id: 1, name: "Roteiro da Viagem.pdf", size: "1.2 MB", uploadedBy: "Admin", date: "2024-07-19" },
-            { id: 2, name: "Contrato Pousada.docx", size: "350 KB", uploadedBy: "Admin", date: "2024-07-20" },
-        ],
-        messages: [
-            { id: 1, subject: "Lembrete de Pagamento", date: "2024-07-10", content: "Olá pessoal, passando para lembrar que o prazo para o pagamento da nossa vaquinha se encerra em 5 dias!", type: "Enviada" }
-        ],
-        milestones: [
-            { id: 1, name: "50% Arrecadado!", value: 5000, achieved: true },
-            { id: 2, name: "75% Arrecadado!", value: 7500, achieved: true },
-            { id: 3, name: "Meta Batida!", value: 10000, achieved: false },
-        ],
-        rewards: [
-            { id: 1, name: "Prêmio Top Contribuidor", description: "O maior contribuidor ganha um brinde especial!" }
-        ],
-        polls: [
-            { id: 1, question: "Qual a data da festa de confraternização?", options: [{text: "Sexta-feira (20/12)", votes: 5}, {text: "Sábado (21/12)", votes: 2}], status: "Fechada" }
-        ],
-        activityFeed: [
-             { id: 1, type: "Pagamento", text: "Juliana Moraes pagou R$ 750,00.", time: "2 dias atrás" },
-             { id: 2, type: "Participante", text: "Ricardo Gomes entrou no grupo.", time: "3 dias atrás" },
-             { id: 3, type: "Mensagem", text: "Você enviou um lembrete para todos.", time: "4 dias atrás" },
-        ],
-        settings: {
-            privacy: 'Invite-only',
-            notifications: { email: true, push: false },
-            allowInstallments: true,
-        }
-    };
     
     const renderContent = () => {
         switch(activeTab) {
-            case 'Resumo': return <GroupResumoView data={mockData} />;
-            case 'Participantes': return <GroupParticipantesView data={mockData} />;
-            case 'Pagamentos': return <GroupPagamentosView data={mockData} />;
-            case 'Orçamento': return <GroupOrcamentoView data={mockData} />;
-            case 'Tarefas': return <GroupTarefasView data={mockData} />;
-            case 'Documentos': return <GroupDocumentosView data={mockData} />;
+            case 'Resumo': return <GroupResumoView data={data} />;
+            case 'Participantes': return <GroupParticipantesView data={data} setData={setData} />;
+            case 'Pagamentos': return <GroupPagamentosView data={data} />;
+            case 'Orçamento': return <GroupOrcamentoView data={data} setData={setData} />;
+            case 'Tarefas': return <GroupTarefasView data={data} setData={setData} />;
+            case 'Documentos': return <GroupDocumentosView data={data} setData={setData} />;
             case 'Convites': return <GroupConvitesView />;
-            case 'Mensagens': return <GroupMensagensView data={mockData} />;
-            case 'Metas e Prêmios': return <GroupMetasView data={mockData} />;
-            case 'Enquetes': return <GroupEnquetesView data={mockData} />;
+            case 'Mensagens': return <GroupMensagensView data={data} setData={setData} />;
+            case 'Metas e Prêmios': return <GroupMetasView data={data} />;
+            case 'Enquetes': return <GroupEnquetesView data={data} setData={setData} />;
             case 'Relatórios': return <GroupRelatoriosView />;
-            case 'Configurações': return <GroupConfiguracoesView data={mockData} />;
+            case 'Configurações': return <GroupConfiguracoesView data={data} setData={setData} />;
             default: return null;
         }
     }
@@ -749,10 +802,10 @@ const GroupAdminDashboard = () => {
         <main className="bg-slate-50 min-h-screen pt-32 pb-16">
             <div className="container mx-auto px-6">
                 <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
-                    <h1 className="text-3xl font-bold text-gray-800 font-heading">{mockData.name}</h1>
+                    <h1 className="text-3xl font-bold text-gray-800 font-heading">{data.name}</h1>
                     <div className="flex space-x-3">
                          <button onClick={() => setActiveTab('Configurações')} className="bg-white text-gray-700 font-semibold px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block -mt-1 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0L7.86 6.81c-.46.12-.9.29-1.31.52l-3.23-1.61c-1.48-.74-3.15.5-2.73 2.13l1.58 3.16c.31.62.31 1.33 0 1.95l-1.58 3.16c-.42 1.63 1.25 2.87 2.73 2.13l3.23-1.61c.41.23.85.4 1.31.52l.65 3.64c.38 1.56 2.6 1.56 2.98 0l.65-3.64c.46-.12.9-.29 1.31.52l3.23 1.61c1.48.74 3.15-.5 2.73-2.13l-1.58-3.16a2.035 2.035 0 010-1.95l1.58-3.16c.42 1.63-1.25-2.87-2.73-2.13l-3.23 1.61a4.93 4.93 0 00-1.31-.52L11.49 3.17zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block -mt-1 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0L7.86 6.81c-.46.12-.9.29-1.31.52l-3.23-1.61c-1.48-.74-3.15.5-2.73 2.13l1.58 3.16c.31.62.31 1.33 0 1.95l-1.58 3.16c-.42 1.63 1.25 2.87 2.73 2.13l3.23-1.61c.41.23.85.4 1.31.52l.65 3.64c.38 1.56 2.6 1.56 2.98 0l.65-3.64c.46-.12.9-.29 1.31.52l3.23 1.61c1.48.74 3.15-.5 2.73 2.13l-1.58-3.16a2.035 2.035 0 010-1.95l1.58-3.16c.42 1.63-1.25-2.87-2.73-2.13l-3.23 1.61a4.93 4.93 0 00-1.31-.52L11.49 3.17zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
                             Configurar
                         </button>
                         <button onClick={() => setActiveTab('Convites')} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">
@@ -833,9 +886,10 @@ const GroupResumoView = ({data}: {data: any}) => {
     );
 }
 
-const GroupParticipantesView = ({data}: {data: any}) => {
+const GroupParticipantesView = ({data, setData}: {data: any, setData: Function}) => {
     const { addToast } = useToast();
     const [selected, setSelected] = useState<number[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleSelect = (id: number) => {
         setSelected(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
@@ -855,6 +909,25 @@ const GroupParticipantesView = ({data}: {data: any}) => {
         addToast(`Lembrete enviado para ${selected.length} participante(s)!`, 'info');
         setSelected([]);
     }
+    
+    const handleRegisterPayment = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const participantId = parseInt(formData.get('participantId') as string);
+        const amount = parseFloat(formData.get('amount') as string);
+
+        setData((prevData: any) => {
+            const newParticipants = prevData.participants.map((p: any) =>
+                p.id === participantId ? { ...p, status: 'Pago', amount: p.amount + amount } : p
+            );
+            const newRaised = prevData.raised + amount;
+            const newBudgetTotal = prevData.budget.total + amount;
+            return { ...prevData, participants: newParticipants, raised: newRaised, budget: { ...prevData.budget, total: newBudgetTotal } };
+        });
+        
+        addToast("Pagamento manual registrado com sucesso!", "success");
+        setIsModalOpen(false);
+    };
 
     const statusPill: {[key: string]: string} = {
         "Pago": "bg-emerald-100 text-emerald-800",
@@ -862,6 +935,7 @@ const GroupParticipantesView = ({data}: {data: any}) => {
         "Pendente": "bg-yellow-100 text-yellow-800",
     }
     return (
+        <>
         <Card className="p-0 overflow-hidden">
             <div className="p-6 border-b flex justify-between items-center flex-wrap gap-4">
                  <div>
@@ -874,7 +948,7 @@ const GroupParticipantesView = ({data}: {data: any}) => {
                             Enviar Lembrete ({selected.length})
                         </button>
                     )}
-                    <button onClick={() => addToast("Funcionalidade em desenvolvimento.", "info")} className="bg-white text-gray-700 font-semibold px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 text-sm">
+                    <button onClick={() => setIsModalOpen(true)} className="bg-white text-gray-700 font-semibold px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 text-sm">
                         + Registrar Pagamento Manual
                     </button>
                 </div>
@@ -924,10 +998,30 @@ const GroupParticipantesView = ({data}: {data: any}) => {
                 </table>
              </div>
         </Card>
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Registrar Pagamento Manual">
+            <form onSubmit={handleRegisterPayment} className="space-y-4">
+                <FormField label="Participante">
+                    <Select name="participantId" required>
+                        <option value="">Selecione...</option>
+                        {data.participants.map((p: any) => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                    </Select>
+                </FormField>
+                <FormField label="Valor (R$)">
+                    <TextInput name="amount" type="number" step="0.01" required placeholder="500,00"/>
+                </FormField>
+                 <div className="pt-4 flex justify-end">
+                    <PrimaryButton type="submit">Registrar</PrimaryButton>
+                </div>
+            </form>
+        </Modal>
+        </>
     );
 }
 
 const GroupPagamentosView = ({data}: {data: any}) => {
+     const { addToast } = useToast();
      const methodPill: {[key: string]: string} = {
         "Pix": "bg-green-100 text-green-800",
         "Cartão": "bg-blue-100 text-blue-800",
@@ -937,7 +1031,7 @@ const GroupPagamentosView = ({data}: {data: any}) => {
         <Card className="p-0 overflow-hidden">
             <div className="p-6 border-b flex justify-between items-center">
                 <h2 className="text-xl font-bold text-gray-800 font-heading">Histórico de Pagamentos</h2>
-                <button className="text-sm bg-gray-200 text-gray-700 font-semibold px-3 py-1 rounded-md hover:bg-gray-300">Exportar PDF</button>
+                <button onClick={() => addToast("Relatório PDF gerado!", "success")} className="text-sm bg-gray-200 text-gray-700 font-semibold px-3 py-1 rounded-md hover:bg-gray-300">Exportar PDF</button>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
@@ -967,12 +1061,40 @@ const GroupPagamentosView = ({data}: {data: any}) => {
     );
 }
 
-const GroupOrcamentoView = ({ data }: { data: any }) => {
+const GroupOrcamentoView = ({ data, setData }: { data: any, setData: Function }) => {
     const { addToast } = useToast();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    
     const spentPercentage = (data.budget.spent / data.budget.total) * 100;
     const remaining = data.budget.total - data.budget.spent;
 
+    const handleAddExpense = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const newExpense = {
+            id: Date.now(),
+            description: formData.get('description') as string,
+            category: formData.get('category') as string,
+            amount: parseFloat(formData.get('amount') as string),
+            date: new Date().toISOString().split('T')[0],
+            receipt: false,
+        };
+        
+        setData((prevData: any) => ({
+            ...prevData,
+            budget: {
+                ...prevData.budget,
+                items: [...prevData.budget.items, newExpense],
+                spent: prevData.budget.spent + newExpense.amount,
+            }
+        }));
+        
+        addToast("Despesa adicionada com sucesso!", "success");
+        setIsModalOpen(false);
+    };
+
     return (
+        <>
         <div className="space-y-8">
             <div className="grid md:grid-cols-3 gap-6">
                 <StatCard title="Total Arrecadado" value={`R$ ${data.budget.total.toLocaleString('pt-BR')}`} />
@@ -992,7 +1114,7 @@ const GroupOrcamentoView = ({ data }: { data: any }) => {
             <Card className="p-0 overflow-hidden">
                 <div className="p-6 border-b flex justify-between items-center">
                     <h2 className="text-xl font-bold text-gray-800 font-heading">Despesas</h2>
-                    <button onClick={() => addToast("Funcionalidade em desenvolvimento.", "info")} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Adicionar Despesa</button>
+                    <button onClick={() => setIsModalOpen(true)} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Adicionar Despesa</button>
                 </div>
                  <div className="overflow-x-auto">
                     <table className="w-full text-left">
@@ -1010,7 +1132,7 @@ const GroupOrcamentoView = ({ data }: { data: any }) => {
                                 <tr key={item.id}>
                                     <td className="p-4 font-medium text-gray-800">{item.description}</td>
                                     <td className="p-4"><span className="px-2 py-1 bg-slate-200 text-slate-800 rounded-full text-xs font-semibold">{item.category}</span></td>
-                                    <td className="p-4 text-gray-600">{item.date}</td>
+                                    <td className="p-4 text-gray-600">{new Date(item.date).toLocaleDateString('pt-BR')}</td>
                                     <td className="p-4 font-medium text-red-600">- R$ {item.amount.toLocaleString('pt-BR')}</td>
                                     <td className="p-4">
                                         {item.receipt ? <button className="text-emerald-600 hover:underline">Ver</button> : <button className="text-gray-400 cursor-not-allowed">N/A</button>}
@@ -1022,26 +1144,62 @@ const GroupOrcamentoView = ({ data }: { data: any }) => {
                  </div>
             </Card>
         </div>
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Adicionar Nova Despesa">
+            <form onSubmit={handleAddExpense} className="space-y-4">
+                <FormField label="Descrição"><TextInput name="description" required /></FormField>
+                <FormField label="Categoria"><TextInput name="category" required /></FormField>
+                <FormField label="Valor (R$)"><TextInput name="amount" type="number" step="0.01" required /></FormField>
+                <div className="pt-4 flex justify-end">
+                    <PrimaryButton type="submit">Adicionar Despesa</PrimaryButton>
+                </div>
+            </form>
+        </Modal>
+        </>
     );
 };
 
-const GroupTarefasView = ({ data }: { data: any }) => {
+const GroupTarefasView = ({ data, setData }: { data: any, setData: Function }) => {
     const { addToast } = useToast();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleToggleTask = (taskId: number) => {
+        setData((prevData: any) => ({
+            ...prevData,
+            tasks: prevData.tasks.map((t: any) => t.id === taskId ? { ...t, completed: !t.completed } : t),
+        }));
+    };
+
+    const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const newTask = {
+            id: Date.now(),
+            title: formData.get('title') as string,
+            assignedTo: formData.get('assignedTo') as string,
+            dueDate: formData.get('dueDate') as string,
+            completed: false,
+        };
+        setData((prevData: any) => ({ ...prevData, tasks: [...prevData.tasks, newTask] }));
+        addToast("Tarefa adicionada com sucesso!", "success");
+        setIsModalOpen(false);
+    };
+
     return (
+        <>
         <Card>
             <div className="flex justify-between items-center mb-4">
                 <CardTitle>Lista de Tarefas do Grupo</CardTitle>
-                <button onClick={() => addToast("Funcionalidade em desenvolvimento.", "info")} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Nova Tarefa</button>
+                <button onClick={() => setIsModalOpen(true)} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Nova Tarefa</button>
             </div>
             <p className="text-gray-600 mb-6 text-sm">Organize as responsabilidades para que nada seja esquecido.</p>
             <div className="space-y-3">
                 {data.tasks.map((task: any) => (
                     <div key={task.id} className="flex items-center p-3 border rounded-lg bg-slate-50">
-                        <input type="checkbox" defaultChecked={task.completed} className="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 mr-4" />
+                        <input type="checkbox" checked={task.completed} onChange={() => handleToggleTask(task.id)} className="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 mr-4" />
                         <div className="flex-1">
                             <p className={`font-medium text-gray-800 ${task.completed ? 'line-through text-gray-500' : ''}`}>{task.title}</p>
                             <p className="text-xs text-gray-500">
-                                Responsável: {task.assignedTo} | Prazo: {task.dueDate}
+                                Responsável: {task.assignedTo} | Prazo: {new Date(task.dueDate).toLocaleDateString('pt-BR')}
                             </p>
                         </div>
                         <button className="text-gray-400 hover:text-red-500">&hellip;</button>
@@ -1049,16 +1207,62 @@ const GroupTarefasView = ({ data }: { data: any }) => {
                 ))}
             </div>
         </Card>
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Criar Nova Tarefa">
+             <form onSubmit={handleAddTask} className="space-y-4">
+                <FormField label="Título da Tarefa"><TextInput name="title" required /></FormField>
+                <FormField label="Responsável">
+                    <Select name="assignedTo" defaultValue="Admin">
+                        <option>Admin</option>
+                        {data.participants.map((p: any) => <option key={p.id}>{p.name}</option>)}
+                    </Select>
+                </FormField>
+                <FormField label="Prazo"><TextInput name="dueDate" type="date" required /></FormField>
+                <div className="pt-4 flex justify-end">
+                    <PrimaryButton type="submit">Criar Tarefa</PrimaryButton>
+                </div>
+            </form>
+        </Modal>
+        </>
     );
 };
 
-const GroupDocumentosView = ({ data }: { data: any }) => {
+const GroupDocumentosView = ({ data, setData }: { data: any, setData: Function }) => {
     const { addToast } = useToast();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleUploadClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const newDoc = {
+                id: Date.now(),
+                name: file.name,
+                size: `${(file.size / 1024).toFixed(1)} KB`,
+                uploadedBy: "Admin",
+                date: new Date().toISOString().split('T')[0],
+            };
+            setData((prevData: any) => ({ ...prevData, documents: [...prevData.documents, newDoc] }));
+            addToast("Documento enviado com sucesso!", "success");
+        }
+    };
+    
+    const handleDelete = (docId: number) => {
+        setData((prevData: any) => ({
+            ...prevData,
+            documents: prevData.documents.filter((d: any) => d.id !== docId),
+        }));
+        addToast("Documento excluído.", "error");
+    };
+
     return (
         <Card>
             <div className="flex justify-between items-center mb-4">
                 <CardTitle>Documentos Compartilhados</CardTitle>
-                <button onClick={() => addToast("Funcionalidade em desenvolvimento.", "info")} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
+                <button onClick={handleUploadClick} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block mr-1 -mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
                     Upload
                 </button>
@@ -1081,8 +1285,8 @@ const GroupDocumentosView = ({ data }: { data: any }) => {
                                 <td className="p-4 font-medium text-emerald-700 hover:underline cursor-pointer">{doc.name}</td>
                                 <td className="p-4 text-gray-600">{doc.size}</td>
                                 <td className="p-4 text-gray-600">{doc.uploadedBy}</td>
-                                <td className="p-4 text-gray-600">{doc.date}</td>
-                                <td className="p-4"><button className="text-red-500 hover:text-red-700">Excluir</button></td>
+                                <td className="p-4 text-gray-600">{new Date(doc.date).toLocaleDateString('pt-BR')}</td>
+                                <td className="p-4"><button onClick={() => handleDelete(doc.id)} className="text-red-500 hover:text-red-700">Excluir</button></td>
                             </tr>
                         ))}
                     </tbody>
@@ -1118,13 +1322,21 @@ const GroupConvitesView = () => {
     );
 };
 
-const GroupMensagensView = ({ data }: { data: any }) => {
+const GroupMensagensView = ({ data, setData }: { data: any, setData: Function }) => {
     const { addToast } = useToast();
-    const handleSendMessage = (e: React.FormEvent) => {
+    const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const newMessage = {
+            id: Date.now(),
+            subject: formData.get('subject') as string,
+            content: formData.get('content') as string,
+            date: new Date().toISOString().split('T')[0],
+            type: "Enviada"
+        };
+        setData((prevData: any) => ({ ...prevData, messages: [...prevData.messages, newMessage] }));
         addToast("Mensagem enviada para todos os participantes!", "success");
-        const form = e.target as HTMLFormElement;
-        form.reset();
+        e.currentTarget.reset();
     };
     return (
         <div className="space-y-8">
@@ -1135,16 +1347,10 @@ const GroupMensagensView = ({ data }: { data: any }) => {
                     <button className="text-sm bg-gray-200 text-gray-700 font-semibold px-3 py-1 rounded-md hover:bg-gray-300">Agendar Envio</button>
                 </div>
                 <form onSubmit={handleSendMessage} className="space-y-4">
-                    <div>
-                        <label htmlFor="messageSubject" className="block text-sm font-medium text-gray-700 mb-1">Assunto</label>
-                        <input type="text" id="messageSubject" required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500" />
-                    </div>
-                    <div>
-                        <label htmlFor="messageContent" className="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
-                        <textarea id="messageContent" rows={4} required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"></textarea>
-                    </div>
+                    <FormField label="Assunto"><TextInput name="subject" required /></FormField>
+                    <FormField label="Mensagem"><TextArea name="content" required /></FormField>
                     <div className="pt-2">
-                        <button type="submit" className="bg-emerald-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">Enviar para Todos</button>
+                        <PrimaryButton type="submit">Enviar para Todos</PrimaryButton>
                     </div>
                 </form>
             </Card>
@@ -1155,7 +1361,7 @@ const GroupMensagensView = ({ data }: { data: any }) => {
                         <div key={msg.id} className="p-4 border rounded-lg bg-slate-50">
                             <div className="flex justify-between items-center mb-1">
                                 <h3 className="font-bold text-gray-800">{msg.subject}</h3>
-                                <span className="text-xs text-gray-500">{msg.date}</span>
+                                <span className="text-xs text-gray-500">{new Date(msg.date).toLocaleDateString('pt-BR')}</span>
                             </div>
                             <p className="text-gray-600 text-sm">{msg.content}</p>
                         </div>
@@ -1232,15 +1438,35 @@ const GroupMetasView = ({ data }: { data: any }) => {
     );
 };
 
-const GroupEnquetesView = ({ data }: { data: any }) => {
+const GroupEnquetesView = ({ data, setData }: { data: any, setData: Function }) => {
     const { addToast } = useToast();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    const handleCreatePoll = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const options = (formData.get('options') as string)
+            .split(',')
+            .map(opt => ({ text: opt.trim(), votes: 0 }));
+        
+        const newPoll = {
+            id: Date.now(),
+            question: formData.get('question') as string,
+            options: options,
+            status: "Aberta"
+        };
+        setData((prevData: any) => ({ ...prevData, polls: [...prevData.polls, newPoll] }));
+        addToast("Enquete criada com sucesso!", "success");
+        setIsModalOpen(false);
+    };
 
     return (
+        <>
         <div className="space-y-8">
             <Card>
                  <div className="flex justify-between items-center mb-4">
                     <CardTitle>Enquetes do Grupo</CardTitle>
-                    <button onClick={() => addToast("Funcionalidade em desenvolvimento.", "info")} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition text-sm">
+                    <button onClick={() => setIsModalOpen(true)} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition text-sm">
                         + Criar Enquete
                     </button>
                 </div>
@@ -1274,6 +1500,18 @@ const GroupEnquetesView = ({ data }: { data: any }) => {
                 ))}
             </Card>
         </div>
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Criar Nova Enquete">
+             <form onSubmit={handleCreatePoll} className="space-y-4">
+                <FormField label="Pergunta"><TextInput name="question" required /></FormField>
+                <FormField label="Opções (separadas por vírgula)">
+                    <TextInput name="options" required placeholder="Opção 1, Opção 2, Opção 3"/>
+                </FormField>
+                <div className="pt-4 flex justify-end">
+                    <PrimaryButton type="submit">Criar Enquete</PrimaryButton>
+                </div>
+            </form>
+        </Modal>
+        </>
     );
 };
 
@@ -1308,11 +1546,34 @@ const GroupRelatoriosView = () => {
     );
 };
 
-const GroupConfiguracoesView = ({data}: {data: any}) => {
+const GroupConfiguracoesView = ({data, setData}: {data: any, setData: Function}) => {
     const { addToast } = useToast();
+    
+    const [formState, setFormState] = useState({ name: data.name, goal: data.goal, privacy: data.settings.privacy });
+    const [automations, setAutomations] = useState(data.settings.automations);
+
+    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFormState(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+    
+    const handleAutomationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setAutomations(prev => ({ ...prev, [e.target.name]: e.target.checked }));
+    }
+
+    const handleSave = () => {
+        setData((prevData: any) => ({
+            ...prevData,
+            name: formState.name,
+            goal: formState.goal,
+            settings: { ...prevData.settings, privacy: formState.privacy, automations: automations }
+        }));
+        addToast("Configurações salvas com sucesso!", "success");
+    };
+
     const handleDelete = () => {
         if (window.confirm("Tem certeza que deseja apagar esta vaquinha? Esta ação é irreversível.")) {
             addToast("Vaquinha apagada com sucesso.", "success");
+            // In a real app, you would navigate away or reset the state
         }
     }
     return (
@@ -1320,23 +1581,17 @@ const GroupConfiguracoesView = ({data}: {data: any}) => {
             <Card>
                 <CardTitle>Configurações Gerais</CardTitle>
                 <form className="space-y-4">
-                     <div>
-                        <label htmlFor="vakinhaName" className="block text-sm font-medium text-gray-700">Nome da Vaquinha</label>
-                        <input type="text" id="vakinhaName" defaultValue={data.name} className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
-                    </div>
-                     <div>
-                        <label htmlFor="vakinhaGoal" className="block text-sm font-medium text-gray-700">Meta (R$)</label>
-                        <input type="number" id="vakinhaGoal" defaultValue={data.goal} className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
-                    </div>
+                     <FormField label="Nome da Vaquinha"><TextInput name="name" value={formState.name} onChange={handleFormChange} /></FormField>
+                     <FormField label="Meta (R$)"><TextInput name="goal" type="number" value={formState.goal} onChange={handleFormChange} /></FormField>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Privacidade</label>
                         <div className="mt-2 flex gap-4">
-                            <label className="flex items-center"><input type="radio" name="privacy" defaultChecked={data.settings.privacy === 'Public'} className="h-4 w-4 text-emerald-600 border-gray-300 focus:ring-emerald-500"/> <span className="ml-2">Pública</span></label>
-                             <label className="flex items-center"><input type="radio" name="privacy" defaultChecked={data.settings.privacy === 'Invite-only'} className="h-4 w-4 text-emerald-600 border-gray-300 focus:ring-emerald-500"/> <span className="ml-2">Apenas Convidados</span></label>
+                            <label className="flex items-center"><input type="radio" name="privacy" value="Public" checked={formState.privacy === 'Public'} onChange={handleFormChange} className="h-4 w-4 text-emerald-600 border-gray-300 focus:ring-emerald-500"/> <span className="ml-2">Pública</span></label>
+                             <label className="flex items-center"><input type="radio" name="privacy" value="Invite-only" checked={formState.privacy === 'Invite-only'} onChange={handleFormChange} className="h-4 w-4 text-emerald-600 border-gray-300 focus:ring-emerald-500"/> <span className="ml-2">Apenas Convidados</span></label>
                         </div>
                     </div>
                     <div className="pt-2">
-                        <button type="button" onClick={() => addToast("Configurações salvas!", "success")} className="bg-emerald-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">Salvar Alterações</button>
+                        <PrimaryButton type="button" onClick={handleSave}>Salvar Alterações</PrimaryButton>
                     </div>
                 </form>
             </Card>
@@ -1350,7 +1605,7 @@ const GroupConfiguracoesView = ({data}: {data: any}) => {
                             <p className="text-sm text-gray-500">Enviar 3 dias antes do vencimento para pendentes.</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" value="" className="sr-only peer" defaultChecked />
+                          <input type="checkbox" name="paymentReminders" checked={automations.paymentReminders} onChange={handleAutomationChange} className="sr-only peer" />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                         </label>
                     </div>
@@ -1360,7 +1615,7 @@ const GroupConfiguracoesView = ({data}: {data: any}) => {
                             <p className="text-sm text-gray-500">Enviar assim que um pagamento for confirmado.</p>
                         </div>
                          <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" value="" className="sr-only peer" defaultChecked />
+                          <input type="checkbox" name="thankYouMessages" checked={automations.thankYouMessages} onChange={handleAutomationChange} className="sr-only peer" />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                         </label>
                     </div>
@@ -1388,56 +1643,95 @@ const GroupConfiguracoesView = ({data}: {data: any}) => {
 
 
 // --- START: SYSTEM ADMIN DASHBOARD ---
+const systemAdminMockData = {
+    stats: {
+        totalUsers: 1250, totalUsersChange: "+12%",
+        activeVaquinhas: 312, activeVaquinhasChange: "+5%",
+        totalRaised: 157890.50, totalRaisedChange: "+21%",
+        monthlyRevenue: 4736.71, monthlyRevenueChange: "+8%",
+        ltv: 89.50, churn: 4.2, apiUptime: "99.98%", avgResponseTime: "120ms"
+    },
+    users: Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1, name: `Usuário ${i + 1}`, email: `user${i+1}@example.com`, joinDate: "2024-07-20", status: i % 3 === 0 ? "Pendente" : "Verificado", plan: i % 2 === 0 ? "Premium" : "Básico"
+    })),
+     vaquinhas: Array.from({ length: 10 }, (_, i) => ({
+        id: `vk-${i+1}`, name: `Vakinha #${i+1}`, creator: `Usuário ${i+1}`, raised: Math.random() * 10000, goal: 10000, status: i % 3 === 0 ? "Suspensa" : "Ativa"
+    })),
+    transactions: Array.from({ length: 10 }, (_, i) => ({
+         id: `tr_${i+1}`, user: `Usuário ${i+1}`, date: '2024-07-21', amount: 19.90, type: 'Assinatura', status: i % 4 === 0 ? "Disputa" : "Confirmado"
+    })),
+    campaigns: [
+        { id: 1, name: "Boas-vindas novos usuários", segment: "Novos Usuários", status: "Ativa", sent: 150, openRate: "45%" },
+        { id: 2, name: "Upgrade para Premium", segment: "Usuários Básicos", status: "Agendada", sent: 800, openRate: "N/A" },
+    ],
+    supportTickets: [
+        { id: 1, subject: "Problema com pagamento", user: "user5@example.com", status: "Aberto", priority: "Alta", agent: "Ana" },
+        { id: 2, subject: "Dúvida sobre White-Label", user: "user10@example.com", status: "Em Andamento", priority: "Média", agent: "Bruno" },
+        { id: 3, subject: "Como convido amigos?", user: "user2@example.com", status: "Fechado", priority: "Baixa", agent: "Ana" },
+    ],
+    logs: [
+        { id: 1, user: "admin@vakinha.com", action: "ALTEROU_CONFIGURAÇÃO", details: "Modo Manutenção ativado", timestamp: "2024-07-21 10:00:00", ip: "192.168.1.1" },
+        { id: 2, user: "joao.silva@example.com", action: "LOGIN_FALHOU", details: "Senha incorreta", timestamp: "2024-07-21 09:58:30", ip: "200.1.2.3" },
+         { id: 3, user: "maria.o@example.com", action: "CRIOU_VAQUINHA", details: "ID: VK-84920", timestamp: "2024-07-21 09:45:10", ip: "189.5.6.7" },
+    ],
+    compliance: {
+        kyc: [{id: 1, user: 'user15@example.com', date: '2024-07-22', status: 'Pendente'}],
+        aml: [{id: 1, type: 'Transação Incomum', details: 'ID: tr_8, Valor: R$ 5.000', status: 'Pendente'}]
+    },
+    apiKeys: [
+        {id: 1, name: 'Cliente White-Label A', key: 'vf_live_xxxxxxxxxx1234', created: '2024-06-01'}
+    ],
+    settings: {
+        general: { maintenanceMode: false, platformName: "Vakinha Fácil" },
+        gateways: [
+            { id: 'mercadoPago', name: 'Mercado Pago', active: true, isDefault: true, clientId: 'MP_CLIENT_ID_123', clientSecret: 'MP_SECRET_456' },
+            { id: 'stripe', name: 'Stripe', active: false, isDefault: false, clientId: '', clientSecret: '' },
+            { id: 'pagseguro', name: 'PagSeguro', active: false, isDefault: false, clientId: '', clientSecret: '' },
+            { id: 'picpay', name: 'PicPay', active: false, isDefault: false, clientId: '', clientSecret: '' },
+            { id: 'nubank', name: 'NuBank', active: false, isDefault: false, clientId: '', clientSecret: '' },
+            { id: 'inter', name: 'Banco Inter', active: false, isDefault: false, clientId: '', clientSecret: '' },
+            { id: 'will', name: 'Will Bank', active: false, isDefault: false, clientId: '', clientSecret: '' },
+        ],
+        users: {
+            roles: [
+                { id: 1, name: 'Admin', permissions: ['manage_users', 'manage_settings', 'view_reports'] },
+                { id: 2, name: 'Moderador', permissions: ['manage_vaquinhas', 'manage_support_tickets'] },
+                { id: 3, name: 'Suporte', permissions: ['manage_support_tickets'] },
+            ],
+            verificationRequired: true,
+        },
+        vaquinhas: { maxGoal: 50000, defaultDurationDays: 90, categories: ['Viagem', 'Festa', 'Presente', 'Outros'] },
+        security: { enablePhoneEmailLogin: true, enableGoogleLogin: true, enableFacebookLogin: false, enforce2FA: 'optional', minPasswordLength: 8 },
+        financial: { platformFeePercent: 3.5, payoutFeeFixed: 4.00, payoutSchedule: 'weekly' },
+        marketing: { mailchimpApiKey: '', sendgridApiKey: '', gaTrackingId: 'UA-12345-Y', metaPixelId: '123456789' },
+        layout: { logoUrl: '', primaryColor: '#10b981', headerLinks: '[{"text":"Início","url":"/"}]', footerLinks: '[{"text":"Privacidade","url":"/privacy"}]' },
+        banners: [
+            { id: 1, imageUrl: 'https://i.imgur.com/example-banner.png', linkUrl: '/new-feature', isActive: true }
+        ],
+        api: { webhooks: [{ id: 1, url: 'https://meusistema.com/webhook', event: 'payment.confirmed' }] },
+        support: { slaHours: 24, cannedResponses: [{ id: 1, title: 'Boas-vindas', text: 'Olá! Bem-vindo ao suporte.' }] },
+        logs: { retentionDays: 90 },
+    }
+};
+
 const SystemAdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('Dashboard');
+    const [data, setData] = useState(systemAdminMockData);
     const tabs = ['Dashboard', 'Usuários', 'Vaquinhas', 'Financeiro', 'Analytics', 'Marketing', 'Compliance e Fraude', 'API e Integrações', 'Suporte', 'Logs', 'Configurações'];
-    
-    const mockData = {
-        stats: {
-            totalUsers: 1250, totalUsersChange: "+12%",
-            activeVaquinhas: 312, activeVaquinhasChange: "+5%",
-            totalRaised: 157890.50, totalRaisedChange: "+21%",
-            monthlyRevenue: 4736.71, monthlyRevenueChange: "+8%",
-            ltv: 89.50, churn: 4.2, apiUptime: "99.98%", avgResponseTime: "120ms"
-        },
-        users: Array.from({ length: 20 }, (_, i) => ({
-            id: i + 1, name: `Usuário ${i + 1}`, email: `user${i+1}@example.com`, joinDate: "2024-07-20", status: i % 3 === 0 ? "Pendente" : "Verificado", plan: i % 2 === 0 ? "Premium" : "Básico"
-        })),
-         vaquinhas: Array.from({ length: 10 }, (_, i) => ({
-            id: `vk-${i+1}`, name: `Vakinha #${i+1}`, creator: `Usuário ${i+1}`, raised: Math.random() * 10000, goal: 10000, status: i % 3 === 0 ? "Suspensa" : "Ativa"
-        })),
-        transactions: Array.from({ length: 10 }, (_, i) => ({
-             id: `tr_${i+1}`, user: `Usuário ${i+1}`, date: '2024-07-21', amount: 19.90, type: 'Assinatura', status: i % 4 === 0 ? "Disputa" : "Confirmado"
-        })),
-        campaigns: [
-            { id: 1, name: "Boas-vindas novos usuários", segment: "Novos Usuários", status: "Ativa", sent: 150, openRate: "45%" },
-            { id: 2, name: "Upgrade para Premium", segment: "Usuários Básicos", status: "Agendada", sent: 800, openRate: "N/A" },
-        ],
-        supportTickets: [
-            { id: 1, subject: "Problema com pagamento", user: "user5@example.com", status: "Aberto", priority: "Alta", agent: "Ana" },
-            { id: 2, subject: "Dúvida sobre White-Label", user: "user10@example.com", status: "Em Andamento", priority: "Média", agent: "Bruno" },
-            { id: 3, subject: "Como convido amigos?", user: "user2@example.com", status: "Fechado", priority: "Baixa", agent: "Ana" },
-        ],
-        logs: [
-            { id: 1, user: "admin@vakinha.com", action: "ALTEROU_CONFIGURAÇÃO", details: "Modo Manutenção ativado", timestamp: "2024-07-21 10:00:00", ip: "192.168.1.1" },
-            { id: 2, user: "joao.silva@example.com", action: "LOGIN_FALHOU", details: "Senha incorreta", timestamp: "2024-07-21 09:58:30", ip: "200.1.2.3" },
-             { id: 3, user: "maria.o@example.com", action: "CRIOU_VAQUINHA", details: "ID: VK-84920", timestamp: "2024-07-21 09:45:10", ip: "189.5.6.7" },
-        ]
-    };
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'Dashboard': return <SystemDashboardView data={mockData} />;
-            case 'Usuários': return <SystemUsuariosView data={mockData} />;
-            case 'Vaquinhas': return <SystemVaquinhasView data={mockData} />;
-            case 'Financeiro': return <SystemFinanceiroView data={mockData} />;
+            case 'Dashboard': return <SystemDashboardView data={data} />;
+            case 'Usuários': return <SystemUsuariosView data={data} />;
+            case 'Vaquinhas': return <SystemVaquinhasView data={data} setData={setData} />;
+            case 'Financeiro': return <SystemFinanceiroView data={data} setData={setData} />;
             case 'Analytics': return <SystemAnalyticsView />;
-            case 'Marketing': return <SystemMarketingView data={mockData} />;
-            case 'Compliance e Fraude': return <SystemComplianceView />;
-            case 'API e Integrações': return <SystemApiView />;
-            case 'Suporte': return <SystemSuporteView data={mockData} />;
-            case 'Logs': return <SystemLogsView data={mockData} />;
-            case 'Configurações': return <SystemConfiguracoesView />;
+            case 'Marketing': return <SystemMarketingView data={data} setData={setData} />;
+            case 'Compliance e Fraude': return <SystemComplianceView data={data} />;
+            case 'API e Integrações': return <SystemApiView data={data} setData={setData} />;
+            case 'Suporte': return <SystemSuporteView data={data} setData={setData} />;
+            case 'Logs': return <SystemLogsView data={data} />;
+            case 'Configurações': return <SystemConfiguracoesView settings={data.settings} setSystemData={setData} />;
             default: return <Card><CardTitle>Página de {activeTab}</CardTitle><p>Conteúdo em desenvolvimento.</p></Card>;
         }
     };
@@ -1486,8 +1780,15 @@ const SystemDashboardView = ({data}: {data: any}) => (
             </div>
         </Card>
         <Card>
-            <CardTitle>Visão Geral Financeira</CardTitle>
-            <ChartPlaceholder />
+            <CardTitle>Visão Geral Financeira (Últimos 6 meses)</CardTitle>
+             <div className="w-full h-64 bg-slate-50 rounded-lg p-4">
+                <svg viewBox="0 0 500 200" className="w-full h-full">
+                    <line x1="40" y1="180" x2="480" y2="180" stroke="#e2e8f0" />
+                    <line x1="40" y1="20" x2="40" y2="180" stroke="#e2e8f0" />
+                    <polyline points="40,150 120,100 200,120 280,60 360,80 440,40" fill="none" stroke="#10b981" strokeWidth="2" />
+                    <circle cx="440" cy="40" r="4" fill="#10b981" />
+                </svg>
+            </div>
         </Card>
     </div>
 );
@@ -1516,7 +1817,7 @@ const SystemUsuariosView = ({data}: {data: any}) => {
                                 </td>
                                 <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${u.plan === 'Premium' ? 'bg-purple-100 text-purple-800' : 'bg-slate-100 text-slate-800'}`}>{u.plan}</span></td>
                                 <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${u.status === 'Verificado' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{u.status}</span></td>
-                                <td className="p-4"><button onClick={() => addToast(`Personificando ${u.name}...`, 'info')} className="text-emerald-600 font-semibold hover:underline">Personificar</button></td>
+                                <td className="p-4"><button onClick={() => addToast(`Login como ${u.name}...`, 'info')} className="text-emerald-600 font-semibold hover:underline">Personificar</button></td>
                             </tr>
                         ))}
                     </tbody>
@@ -1526,8 +1827,15 @@ const SystemUsuariosView = ({data}: {data: any}) => {
     );
 };
 
-const SystemVaquinhasView = ({data}: {data: any}) => {
+const SystemVaquinhasView = ({data, setData}: {data: any, setData: Function}) => {
     const { addToast } = useToast();
+    const handleToggleStatus = (id: string) => {
+        setData((prevData: any) => ({
+            ...prevData,
+            vaquinhas: prevData.vaquinhas.map((v: any) => v.id === id ? {...v, status: v.status === 'Ativa' ? 'Suspensa' : 'Ativa'} : v)
+        }));
+        addToast('Status da vaquinha alterado!', 'info');
+    }
     return (
         <Card className="p-0 overflow-hidden">
             <div className="p-6 border-b"><CardTitle>Gerenciamento de Vaquinhas</CardTitle></div>
@@ -1549,7 +1857,7 @@ const SystemVaquinhasView = ({data}: {data: any}) => {
                                 <td className="p-4 text-gray-600">{v.creator}</td>
                                 <td className="p-4 font-medium">{`R$ ${v.raised.toFixed(2)} / ${v.goal.toFixed(2)}`}</td>
                                 <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${v.status === 'Ativa' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{v.status}</span></td>
-                                <td className="p-4"><button onClick={() => addToast(`Suspendendo ${v.name}...`, 'error')} className="text-red-600 font-semibold hover:underline">Suspender</button></td>
+                                <td className="p-4"><button onClick={() => handleToggleStatus(v.id)} className="text-red-600 font-semibold hover:underline">{v.status === 'Ativa' ? 'Suspender' : 'Reativar'}</button></td>
                             </tr>
                         ))}
                     </tbody>
@@ -1559,8 +1867,15 @@ const SystemVaquinhasView = ({data}: {data: any}) => {
     );
 };
 
-const SystemFinanceiroView = ({data}: {data: any}) => {
+const SystemFinanceiroView = ({data, setData}: {data: any, setData: Function}) => {
     const { addToast } = useToast();
+    const handleRefund = (id: string) => {
+         setData((prevData: any) => ({
+            ...prevData,
+            transactions: prevData.transactions.map((t: any) => t.id === id ? {...t, status: 'Reembolsado'} : t)
+        }));
+        addToast(`Transação ${id} reembolsada!`, 'info');
+    }
     return (
         <Card className="p-0 overflow-hidden">
             <div className="p-6 border-b"><CardTitle>Transações Recentes</CardTitle></div>
@@ -1581,8 +1896,8 @@ const SystemFinanceiroView = ({data}: {data: any}) => {
                                 <td className="p-4 font-medium">{t.user}</td>
                                 <td className="p-4 text-gray-600">{t.date}</td>
                                 <td className="p-4 font-medium">R$ {t.amount.toFixed(2)}</td>
-                                <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${t.status === 'Confirmado' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{t.status}</span></td>
-                                <td className="p-4"><button onClick={() => addToast(`Reembolsando ${t.id}...`, 'info')} className="text-emerald-600 font-semibold hover:underline">Reembolsar</button></td>
+                                <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${t.status === 'Confirmado' ? 'bg-green-100 text-green-800' : t.status === 'Reembolsado' ? 'bg-gray-100 text-gray-800' : 'bg-red-100 text-red-800'}`}>{t.status}</span></td>
+                                <td className="p-4"><button onClick={() => handleRefund(t.id)} disabled={t.status !== 'Confirmado'} className="text-emerald-600 font-semibold hover:underline disabled:text-gray-400 disabled:cursor-not-allowed">Reembolsar</button></td>
                             </tr>
                         ))}
                     </tbody>
@@ -1594,19 +1909,57 @@ const SystemFinanceiroView = ({data}: {data: any}) => {
 
 const SystemAnalyticsView = () => (
     <div className="space-y-8">
-        <Card><CardTitle>Funil de Conversão de Usuários</CardTitle><ChartPlaceholder /></Card>
-        <Card><CardTitle>Análise de Coorte de Retenção</CardTitle><ChartPlaceholder /></Card>
-        <Card><CardTitle>Receita por Plano (MRR)</CardTitle><ChartPlaceholder /></Card>
+        <Card><CardTitle>Funil de Conversão de Usuários</CardTitle>
+            <div className="w-full h-64 bg-slate-50 rounded-lg p-4">
+                <svg viewBox="0 0 500 200" className="w-full h-full">
+                     <polygon points="50,20 450,20 350,180 150,180" fill="#a7f3d0" />
+                     <polygon points="100,20 400,20 325,140 175,140" fill="#34d399" />
+                     <polygon points="150,20 350,20 300,100 200,100" fill="#059669" />
+                     <text x="250" y="50" textAnchor="middle" fill="white">Visitas</text>
+                     <text x="250" y="120" textAnchor="middle" fill="white">Cadastros</text>
+                     <text x="250" y="160" textAnchor="middle" fill="#065f46">Clientes</text>
+                </svg>
+            </div>
+        </Card>
+        <Card><CardTitle>Análise de Coorte de Retenção</CardTitle>
+            <div className="w-full h-64 bg-slate-50 rounded-lg p-4 text-xs font-mono">
+                <div className="grid grid-cols-6 gap-1 text-center">
+                    <div className="font-bold">Mês</div><div className="font-bold">M1</div><div className="font-bold">M2</div><div className="font-bold">M3</div><div className="font-bold">M4</div><div className="font-bold">M5</div>
+                    <div>Jan</div><div className="bg-emerald-600 text-white p-1">100%</div><div className="bg-emerald-500 text-white p-1">65%</div><div className="bg-emerald-400 text-white p-1">50%</div><div className="bg-emerald-300 p-1">45%</div><div className="bg-emerald-200 p-1">40%</div>
+                    <div>Fev</div><div className="bg-emerald-600 text-white p-1">100%</div><div className="bg-emerald-500 text-white p-1">70%</div><div className="bg-emerald-400 text-white p-1">55%</div><div className="bg-emerald-300 p-1">50%</div><div></div>
+                    <div>Mar</div><div className="bg-emerald-600 text-white p-1">100%</div><div className="bg-emerald-500 text-white p-1">68%</div><div className="bg-emerald-400 text-white p-1">52%</div><div></div><div></div>
+                </div>
+            </div>
+        </Card>
     </div>
 );
 
-const SystemMarketingView = ({data}: {data: any}) => {
+const SystemMarketingView = ({data, setData}: {data: any, setData: Function}) => {
     const { addToast } = useToast();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleCreateCampaign = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const newCampaign = {
+            id: Date.now(),
+            name: formData.get('name') as string,
+            segment: formData.get('segment') as string,
+            status: "Agendada",
+            sent: 0,
+            openRate: "N/A",
+        };
+        setData((prevData: any) => ({ ...prevData, campaigns: [...prevData.campaigns, newCampaign]}));
+        addToast("Campanha criada com sucesso!", "success");
+        setIsModalOpen(false);
+    };
+
      return (
+        <>
         <Card className="p-0 overflow-hidden">
             <div className="p-6 border-b flex justify-between items-center">
                 <CardTitle>Campanhas de Marketing</CardTitle>
-                <button onClick={() => addToast("Criando nova campanha...", 'info')} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Nova Campanha</button>
+                <button onClick={() => setIsModalOpen(true)} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Nova Campanha</button>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
@@ -1631,30 +1984,79 @@ const SystemMarketingView = ({data}: {data: any}) => {
                 </table>
             </div>
         </Card>
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Criar Nova Campanha">
+             <form onSubmit={handleCreateCampaign} className="space-y-4">
+                <FormField label="Nome da Campanha"><TextInput name="name" required /></FormField>
+                <FormField label="Segmento de Usuários">
+                    <Select name="segment" defaultValue="Todos">
+                        <option>Todos os Usuários</option>
+                        <option>Usuários Básicos</option>
+                        <option>Novos Usuários</option>
+                    </Select>
+                </FormField>
+                <div className="pt-4 flex justify-end">
+                    <PrimaryButton type="submit">Criar Campanha</PrimaryButton>
+                </div>
+            </form>
+        </Modal>
+        </>
     );
 }
 
-const SystemComplianceView = () => (
+const SystemComplianceView = ({data}: {data: any}) => (
     <div className="space-y-8">
-        <Card><CardTitle>Verificação de Identidade (KYC) em Andamento</CardTitle><p className="text-gray-600">Nenhum pedido pendente.</p></Card>
-        <Card><CardTitle>Alertas de Atividade Suspeita (AML)</CardTitle><p className="text-gray-600">Nenhum alerta recente.</p></Card>
+        <Card><CardTitle>Verificação de Identidade (KYC) em Andamento</CardTitle>
+            {data.compliance.kyc.length === 0 ? <p className="text-gray-600">Nenhum pedido pendente.</p> :
+                <p className="text-gray-600">{data.compliance.kyc[0].user} - {data.compliance.kyc[0].status}</p>
+            }
+        </Card>
+        <Card><CardTitle>Alertas de Atividade Suspeita (AML)</CardTitle>
+            {data.compliance.aml.length === 0 ? <p className="text-gray-600">Nenhum alerta recente.</p> :
+                 <p className="text-gray-600">{data.compliance.aml[0].details} - {data.compliance.aml[0].status}</p>
+            }
+        </Card>
         <Card><CardTitle>Disputas e Chargebacks</CardTitle><p className="text-gray-600">Nenhuma disputa aberta.</p></Card>
     </div>
 );
 
-const SystemApiView = () => (
-     <Card>
-        <CardTitle>API e Integrações</CardTitle>
-        <p className="text-gray-600 mb-4">Gerencie chaves de API para clientes White-Label e configure webhooks.</p>
-        <button className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Gerar Nova Chave de API</button>
-    </Card>
-);
+const SystemApiView = ({data, setData}: {data: any, setData: Function}) => {
+    const { addToast } = useToast();
+    const generateKey = () => {
+        const newKey = {
+            id: Date.now(),
+            name: `Nova Chave #${data.apiKeys.length + 1}`,
+            key: `vf_live_${[...Array(20)].map(() => Math.random().toString(36)[2]).join('')}`,
+            created: new Date().toISOString().split('T')[0],
+        };
+        setData((prevData: any) => ({...prevData, apiKeys: [...prevData.apiKeys, newKey]}));
+        addToast("Nova chave de API gerada!", "success");
+    }
+     return (
+        <Card>
+            <div className="flex justify-between items-center mb-4">
+                <CardTitle>API e Integrações</CardTitle>
+                <button onClick={generateKey} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Gerar Nova Chave</button>
+            </div>
+            <p className="text-gray-600 mb-6">Gerencie chaves de API para clientes White-Label.</p>
+            {data.apiKeys.map((k: any) => (
+                <div key={k.id} className="font-mono text-sm p-3 bg-slate-100 rounded mb-2 flex justify-between items-center">
+                    <span>{k.name}: {k.key}</span>
+                    <button className="font-sans text-red-500 hover:underline text-xs">Revogar</button>
+                </div>
+            ))}
+        </Card>
+    );
+}
 
-const SystemSuporteView = ({ data }: { data: any }) => {
+const SystemSuporteView = ({ data, setData }: { data: any, setData: Function }) => {
+    const handleStatusChange = (ticketId: number, newStatus: string) => {
+        setData((prevData: any) => ({
+            ...prevData,
+            supportTickets: prevData.supportTickets.map((t: any) => t.id === ticketId ? { ...t, status: newStatus } : t)
+        }));
+    };
     const priorityColors: { [key: string]: string } = {
-        'Alta': 'bg-red-100 text-red-800',
-        'Média': 'bg-yellow-100 text-yellow-800',
-        'Baixa': 'bg-blue-100 text-blue-800'
+        'Alta': 'bg-red-100 text-red-800', 'Média': 'bg-yellow-100 text-yellow-800', 'Baixa': 'bg-blue-100 text-blue-800'
     };
     return (
         <Card className="p-0 overflow-hidden">
@@ -1664,20 +2066,21 @@ const SystemSuporteView = ({ data }: { data: any }) => {
                     <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
                         <tr>
                             <th className="p-4">Assunto</th>
-                            <th className="p-4">Usuário</th>
                             <th className="p-4">Prioridade</th>
                             <th className="p-4">Status</th>
-                            <th className="p-4">Responsável</th>
+                            <th className="p-4">Ações</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 text-sm">
                         {data.supportTickets.map((ticket: any) => (
                             <tr key={ticket.id}>
-                                <td className="p-4 font-medium text-gray-800">{ticket.subject}</td>
-                                <td className="p-4 text-gray-500">{ticket.user}</td>
+                                <td className="p-4"><p className="font-medium text-gray-800">{ticket.subject}</p><p className="text-xs text-gray-500">{ticket.user}</p></td>
                                 <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${priorityColors[ticket.priority]}`}>{ticket.priority}</span></td>
-                                <td className="p-4">{ticket.status}</td>
-                                <td className="p-4 text-gray-600">{ticket.agent}</td>
+                                <td className="p-4 font-medium">{ticket.status}</td>
+                                <td className="p-4 space-x-2">
+                                    <button onClick={() => handleStatusChange(ticket.id, 'Em Andamento')} disabled={ticket.status !== 'Aberto'} className="text-xs font-semibold text-sky-600 disabled:text-gray-400">Atender</button>
+                                    <button onClick={() => handleStatusChange(ticket.id, 'Fechado')} disabled={ticket.status === 'Fechado'} className="text-xs font-semibold text-green-600 disabled:text-gray-400">Fechar</button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -1715,45 +2118,294 @@ const SystemLogsView = ({data}: {data: any}) => (
     </Card>
 );
 
-const SystemConfiguracoesView = () => {
-    const { addToast } = useToast();
+// --- START: SYSTEM ADMIN SETTINGS SUB-VIEWS ---
+const ToggleSwitch = ({ checked, onChange }: { checked: boolean, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
+    <label className="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" checked={checked} onChange={onChange} className="sr-only peer" />
+        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+    </label>
+);
+
+// FIX: Made the children prop on the SubSectionCard component optional to resolve multiple errors.
+// FIX: Made the children prop optional to resolve the TypeScript error.
+const SubSectionCard = ({ title, description, children, onSave }: { title: string, description: string, children?: React.ReactNode, onSave?: () => void }) => (
+    <Card>
+        <div className="border-b pb-4 mb-4">
+            <h3 className="text-lg font-bold text-gray-800 font-heading">{title}</h3>
+            <p className="text-sm text-gray-500 mt-1">{description}</p>
+        </div>
+        <div className="space-y-4">
+            {children}
+        </div>
+        {onSave && (
+            <div className="border-t pt-4 mt-6 text-right">
+                <PrimaryButton onClick={onSave}>Salvar Alterações</PrimaryButton>
+            </div>
+        )}
+    </Card>
+);
+
+const ConfigGatewaysView = ({ settings, setSettings, addToast }: { settings: any, setSettings: Function, addToast: Function }) => {
+    const handleGatewayChange = (id: string, field: string, value: any) => {
+        setSettings((prev: any) => ({
+            ...prev,
+            gateways: prev.gateways.map((g: any) => g.id === id ? { ...g, [field]: value } : g)
+        }));
+    };
+    
+    const handleSetDefault = (id: string) => {
+        setSettings((prev: any) => ({
+            ...prev,
+            gateways: prev.gateways.map((g: any) => ({ ...g, isDefault: g.id === id }))
+        }));
+    }
+
     return (
-        <div className="space-y-8 max-w-3xl">
-            <Card>
-                <CardTitle>Configurações Gerais da Plataforma</CardTitle>
-                 <div className="flex justify-between items-center p-3 border rounded-lg">
-                    <div>
-                        <p className="font-medium text-gray-800">Modo Manutenção</p>
-                        <p className="text-sm text-gray-500">Desativa o acesso público ao site, exceto para admins.</p>
+        <SubSectionCard
+            title="Gateways de Pagamento"
+            description="Conecte e gerencie os provedores de pagamento da plataforma."
+            onSave={() => addToast("Configurações de gateway salvas!")}
+        >
+            {settings.gateways.map((gateway: any) => (
+                <div key={gateway.id} className="p-4 border rounded-lg space-y-3">
+                    <div className="flex justify-between items-center">
+                        <span className="font-bold text-lg">{gateway.name}</span>
+                        <ToggleSwitch checked={gateway.active} onChange={e => handleGatewayChange(gateway.id, 'active', e.target.checked)} />
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" value="" className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                    </label>
+                    {gateway.active && (
+                        <div className="space-y-2">
+                            <FormField label="Client ID"><TextInput value={gateway.clientId} onChange={e => handleGatewayChange(gateway.id, 'clientId', e.target.value)} /></FormField>
+                            <FormField label="Client Secret"><TextInput type="password" value={gateway.clientSecret} onChange={e => handleGatewayChange(gateway.id, 'clientSecret', e.target.value)} /></FormField>
+                            <button disabled={gateway.isDefault} onClick={() => handleSetDefault(gateway.id)} className="text-sm text-emerald-600 font-semibold hover:underline disabled:text-gray-400">
+                                {gateway.isDefault ? 'Padrão' : 'Definir como Padrão'}
+                            </button>
+                        </div>
+                    )}
+                </div>
+            ))}
+        </SubSectionCard>
+    );
+};
+
+const ConfigUsuariosView = ({ settings, setSettings, addToast }: { settings: any, setSettings: Function, addToast: Function }) => (
+    <SubSectionCard
+        title="Usuários e Acesso"
+        description="Gerencie papéis, permissões e requisitos de verificação de usuários."
+        onSave={() => addToast("Configurações de usuários salvas!")}
+    >
+        <div className="flex justify-between items-center p-3 border rounded-lg">
+            <div>
+                <p className="font-medium text-gray-800">Exigir verificação de conta</p>
+                <p className="text-sm text-gray-500">Novos usuários devem verificar o e-mail antes de criar vaquinhas.</p>
+            </div>
+            <ToggleSwitch checked={settings.users.verificationRequired} onChange={e => setSettings((p:any) => ({...p, users: {...p.users, verificationRequired: e.target.checked}}))}/>
+        </div>
+        <div>
+            <h4 className="font-bold mb-2">Papéis e Permissões (RBAC)</h4>
+            <div className="space-y-2">
+                {settings.users.roles.map((role: any) => (
+                    <div key={role.id} className="p-3 border rounded-lg flex justify-between items-center">
+                        <span className="font-semibold">{role.name}</span>
+                        <button className="text-sm text-emerald-600 hover:underline">Editar Permissões</button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </SubSectionCard>
+);
+
+const ConfigVaquinhasView = ({ settings, setSettings, addToast }: { settings: any, setSettings: Function, addToast: Function }) => (
+     <SubSectionCard
+        title="Configurações de Vaquinhas"
+        description="Defina regras e padrões para as vaquinhas criadas na plataforma."
+        onSave={() => addToast("Configurações de vaquinhas salvas!")}
+    >
+        <FormField label="Meta Máxima Permitida (R$)">
+            <TextInput type="number" value={settings.vaquinhas.maxGoal} onChange={e => setSettings((p:any) => ({...p, vaquinhas: {...p.vaquinhas, maxGoal: e.target.value}}))} />
+        </FormField>
+        <FormField label="Duração Padrão (dias)">
+            <TextInput type="number" value={settings.vaquinhas.defaultDurationDays} onChange={e => setSettings((p:any) => ({...p, vaquinhas: {...p.vaquinhas, defaultDurationDays: e.target.value}}))} />
+        </FormField>
+         <FormField label="Categorias (separadas por vírgula)">
+            <TextInput value={settings.vaquinhas.categories.join(', ')} onChange={e => setSettings((p:any) => ({...p, vaquinhas: {...p.vaquinhas, categories: e.target.value.split(',').map(c => c.trim())}}))} />
+        </FormField>
+    </SubSectionCard>
+);
+
+const ConfigSegurancaView = ({ settings, setSettings, addToast }: { settings: any, setSettings: Function, addToast: Function }) => (
+    <SubSectionCard
+        title="Segurança e Login"
+        description="Configure opções de autenticação e políticas de senha."
+        onSave={() => addToast("Configurações de segurança salvas!")}
+    >
+        <div className="flex justify-between items-center p-3 border rounded-lg"><p>Habilitar Login com E-mail/Telefone</p><ToggleSwitch checked={settings.security.enablePhoneEmailLogin} onChange={e => setSettings((p:any) => ({...p, security: {...p.security, enablePhoneEmailLogin: e.target.checked}}))} /></div>
+        <div className="flex justify-between items-center p-3 border rounded-lg"><p>Habilitar Login com Google</p><ToggleSwitch checked={settings.security.enableGoogleLogin} onChange={e => setSettings((p:any) => ({...p, security: {...p.security, enableGoogleLogin: e.target.checked}}))} /></div>
+        <div className="flex justify-between items-center p-3 border rounded-lg"><p>Habilitar Login com Facebook</p><ToggleSwitch checked={settings.security.enableFacebookLogin} onChange={e => setSettings((p:any) => ({...p, security: {...p.security, enableFacebookLogin: e.target.checked}}))} /></div>
+        <FormField label="Forçar Autenticação de 2 Fatores (2FA)">
+            <Select value={settings.security.enforce2FA} onChange={e => setSettings((p:any) => ({...p, security: {...p.security, enforce2FA: e.target.value}}))}>
+                <option value="disabled">Desabilitado</option>
+                <option value="optional">Opcional para usuários</option>
+                <option value="required">Obrigatório para todos</option>
+            </Select>
+        </FormField>
+    </SubSectionCard>
+);
+
+const ConfigFinanceiroView = ({ settings, setSettings, addToast }: { settings: any, setSettings: Function, addToast: Function }) => (
+     <SubSectionCard
+        title="Configurações Financeiras"
+        description="Gerencie o modelo de negócio, taxas e agendamentos de repasses."
+        onSave={() => addToast("Configurações financeiras salvas!")}
+    >
+        <FormField label="Taxa da Plataforma (%)">
+            <TextInput type="number" value={settings.financial.platformFeePercent} onChange={e => setSettings((p:any) => ({...p, financial: {...p.financial, platformFeePercent: e.target.value}}))} />
+        </FormField>
+         <FormField label="Taxa Fixa por Saque (R$)">
+            <TextInput type="number" value={settings.financial.payoutFeeFixed} onChange={e => setSettings((p:any) => ({...p, financial: {...p.financial, payoutFeeFixed: e.target.value}}))} />
+        </FormField>
+        <FormField label="Agendamento de Repasses (Payouts)">
+            <Select value={settings.financial.payoutSchedule} onChange={e => setSettings((p:any) => ({...p, financial: {...p.financial, payoutSchedule: e.target.value}}))}>
+                <option value="daily">Diário (D+1)</option>
+                <option value="weekly">Semanal</option>
+                <option value="monthly">Mensal</option>
+            </Select>
+        </FormField>
+    </SubSectionCard>
+);
+
+const ConfigMarketingView = ({ settings, setSettings, addToast }: { settings: any, setSettings: Function, addToast: Function }) => (
+    <SubSectionCard
+        title="Marketing e SEO"
+        description="Integre ferramentas de marketing e adicione pixels de rastreamento."
+        onSave={() => addToast("Configurações de marketing salvas!")}
+    >
+        <FormField label="Google Analytics Tracking ID">
+            <TextInput value={settings.marketing.gaTrackingId} onChange={e => setSettings((p:any) => ({...p, marketing: {...p.marketing, gaTrackingId: e.target.value}}))} />
+        </FormField>
+         <FormField label="Meta (Facebook) Pixel ID">
+            <TextInput value={settings.marketing.metaPixelId} onChange={e => setSettings((p:any) => ({...p, marketing: {...p.marketing, metaPixelId: e.target.value}}))} />
+        </FormField>
+    </SubSectionCard>
+);
+
+const ConfigLayoutView = ({ settings, setSettings, addToast }: { settings: any, setSettings: Function, addToast: Function }) => (
+     <SubSectionCard
+        title="Layout e Aparência"
+        description="Personalize a identidade visual da plataforma."
+        onSave={() => addToast("Configurações de layout salvas!")}
+    >
+        <FormField label="URL do Logo">
+            <TextInput value={settings.layout.logoUrl} onChange={e => setSettings((p:any) => ({...p, layout: {...p.layout, logoUrl: e.target.value}}))} />
+        </FormField>
+        <FormField label="Cor Primária">
+            <div className="flex items-center gap-2">
+                <input type="color" value={settings.layout.primaryColor} onChange={e => setSettings((p:any) => ({...p, layout: {...p.layout, primaryColor: e.target.value}}))} className="w-10 h-10 p-1 border rounded"/>
+                <TextInput value={settings.layout.primaryColor} onChange={e => setSettings((p:any) => ({...p, layout: {...p.layout, primaryColor: e.target.value}}))} />
+            </div>
+        </FormField>
+        <FormField label="Links do Cabeçalho (JSON)">
+            <TextArea value={settings.layout.headerLinks} onChange={e => setSettings((p:any) => ({...p, layout: {...p.layout, headerLinks: e.target.value}}))} />
+        </FormField>
+    </SubSectionCard>
+);
+
+const ConfigBannersView = ({ settings, setSettings, addToast }: { settings: any, setSettings: Function, addToast: Function }) => {
+    const handleBannerChange = (id: number, field: string, value: any) => {
+         setSettings((prev: any) => ({
+            ...prev,
+            banners: prev.banners.map((b: any) => b.id === id ? { ...b, [field]: value } : b)
+        }));
+    }
+    return (
+        <SubSectionCard
+            title="Gestão de Banners"
+            description="Crie e gerencie banners promocionais para a landing page."
+            onSave={() => addToast("Configurações de banners salvas!")}
+        >
+            {settings.banners.map((banner: any) => (
+                 <div key={banner.id} className="p-4 border rounded-lg space-y-3">
+                     <div className="flex justify-between items-center">
+                        <span className="font-bold">Banner #{banner.id}</span>
+                        <ToggleSwitch checked={banner.isActive} onChange={e => handleBannerChange(banner.id, 'isActive', e.target.checked)} />
+                    </div>
+                     <FormField label="URL da Imagem"><TextInput value={banner.imageUrl} onChange={e => handleBannerChange(banner.id, 'imageUrl', e.target.value)}/></FormField>
+                     <FormField label="URL do Link"><TextInput value={banner.linkUrl} onChange={e => handleBannerChange(banner.id, 'linkUrl', e.target.value)}/></FormField>
+                </div>
+            ))}
+        </SubSectionCard>
+    );
+};
+
+const SystemConfiguracoesView = ({ settings, setSystemData }: { settings: any, setSystemData: Function }) => {
+    const { addToast } = useToast();
+    const [configTab, setConfigTab] = useState('Geral');
+    const [localSettings, setLocalSettings] = useState(settings);
+
+    useEffect(() => {
+        setLocalSettings(settings);
+    }, [settings]);
+
+    const handleSave = (category: string) => {
+        setSystemData((prevData: any) => ({
+            ...prevData,
+            settings: { ...prevData.settings, [category]: localSettings[category] }
+        }));
+        addToast(`Configurações de ${category} salvas com sucesso!`, 'success');
+    };
+
+    const configTabs = ['Geral', 'Gateways', 'Usuários', 'Vaquinhas', 'Segurança', 'Financeiro', 'Marketing', 'Layout', 'Banners'];
+
+    const renderConfigContent = () => {
+        switch (configTab) {
+            case 'Gateways': return <ConfigGatewaysView settings={localSettings} setSettings={setLocalSettings} addToast={addToast} />;
+            case 'Usuários': return <ConfigUsuariosView settings={localSettings} setSettings={setLocalSettings} addToast={addToast} />;
+            case 'Vaquinhas': return <ConfigVaquinhasView settings={localSettings} setSettings={setLocalSettings} addToast={addToast} />;
+            case 'Segurança': return <ConfigSegurancaView settings={localSettings} setSettings={setLocalSettings} addToast={addToast} />;
+            case 'Financeiro': return <ConfigFinanceiroView settings={localSettings} setSettings={setLocalSettings} addToast={addToast} />;
+            case 'Marketing': return <ConfigMarketingView settings={localSettings} setSettings={setLocalSettings} addToast={addToast} />;
+            case 'Layout': return <ConfigLayoutView settings={localSettings} setSettings={setLocalSettings} addToast={addToast} />;
+            case 'Banners': return <ConfigBannersView settings={localSettings} setSettings={setLocalSettings} addToast={addToast} />;
+            default: return (
+                <SubSectionCard
+                    title="Configurações Gerais da Plataforma"
+                    description="Gerencie o nome e o status operacional da plataforma."
+                    onSave={() => handleSave('general')}
+                >
+                    <FormField label="Nome da Plataforma">
+                         <TextInput value={localSettings.general.platformName} onChange={(e) => setLocalSettings((p:any) => ({...p, general: {...p.general, platformName: e.target.value}}))}/>
+                    </FormField>
+                    <div className="flex justify-between items-center p-3 border rounded-lg">
+                        <div>
+                            <p className="font-medium text-gray-800">Modo Manutenção</p>
+                            <p className="text-sm text-gray-500">Desativa o acesso público ao site, exceto para admins.</p>
+                        </div>
+                        <ToggleSwitch checked={localSettings.general.maintenanceMode} onChange={(e) => setLocalSettings((p:any) => ({...p, general: {...p.general, maintenanceMode: e.target.checked}}))}/>
+                    </div>
+                </SubSectionCard>
+            );
+        }
+    }
+
+    return (
+        <div className="space-y-8">
+            <Card>
+                <CardTitle>Configurações do Sistema</CardTitle>
+                <div className="border-b border-gray-200">
+                    <nav className="-mb-px flex space-x-6 overflow-x-auto">
+                        {configTabs.map(tab => (
+                             <button key={tab} onClick={() => setConfigTab(tab)} className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${configTab === tab ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                                {tab}
+                            </button>
+                        ))}
+                    </nav>
                 </div>
             </Card>
-             <Card>
-                <CardTitle>Feature Flags</CardTitle>
-                <div className="flex justify-between items-center p-3 border rounded-lg">
-                    <div>
-                        <p className="font-medium text-gray-800">Novo Dashboard para Gestores</p>
-                        <p className="text-sm text-gray-500">Habilitar a nova interface do dashboard para 10% dos usuários.</p>
-                    </div>
-                     <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" value="" className="sr-only peer" defaultChecked/>
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                    </label>
-                </div>
-            </Card>
-            <Card>
-                <CardTitle>Gerenciamento de Papéis (RBAC)</CardTitle>
-                <p className="text-sm text-gray-600 mb-4">Controle o acesso de sua equipe administrativa.</p>
-                <button onClick={() => addToast("Gerenciando papéis...", "info")} className="bg-sky-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Adicionar Papel</button>
-            </Card>
+            {renderConfigContent()}
         </div>
     )
 };
-// --- END: SYSTEM ADMIN DASHBOARD ---
+
+// --- END: SYSTEM ADMIN SETTINGS SUB-VIEWS ---
 
 const App = () => {
     const [userType, setUserType] = useState<string | null>(null);
@@ -1790,15 +2442,3 @@ const App = () => {
 }
 
 export default App;
-// FIX: The CardTitleProps interface incorrectly required the `children` prop.
-// This interface is defined multiple times; consolidating for clarity
-// Actually, it's defined once and this comment is a leftover. Keeping as is.
-// interface CardTitleProps {
-//     children?: React.ReactNode;
-// }
-// FIX: The CardTitleProps interface incorrectly required the `children` prop.
-// This interface is defined multiple times; consolidating for clarity
-// Actually, it's defined once and this comment is a leftover. Keeping as is.
-// interface CardTitleProps {
-//     children: React.ReactNode;
-// }
