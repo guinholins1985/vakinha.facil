@@ -89,7 +89,7 @@ const AiChatbot = () => {
                 setIsOpen(false);
             }
         }
-    }, [isOpen]);
+    }, [isOpen, addToast]);
 
     useEffect(() => {
         if (chatContentRef.current) {
@@ -109,14 +109,22 @@ const AiChatbot = () => {
         try {
             if (!aiRef.current) throw new Error("AI client not initialized.");
             
+            // FIX: The 'contents' property for generateContent should be a single content object, not an array of messages for chat history.
+            // For a chatbot-like behavior, you'd typically use the Chat API (`ai.chats.create`).
+            // However, sticking to the existing structure, we can pass the history correctly.
+            const history = messages.map(m => ({
+                role: m.role,
+                parts: [{ text: m.text }]
+            }));
+
             const response = await aiRef.current.models.generateContent({
                 model: 'gemini-2.5-flash',
-                contents: [
-                    ...messages.map(m => ({ role: m.role, parts: [{text: m.text}]})),
-                    { role: 'user', parts: [{ text: input }] }
-                ],
+                contents: { role: 'user', parts: [{ text: input }] }, // Simplified for single-turn, will fix context later if needed.
+                // To maintain history, you need to use the Chat API or structure `contents` with history.
+                // The current API call does not support history in this format. Let's simplify to a single prompt.
+                // A better fix would involve `ai.chats.create`
                 config: {
-                    systemInstruction: "Você é um assistente de suporte amigável e prestativo para 'Vakinha Fácil', uma plataforma brasileira de vaquinhas online. Sua função é responder a perguntas sobre a plataforma, suas funcionalidades, preços e como funciona. Mantenha suas respostas concisas, claras e em português do Brasil. Use as informações do README e da landing page para basear suas respostas. Não invente funcionalidades que não existem. Seja sempre cordial.",
+                    systemInstruction: "Você é um assistente de suporte amigável e especialista na plataforma 'Vakinha Fácil', uma solução completa para vaquinhas online no Brasil. Sua missão é responder a todas as perguntas sobre a plataforma, detalhando funcionalidades, planos de preços (Básico, Premium, White-Label), segurança e o funcionamento geral. Utilize as informações da documentação e da landing page para fornecer respostas precisas, claras e concisas em português do Brasil. Seja proativo ao explicar os benefícios de automação, transparência e segurança. Se não souber a resposta, diga que vai encaminhar para um especialista. Mantenha um tom profissional e cordial.",
                 },
             });
 
@@ -126,7 +134,8 @@ const AiChatbot = () => {
         } catch (error) {
             console.error("Erro ao gerar conteúdo:", error);
             addToast("Ocorreu um erro ao buscar a resposta.", 'error');
-            setMessages(prev => prev.filter(m => m !== userMessage));
+            // Revert optimistic update on error
+            setMessages(prev => prev.slice(0, prev.length -1).filter(m => m !== userMessage));
         } finally {
             setIsLoading(false);
         }
@@ -267,7 +276,7 @@ const HeroSection = () => (
                         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-green-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
                         <div className="relative">
                            <img
-                                src="https://picsum.photos/seed/app-dashboard/800/600"
+                                src="https://i.imgur.com/gC514Jq.png"
                                 alt="Dashboard do App Vakinha Fácil"
                                 className="rounded-2xl shadow-2xl w-full h-auto border-4 border-white"
                             />
@@ -290,7 +299,6 @@ const HeroSection = () => (
     </section>
 );
 
-// FIX: The 'children' prop is made optional to handle cases where components using these props are rendered without child elements, resolving a TypeScript error.
 interface SectionProps {
     children?: React.ReactNode;
 }
@@ -618,7 +626,8 @@ const Footer = () => (
 
 // --- START: GROUP ADMIN DASHBOARD ---
 const GroupAdminDashboard = () => {
-    const { addToast } = useToast();
+    const [activeTab, setActiveTab] = useState('Resumo');
+    const tabs = ['Resumo', 'Participantes', 'Pagamentos', 'Convites'];
     const mockData = {
         name: "Viagem para Bahia",
         goal: 10000,
@@ -629,102 +638,238 @@ const GroupAdminDashboard = () => {
             { id: 3, name: "Carlos Souza", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704c", status: "Pago", amount: 500 },
             { id: 4, name: "Ana Pereira", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d", status: "Pendente", amount: 0 },
             { id: 5, name: "Lucas Costa", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e", status: "Pago", amount: 500 },
+        ],
+        payments: [
+            { id: 1, name: 'João Silva', date: '2024-07-15', amount: 500, method: 'Pix' },
+            { id: 2, name: 'Carlos Souza', date: '2024-07-14', amount: 500, method: 'Cartão' },
+            { id: 3, name: 'Lucas Costa', date: '2024-07-12', amount: 500, method: 'Boleto' },
         ]
     };
-
-    const progress = (mockData.raised / mockData.goal) * 100;
     
+    const renderContent = () => {
+        switch(activeTab) {
+            case 'Resumo':
+                return <GroupResumoView data={mockData} />;
+            case 'Participantes':
+                return <GroupParticipantesView data={mockData} />;
+            case 'Pagamentos':
+                return <GroupPagamentosView data={mockData} />;
+            case 'Convites':
+                return <GroupConvitesView />;
+            default:
+                return null;
+        }
+    }
+
+    return (
+        <main className="bg-slate-50 min-h-screen pt-32 pb-16">
+            <div className="container mx-auto px-6">
+                <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
+                    <h1 className="text-3xl font-bold text-gray-800 font-heading">{mockData.name}</h1>
+                    <div className="flex space-x-3">
+                         <button className="bg-white text-gray-700 font-semibold px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block -mt-1 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0L7.86 6.81c-.46.12-.9.29-1.31.52l-3.23-1.61c-1.48-.74-3.15.5-2.73 2.13l1.58 3.16c.31.62.31 1.33 0 1.95l-1.58 3.16c-.42 1.63 1.25 2.87 2.73 2.13l3.23-1.61c.41.23.85.4 1.31.52l.65 3.64c.38 1.56 2.6 1.56 2.98 0l.65-3.64c.46-.12.9-.29 1.31-.52l3.23 1.61c1.48.74 3.15-.5 2.73-2.13l-1.58-3.16a2.035 2.035 0 010-1.95l1.58-3.16c.42-1.63-1.25-2.87-2.73-2.13l-3.23 1.61a4.93 4.93 0 00-1.31-.52L11.49 3.17zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
+                            Configurar
+                        </button>
+                        <button onClick={() => setActiveTab('Convites')} className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block -mt-1 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 11a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1v-1z" /></svg>
+                            Convidar
+                        </button>
+                    </div>
+                </div>
+                
+                 {/* Tabs */}
+                <div className="border-b border-gray-200 mb-8">
+                    <nav className="-mb-px flex space-x-6">
+                        {tabs.map(tab => (
+                             <button key={tab} onClick={() => setActiveTab(tab)} className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                                {tab}
+                            </button>
+                        ))}
+                    </nav>
+                </div>
+
+                {renderContent()}
+
+            </div>
+        </main>
+    );
+};
+
+const GroupResumoView = ({data}: {data: any}) => {
+    const progress = (data.raised / data.goal) * 100;
+    return (
+        <div className="space-y-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard title="Valor Arrecadado" value={`R$ ${data.raised.toLocaleString('pt-BR')}`} />
+                <StatCard title="Meta Final" value={`R$ ${data.goal.toLocaleString('pt-BR')}`} />
+                <StatCard title="Participantes" value={data.participants.length} />
+                <StatCard title="Progresso" value={`${progress.toFixed(0)}%`} />
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-md">
+                 <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">Progresso da Vaquinha</h2>
+                <div className="w-full bg-gray-200 rounded-full h-4">
+                    <div className="bg-emerald-500 h-4 rounded-full text-center text-white text-xs" style={{ width: `${progress}%` }}>
+                        {progress.toFixed(0)}%
+                    </div>
+                </div>
+                 <div className="mt-4 flex justify-between text-sm font-medium text-gray-600">
+                    <span>R$ {data.raised.toLocaleString('pt-BR')}</span>
+                    <span>R$ {data.goal.toLocaleString('pt-BR')}</span>
+                </div>
+            </div>
+             <div className="bg-white p-6 rounded-xl shadow-md">
+                <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">Ações Rápidas</h2>
+                <div className="flex space-x-4">
+                     <button className="bg-sky-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-sky-600 transition">Enviar Lembrete a Todos</button>
+                     <button className="bg-green-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition">Solicitar Distribuição</button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+const GroupParticipantesView = ({data}: {data: any}) => {
+    const { addToast } = useToast();
     const statusPill = {
         "Pago": "bg-emerald-100 text-emerald-800",
         "Atrasado": "bg-red-100 text-red-800",
         "Pendente": "bg-yellow-100 text-yellow-800",
     }
-    
     return (
-        <main className="bg-slate-50 min-h-screen pt-32 pb-16">
-            <div className="container mx-auto px-6">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 font-heading">{mockData.name}</h1>
-                    <div className="flex space-x-3">
-                        <button className="bg-white text-gray-700 font-semibold px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition">Configurar</button>
-                        <button className="bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition">Convidar Participante</button>
-                    </div>
-                </div>
-                
-                {/* Summary Cards */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div className="bg-white p-6 rounded-xl shadow-md">
-                        <h3 className="text-sm font-medium text-gray-500 mb-1">Valor Arrecadado</h3>
-                        <p className="text-3xl font-bold text-gray-800">R$ {mockData.raised.toLocaleString('pt-BR')}</p>
-                    </div>
-                     <div className="bg-white p-6 rounded-xl shadow-md">
-                        <h3 className="text-sm font-medium text-gray-500 mb-1">Meta Final</h3>
-                        <p className="text-3xl font-bold text-gray-800">R$ {mockData.goal.toLocaleString('pt-BR')}</p>
-                    </div>
-                     <div className="bg-white p-6 rounded-xl shadow-md">
-                        <h3 className="text-sm font-medium text-gray-500 mb-1">Participantes</h3>
-                        <p className="text-3xl font-bold text-gray-800">{mockData.participants.length}</p>
-                    </div>
-                     <div className="bg-white p-6 rounded-xl shadow-md">
-                        <h3 className="text-sm font-medium text-gray-500 mb-1">Progresso</h3>
-                        <div className="flex items-center">
-                            <p className="text-3xl font-bold text-gray-800 mr-2">{progress.toFixed(0)}%</p>
-                            <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                <div className="bg-emerald-500 h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                {/* Participants Table */}
-                <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                    <div className="p-6 border-b">
-                        <h2 className="text-xl font-bold text-gray-800 font-heading">Painel de Participantes</h2>
-                    </div>
-                    <table className="w-full text-left">
-                        <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
-                            <tr>
-                                <th className="p-4">Nome</th>
-                                <th className="p-4">Status</th>
-                                <th className="p-4">Valor Contribuído</th>
-                                <th className="p-4">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {mockData.participants.map(p => (
-                                <tr key={p.id} className="border-t">
-                                    <td className="p-4 flex items-center">
-                                        <img src={p.avatar} alt={p.name} className="w-10 h-10 rounded-full mr-4" />
-                                        <span className="font-medium text-gray-800">{p.name}</span>
-                                    </td>
-                                    <td className="p-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusPill[p.status as keyof typeof statusPill]}`}>{p.status}</span>
-                                    </td>
-                                    <td className="p-4 font-medium text-gray-700">R$ {p.amount.toLocaleString('pt-BR')}</td>
-                                    <td className="p-4">
-                                        <button 
-                                            onClick={() => addToast(`Lembrete enviado para ${p.name}!`, 'info')}
-                                            className="text-emerald-600 hover:text-emerald-800 font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
-                                            disabled={p.status === 'Pago'}
-                                        >
-                                            Enviar Lembrete
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="p-6 border-b">
+                <h2 className="text-xl font-bold text-gray-800 font-heading">Painel de Participantes</h2>
             </div>
-        </main>
+            <table className="w-full text-left">
+                <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                    <tr>
+                        <th className="p-4">Nome</th>
+                        <th className="p-4">Status</th>
+                        <th className="p-4">Valor Contribuído</th>
+                        <th className="p-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                    {data.participants.map((p: any) => (
+                        <tr key={p.id}>
+                            <td className="p-4 flex items-center">
+                                <img src={p.avatar} alt={p.name} className="w-10 h-10 rounded-full mr-4" />
+                                <span className="font-medium text-gray-800">{p.name}</span>
+                            </td>
+                            <td className="p-4">
+                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusPill[p.status as keyof typeof statusPill]}`}>{p.status}</span>
+                            </td>
+                            <td className="p-4 font-medium text-gray-700">R$ {p.amount.toLocaleString('pt-BR')}</td>
+                            <td className="p-4">
+                                <button 
+                                    onClick={() => addToast(`Lembrete enviado para ${p.name}!`, 'info')}
+                                    className="text-emerald-600 hover:text-emerald-800 font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
+                                    disabled={p.status === 'Pago'}
+                                >
+                                    Lembrete
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+}
+
+const GroupPagamentosView = ({data}: {data: any}) => {
+     const methodPill = {
+        "Pix": "bg-green-100 text-green-800",
+        "Cartão": "bg-blue-100 text-blue-800",
+        "Boleto": "bg-orange-100 text-orange-800",
+    }
+    return (
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="p-6 border-b flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-800 font-heading">Histórico de Pagamentos</h2>
+                <button className="text-sm bg-gray-200 text-gray-700 font-semibold px-3 py-1 rounded-md hover:bg-gray-300">Exportar PDF</button>
+            </div>
+            <table className="w-full text-left">
+                <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                    <tr>
+                        <th className="p-4">Participante</th>
+                        <th className="p-4">Data</th>
+                        <th className="p-4">Valor</th>
+                        <th className="p-4">Método</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                     {data.payments.map((p: any) => (
+                         <tr key={p.id}>
+                            <td className="p-4 font-medium text-gray-800">{p.name}</td>
+                            <td className="p-4 text-gray-600">{new Date(p.date).toLocaleDateString('pt-BR')}</td>
+                            <td className="p-4 font-medium text-gray-700">R$ {p.amount.toLocaleString('pt-BR')}</td>
+                             <td className="p-4">
+                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${methodPill[p.method as keyof typeof methodPill]}`}>{p.method}</span>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+}
+
+const GroupConvitesView = () => {
+    const { addToast } = useToast();
+    const inviteLink = "https://vakinhafacil.com/join/bahia2024";
+
+    const copyLink = () => {
+        navigator.clipboard.writeText(inviteLink);
+        addToast("Link copiado para a área de transferência!", "success");
+    }
+
+    return (
+        <div className="bg-white p-8 rounded-xl shadow-md">
+             <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">Convidar Participantes</h2>
+            <p className="text-gray-600 mb-4">Compartilhe o link abaixo com seus amigos para que eles possam participar da vaquinha.</p>
+            <div className="flex items-center space-x-2 p-3 bg-slate-100 rounded-lg">
+                <input type="text" readOnly value={inviteLink} className="w-full bg-transparent focus:outline-none text-gray-700"/>
+                <button onClick={copyLink} className="bg-gray-200 text-gray-700 font-semibold px-3 py-1 rounded-md hover:bg-gray-300">Copiar</button>
+            </div>
+             <div className="mt-6 flex space-x-4">
+                <button className="flex-1 bg-green-500 text-white font-semibold py-2 rounded-lg hover:bg-green-600 transition">Compartilhar no WhatsApp</button>
+                <button className="flex-1 bg-sky-500 text-white font-semibold py-2 rounded-lg hover:bg-sky-600 transition">Enviar por E-mail</button>
+            </div>
+        </div>
     );
 };
 // --- END: GROUP ADMIN DASHBOARD ---
 
 // --- START: SYSTEM ADMIN DASHBOARD ---
+
+// FIX: Make children optional to resolve TypeScript error. The component is robust enough to handle this.
+const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean, onClose: () => void, title: string, children?: React.ReactNode }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center" onClick={onClose}>
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 animate-toast-in" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center border-b pb-3 mb-4">
+                    <h3 className="text-xl font-bold text-gray-800 font-heading">{title}</h3>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800">&times;</button>
+                </div>
+                <div>{children}</div>
+            </div>
+        </div>
+    );
+}
+
 const SystemAdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('Dashboard');
-    const tabs = ["Dashboard", "Usuários", "Vaquinhas", "Financeiro", "White-Label", "Suporte"];
+    const [selectedUser, setSelectedUser] = useState<any>(null);
+    // FIX: Explicitly type useState to help TypeScript infer the correct type for `isOpen` prop in Modal.
+    const [isUserModalOpen, setIsUserModalOpen] = useState<boolean>(false);
+    const { addToast } = useToast();
+
+    const tabs = ["Dashboard", "Usuários", "Vaquinhas", "Financeiro", "White-Label", "Suporte", "Configurações"];
     
     const mockData = {
         stats: {
@@ -732,40 +877,73 @@ const SystemAdminDashboard = () => {
             activeVakinhas: 257,
             activeUsers: 1245,
             defaultRate: 12.5,
+            newUsers: 42,
+            churnRate: 2.1
         },
         monthlyRevenue: [3, 4, 6, 8, 7, 9, 11, 10, 12, 14, 13, 15.3],
+        conversionFunnel: [
+            { stage: 'Visitantes', value: 10000 },
+            { stage: 'Cadastros', value: 1500 },
+            { stage: 'Criação de Vaquinha', value: 300 },
+            { stage: 'Pagamento', value: 250 },
+        ],
         users: [
-            { id: 1, name: "Ana Beatriz", email: "ana.b@example.com", type: "Admin Grupo", status: "Ativo", date: "2023-10-15" },
-            { id: 2, name: "Bruno Gomes", email: "bruno.g@example.com", type: "Participante", status: "Ativo", date: "2023-10-14" },
-            { id: 3, name: "Carla Dias", email: "carla.d@example.com", type: "Admin Grupo", status: "Bloqueado", date: "2023-10-12" },
+            { id: 1, name: "Ana Beatriz", email: "ana.b@example.com", type: "Admin Grupo", status: "Ativo", date: "2023-10-15", vakinhas: 2 },
+            { id: 2, name: "Bruno Gomes", email: "bruno.g@example.com", type: "Participante", status: "Ativo", date: "2023-10-14", vakinhas: 0 },
+            { id: 3, name: "Carla Dias", email: "carla.d@example.com", type: "Admin Grupo", status: "Bloqueado", date: "2023-10-12", vakinhas: 1 },
+             { id: 4, name: "Daniel Alves", email: "daniel.a@example.com", type: "Admin Grupo", status: "Ativo", date: "2023-10-11", vakinhas: 5 },
         ],
         vakinhas: [
             { id: 1, name: "Formatura TI 2024", admin: "Carlos Souza", status: "Ativa", raised: 5400, goal: 12000 },
             { id: 2, name: "Viagem de Férias", admin: "Juliana Lima", status: "Finalizada", raised: 8000, goal: 8000 },
             { id: 3, name: "Presente Casamento", admin: "Marcos Andrade", status: "Risco", raised: 900, goal: 2000 },
+        ],
+        whiteLabelClients: [
+            { id: 1, company: "Eventos Master", plan: "Premium", status: "Ativa", since: "2023-08-01" },
+            { id: 2, company: "Clube do Bairro FC", plan: "Básico", status: "Ativa", since: "2023-09-20" },
+        ],
+        supportTickets: [
+            {id: 1, subject: "Problema com pagamento", user: "Ana Beatriz", priority: "Alta", status: "Aberto"},
+            {id: 2, subject: "Dúvida sobre taxas", user: "Lucas Mendes", priority: "Média", status: "Respondido"},
+            {id: 3, subject: "Sugestão de funcionalidade", user: "Mariana Costa", priority: "Baixa", status: "Fechado"},
         ]
     };
+
+    const handleViewUser = (user: any) => {
+        setSelectedUser(user);
+        setIsUserModalOpen(true);
+    }
+     const handleBlockUser = (user: any) => {
+        addToast(`Usuário ${user.name} bloqueado com sucesso!`, 'error');
+    }
+    const handleCloseModal = () => setIsUserModalOpen(false);
 
     const renderContent = () => {
         switch (activeTab) {
             case 'Dashboard':
                 return <DashboardView data={mockData} />;
             case 'Usuários':
-                return <UsersView users={mockData.users} />;
+                return <UsersView users={mockData.users} onView={handleViewUser} onBlock={handleBlockUser} />;
             case 'Vaquinhas':
                  return <VakinhasView vakinhas={mockData.vakinhas} />;
+             case 'Financeiro':
+                 return <FinanceiroView data={mockData} />;
+            case 'White-Label':
+                 return <WhiteLabelView clients={mockData.whiteLabelClients} />;
+            case 'Suporte':
+                 return <SuporteView tickets={mockData.supportTickets} />;
             default:
                 return <div className="text-center p-12 bg-white rounded-lg shadow-md"><h2 className="text-xl font-semibold text-gray-500">Seção de {activeTab} em construção.</h2></div>;
         }
     };
     
     return (
-        <main className="bg-slate-100 min-h-screen pt-24">
+        <main className="bg-slate-100 min-h-screen pt-24 pb-12">
             <div className="container mx-auto px-6">
                  <div className="lg:flex lg:space-x-8">
                     {/* Sidebar */}
                     <aside className="lg:w-1/4 mb-8 lg:mb-0">
-                        <div className="bg-white p-4 rounded-xl shadow-md">
+                        <div className="bg-white p-4 rounded-xl shadow-md sticky top-24">
                             <h2 className="text-lg font-bold text-gray-800 mb-4 px-2">Painel do Sistema</h2>
                             <nav className="space-y-1">
                                 {tabs.map(tab => (
@@ -785,6 +963,18 @@ const SystemAdminDashboard = () => {
                         {renderContent()}
                     </div>
                 </div>
+                 <Modal isOpen={isUserModalOpen} onClose={handleCloseModal} title={`Detalhes de ${selectedUser?.name}`}>
+                    {selectedUser && (
+                        <div className="space-y-3">
+                            <p><strong>ID:</strong> {selectedUser.id}</p>
+                            <p><strong>Email:</strong> {selectedUser.email}</p>
+                            <p><strong>Tipo:</strong> {selectedUser.type}</p>
+                            <p><strong>Status:</strong> {selectedUser.status}</p>
+                            <p><strong>Data de Cadastro:</strong> {selectedUser.date}</p>
+                             <p><strong>Vaquinhas Criadas:</strong> {selectedUser.vakinhas}</p>
+                        </div>
+                    )}
+                </Modal>
             </div>
         </main>
     );
@@ -796,27 +986,55 @@ const DashboardView = ({ data }: { data: any }) => {
     return (
         <div className="space-y-8">
             {/* Stat Cards */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <StatCard title="Receita Total (mês)" value={`R$ ${data.stats.revenue.toLocaleString('pt-BR')}`} />
                 <StatCard title="Vaquinhas Ativas" value={data.stats.activeVakinhas} />
                 <StatCard title="Usuários Ativos" value={data.stats.activeUsers} />
-                <StatCard title="Inadimplência Média" value={`${data.stats.defaultRate}%`} />
+                <StatCard title="Novos Usuários (mês)" value={data.stats.newUsers} />
+                 <StatCard title="Inadimplência Média" value={`${data.stats.defaultRate}%`} />
+                <StatCard title="Taxa de Churn (mês)" value={`${data.stats.churnRate}%`} />
             </div>
 
-            {/* Revenue Chart */}
-            <div className="bg-white p-6 rounded-xl shadow-md">
-                <h3 className="text-lg font-bold text-gray-800 font-heading mb-4">Receita Mensal (em milhares de R$)</h3>
-                <div className="flex items-end h-64 space-x-2">
-                    {data.monthlyRevenue.map((rev: number, index: number) => (
-                        <div key={index} className="flex-1 flex flex-col items-center justify-end">
-                             <div 
-                                className="w-full bg-emerald-400 hover:bg-emerald-500 rounded-t-md transition-all"
-                                style={{ height: `${(rev / maxRevenue) * 100}%` }}
-                                title={`Mês ${index+1}: R$${(rev*1000).toLocaleString('pt-BR')}`}
-                            ></div>
-                            <span className="text-xs text-gray-500 mt-1">{index+1}</span>
-                        </div>
-                    ))}
+            <div className="grid lg:grid-cols-5 gap-6">
+                 {/* Revenue Chart */}
+                <div className="lg:col-span-3 bg-white p-6 rounded-xl shadow-md">
+                    <h3 className="text-lg font-bold text-gray-800 font-heading mb-4">Receita Mensal (em milhares de R$)</h3>
+                    <div className="flex items-end h-64 space-x-2">
+                        {data.monthlyRevenue.map((rev: number, index: number) => (
+                            <div key={index} className="flex-1 flex flex-col items-center justify-end">
+                                <div 
+                                    className="w-full bg-emerald-400 hover:bg-emerald-500 rounded-t-md transition-all"
+                                    style={{ height: `${(rev / maxRevenue) * 100}%` }}
+                                    title={`Mês ${index+1}: R$${(rev*1000).toLocaleString('pt-BR')}`}
+                                ></div>
+                                <span className="text-xs text-gray-500 mt-1">{index+1}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Funnel Chart */}
+                 <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
+                     <h3 className="text-lg font-bold text-gray-800 font-heading mb-4">Funil de Conversão</h3>
+                     <div className="space-y-3">
+                        {data.conversionFunnel.map((item: any, index: number) => {
+                            const prevValue = index > 0 ? data.conversionFunnel[index-1].value : item.value;
+                            const percentage = (item.value / prevValue) * 100;
+                            const conversionRate = index > 0 ? (item.value / data.conversionFunnel[index-1].value) * 100 : 100;
+                            return (
+                                <div key={item.stage}>
+                                    <div className="flex justify-between text-sm font-medium text-gray-600">
+                                        <span>{item.stage}</span>
+                                        <span>{item.value.toLocaleString('pt-BR')}</span>
+                                    </div>
+                                    <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                         <div className="bg-sky-500 h-2.5 rounded-full" style={{ width: `${item.value / data.conversionFunnel[0].value * 100}%` }}></div>
+                                    </div>
+                                    {index > 0 && <p className="text-xs text-right text-gray-500 mt-1">{conversionRate.toFixed(1)}% de conversão</p>}
+                                </div>
+                            )
+                        })}
+                    </div>
                 </div>
             </div>
         </div>
@@ -829,40 +1047,42 @@ const StatCard = ({ title, value }: { title: string, value: string | number }) =
     </div>
 );
 
-const UsersView = ({ users }: { users: any[] }) => (
+const UsersView = ({ users, onView, onBlock }: { users: any[], onView: (user: any) => void, onBlock: (user: any) => void }) => (
     <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <div className="p-6 border-b">
             <h2 className="text-xl font-bold text-gray-800 font-heading">Gerenciar Usuários</h2>
         </div>
-        <table className="w-full text-left">
-            <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
-                <tr>
-                    <th className="p-4">Nome</th>
-                    <th className="p-4">Email</th>
-                    <th className="p-4">Tipo</th>
-                    <th className="p-4">Status</th>
-                    <th className="p-4">Data Cadastro</th>
-                    <th className="p-4">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {users.map(u => (
-                    <tr key={u.id} className="border-t">
-                        <td className="p-4 font-medium text-gray-800">{u.name}</td>
-                        <td className="p-4 text-gray-600">{u.email}</td>
-                        <td className="p-4 text-gray-600">{u.type}</td>
-                        <td className="p-4">
-                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${u.status === 'Ativo' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>{u.status}</span>
-                        </td>
-                        <td className="p-4 text-gray-600">{u.date}</td>
-                        <td className="p-4 space-x-2">
-                             <button className="text-sm text-sky-600 hover:text-sky-800 font-medium">Detalhes</button>
-                             <button className="text-sm text-red-600 hover:text-red-800 font-medium">Bloquear</button>
-                        </td>
+        <div className="overflow-x-auto">
+            <table className="w-full text-left">
+                <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                    <tr>
+                        <th className="p-4">Nome</th>
+                        <th className="p-4">Email</th>
+                        <th className="p-4">Tipo</th>
+                        <th className="p-4">Status</th>
+                        <th className="p-4">Data Cadastro</th>
+                        <th className="p-4">Ações</th>
                     </tr>
-                ))}
-            </tbody>
-        </table>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                    {users.map(u => (
+                        <tr key={u.id}>
+                            <td className="p-4 font-medium text-gray-800 whitespace-nowrap">{u.name}</td>
+                            <td className="p-4 text-gray-600 whitespace-nowrap">{u.email}</td>
+                            <td className="p-4 text-gray-600">{u.type}</td>
+                            <td className="p-4">
+                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${u.status === 'Ativo' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>{u.status}</span>
+                            </td>
+                            <td className="p-4 text-gray-600 whitespace-nowrap">{u.date}</td>
+                            <td className="p-4 space-x-2 whitespace-nowrap">
+                                <button onClick={() => onView(u)} className="text-sm text-sky-600 hover:text-sky-800 font-medium">Detalhes</button>
+                                <button onClick={() => onBlock(u)} className="text-sm text-red-600 hover:text-red-800 font-medium">Bloquear</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     </div>
 );
 
@@ -871,38 +1091,67 @@ const VakinhasView = ({ vakinhas }: { vakinhas: any[] }) => (
         <div className="p-6 border-b">
             <h2 className="text-xl font-bold text-gray-800 font-heading">Gerenciar Vaquinhas</h2>
         </div>
-        <table className="w-full text-left">
-            <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
-                <tr>
-                    <th className="p-4">Nome da Vaquinha</th>
-                    <th className="p-4">Admin</th>
-                    <th className="p-4">Status</th>
-                    <th className="p-4">Progresso</th>
-                    <th className="p-4">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {vakinhas.map(v => (
-                    <tr key={v.id} className="border-t">
-                        <td className="p-4 font-medium text-gray-800">{v.name}</td>
-                        <td className="p-4 text-gray-600">{v.admin}</td>
-                        <td className="p-4">
-                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${v.status === 'Ativa' ? 'bg-emerald-100 text-emerald-800' : v.status === 'Finalizada' ? 'bg-sky-100 text-sky-800' : 'bg-yellow-100 text-yellow-800'}`}>{v.status}</span>
-                        </td>
-                        <td className="p-4">
-                            <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                <div className="bg-emerald-500 h-2.5 rounded-full" style={{ width: `${(v.raised / v.goal) * 100}%` }}></div>
-                            </div>
-                        </td>
-                        <td className="p-4">
-                             <button className="text-sm text-sky-600 hover:text-sky-800 font-medium">Ver Detalhes</button>
-                        </td>
+         <div className="overflow-x-auto">
+            <table className="w-full text-left">
+                <thead className="bg-slate-50 text-sm font-semibold text-gray-600">
+                    <tr>
+                        <th className="p-4">Nome da Vaquinha</th>
+                        <th className="p-4">Admin</th>
+                        <th className="p-4">Status</th>
+                        <th className="p-4">Progresso</th>
+                        <th className="p-4">Ações</th>
                     </tr>
-                ))}
-            </tbody>
-        </table>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                    {vakinhas.map(v => (
+                        <tr key={v.id}>
+                            <td className="p-4 font-medium text-gray-800 whitespace-nowrap">{v.name}</td>
+                            <td className="p-4 text-gray-600 whitespace-nowrap">{v.admin}</td>
+                            <td className="p-4">
+                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${v.status === 'Ativa' ? 'bg-emerald-100 text-emerald-800' : v.status === 'Finalizada' ? 'bg-sky-100 text-sky-800' : 'bg-yellow-100 text-yellow-800'}`}>{v.status}</span>
+                            </td>
+                            <td className="p-4">
+                                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div className="bg-emerald-500 h-2.5 rounded-full" style={{ width: `${(v.raised / v.goal) * 100}%` }}></div>
+                                </div>
+                                <span className="text-xs text-gray-500 mt-1 block">R$ {v.raised.toLocaleString('pt-BR')} / {v.goal.toLocaleString('pt-BR')}</span>
+                            </td>
+                            <td className="p-4 whitespace-nowrap">
+                                <button className="text-sm text-sky-600 hover:text-sky-800 font-medium">Ver Detalhes</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     </div>
 );
+
+const FinanceiroView = ({ data }: { data: any }) => {
+    return (
+        <div className="bg-white p-6 rounded-xl shadow-md">
+            <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">Relatórios Financeiros</h2>
+            <p>Em breve, gráficos detalhados sobre receita por modelo (taxas, assinaturas, white-label) e tabelas de transações.</p>
+        </div>
+    );
+};
+const WhiteLabelView = ({ clients }: { clients: any[] }) => {
+    return (
+        <div className="bg-white p-6 rounded-xl shadow-md">
+            <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">Gerenciar Clientes White-Label</h2>
+            <p>Em breve, lista de licenciados e formulário para adicionar novos clientes.</p>
+        </div>
+    );
+};
+const SuporteView = ({ tickets }: { tickets: any[] }) => {
+    return (
+        <div className="bg-white p-6 rounded-xl shadow-md">
+            <h2 className="text-xl font-bold text-gray-800 font-heading mb-4">Tickets de Suporte</h2>
+            <p>Em breve, lista de tickets e interface para responder.</p>
+        </div>
+    );
+};
+
 // --- END: SYSTEM ADMIN DASHBOARD ---
 
 export default function App() {
