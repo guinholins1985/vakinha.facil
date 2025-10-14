@@ -1,6 +1,68 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext, createContext } from 'react';
 import { GoogleGenAI } from "@google/genai";
+
+// --- START: TOAST NOTIFICATION SYSTEM ---
+interface Toast {
+    id: number;
+    message: string;
+    type: 'success' | 'error';
+}
+
+interface ToastContextType {
+    addToast: (message: string, type?: 'success' | 'error') => void;
+}
+
+const ToastContext = createContext<ToastContextType | null>(null);
+
+const ToastProvider = ({ children }: { children: React.ReactNode }) => {
+    const [toasts, setToasts] = useState<Toast[]>([]);
+
+    const addToast = (message: string, type: 'success' | 'error' = 'success') => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { id, message, type }]);
+        setTimeout(() => {
+            removeToast(id);
+        }, 4000);
+    };
+    
+    const removeToast = (id: number) => {
+        setToasts(prev => prev.filter(toast => toast.id !== id));
+    };
+
+    return (
+        <ToastContext.Provider value={{ addToast }}>
+            {children}
+            <div className="fixed bottom-6 right-6 z-[100] space-y-2">
+                {toasts.map(toast => (
+                    <div key={toast.id} className={`flex items-center px-4 py-3 rounded-lg shadow-2xl text-white animate-toast-in ${toast.type === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                        <svg className="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           {toast.type === 'success' 
+                           ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                           : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />}
+                        </svg>
+                        <span className="font-medium">{toast.message}</span>
+                    </div>
+                ))}
+            </div>
+             <style>{`
+                @keyframes toast-in {
+                    from { transform: translateX(calc(100% + 1.5rem)); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                .animate-toast-in { animation: toast-in 0.5s cubic-bezier(0.21, 1.02, 0.73, 1) forwards; }
+            `}</style>
+        </ToastContext.Provider>
+    );
+};
+
+const useToast = () => {
+    const context = useContext(ToastContext);
+    if (!context) throw new Error('useToast must be used within a ToastProvider');
+    return context;
+};
+// --- END: TOAST NOTIFICATION SYSTEM ---
+
 
 const LogoIcon = () => (
     <svg className="w-9 h-9 text-emerald-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -930,7 +992,7 @@ const Sidebar = ({ activeView, setActiveView }: { activeView: AdminView; setActi
 );
 
 // MOCK DATA
-const mockAdminData = {
+const getInitialAdminData = () => ({
     users: [
         { id: 1, name: 'Ana Silva', email: 'ana@example.com', status: 'Ativo', date: '2024-07-20' },
         { id: 2, name: 'Bruno Costa', email: 'bruno@example.com', status: 'Pendente', date: '2024-07-19' },
@@ -947,113 +1009,136 @@ const mockAdminData = {
         { id: 3, date: '2024-07-19', value: 19.90, type: 'Assinatura', status: 'Completo' },
     ],
     licensees: [
-        { id: 1, company: 'Clube Esportivo ABC', plan: 'Premium', status: 'Ativo', logo: null, color1: '#3B82F6', color2: '#10B981', domain: 'clube.vakinhafacil.com' },
-        { id: 2, company: 'Formatura Med 2025', plan: 'Básico', status: 'Ativo', logo: null, color1: '#8B5CF6', color2: '#F59E0B', domain: 'formatura.vakinhafacil.com' },
+        { id: 1, company: 'Clube Esportivo ABC', plan: 'Premium', status: 'Ativo', logo: null, color1: '#3B82F6', color2: '#10B981', domain: 'clube' },
+        { id: 2, company: 'Formatura Med 2025', plan: 'Básico', status: 'Ativo', logo: null, color1: '#8B5CF6', color2: '#F59E0B', domain: 'formatura' },
     ],
     tickets: [
-        { id: 1, date: '2024-07-20', user: 'Ana Silva', status: 'Aberto', priority: 'Alta' },
-        { id: 2, date: '2024-07-19', user: 'Bruno Costa', status: 'Pendente', priority: 'Média' },
+        { id: 1, subject: 'Problema com PIX', date: '2024-07-20', user: 'Ana Silva', status: 'Aberto', priority: 'Alta' },
+        { id: 2, subject: 'Dúvida sobre White-Label', date: '2024-07-19', user: 'Bruno Costa', status: 'Pendente', priority: 'Média' },
     ]
-};
+});
 
-const DashboardView = () => {
-    // Dummy chart components
-    const LineChart = () => <div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">Gráfico de Linha (Receita)</div>;
-    const PieChart = () => <div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">Gráfico de Pizza (Status Vaquinhas)</div>;
+type AdminData = ReturnType<typeof getInitialAdminData>;
+
+const PieChart = ({ data }: { data: { name: string, value: number, color: string }[]}) => {
+    const total = data.reduce((sum, item) => sum + item.value, 0);
+    if (total === 0) return <div className="h-64 flex items-center justify-center text-gray-500">Sem dados para exibir</div>;
+
+    let cumulative = 0;
+    const segments = data.map(item => {
+        const startAngle = (cumulative / total) * 360;
+        const endAngle = ((cumulative + item.value) / total) * 360;
+        cumulative += item.value;
+        const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
+
+        const x1 = 50 + 40 * Math.cos(Math.PI * startAngle / 180);
+        const y1 = 50 + 40 * Math.sin(Math.PI * startAngle / 180);
+        const x2 = 50 + 40 * Math.cos(Math.PI * endAngle / 180);
+        const y2 = 50 + 40 * Math.sin(Math.PI * endAngle / 180);
+
+        return {
+            d: `M50,50 L${x1},${y1} A40,40 0 ${largeArcFlag},1 ${x2},${y2} Z`,
+            color: item.color,
+            name: item.name
+        };
+    });
+
     return (
-        <div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="bg-white p-6 rounded-lg shadow"><h3 className="text-gray-500">Receita Total</h3><p className="text-3xl font-bold text-blue-600">R$ 15.000</p></div>
-                <div className="bg-white p-6 rounded-lg shadow"><h3 className="text-gray-500">Vaquinhas Ativas</h3><p className="text-3xl font-bold text-green-500">250</p></div>
-                <div className="bg-white p-6 rounded-lg shadow"><h3 className="text-gray-500">Novos Usuários</h3><p className="text-3xl font-bold text-gray-800">1.200</p></div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                 <div className="bg-white p-6 rounded-lg shadow"><h3 className="font-bold mb-4">Receita (Últimos 6 Meses)</h3><LineChart /></div>
-                 <div className="bg-white p-6 rounded-lg shadow"><h3 className="font-bold mb-4">Status das Vaquinhas</h3><PieChart /></div>
+        <div className="flex items-center">
+            <svg viewBox="0 0 100 100" className="w-48 h-48">
+                {segments.map((seg, i) => <path key={i} d={seg.d} fill={seg.color} />)}
+            </svg>
+            <div className="ml-6 space-y-2">
+                {data.map(item => (
+                    <div key={item.name} className="flex items-center text-sm">
+                        <span className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: item.color }}></span>
+                        <span>{item.name} ({item.value})</span>
+                    </div>
+                ))}
             </div>
         </div>
     );
 };
 
-const UsersView = () => (
-    <div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Gerenciamento de Usuários</h1>
-        <div className="bg-white p-6 rounded-lg shadow">
-            {/* Toolbar */}
-            <div className="flex justify-between items-center mb-4">
-                <input type="text" placeholder="Pesquisar usuário..." className="border rounded-md px-3 py-2 w-1/3"/>
-                <div>
-                    <select className="border rounded-md px-3 py-2 mr-2">
-                        <option>Filtrar por status</option>
+const DashboardView = ({ data }: { data: AdminData }) => {
+    const vaquinhaStatusCounts = data.vaquinhas.reduce((acc, v) => {
+        const status = v.status || 'Outro';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
+
+    const pieData = [
+        { name: 'Ativa', value: vaquinhaStatusCounts['Ativa'] || 0, color: '#10B981' },
+        { name: 'Finalizada', value: vaquinhaStatusCounts['Finalizada'] || 0, color: '#6B7280' },
+        { name: 'Em Atraso', value: vaquinhaStatusCounts['Em Atraso'] || 0, color: '#EF4444' },
+    ];
+    
+    return (
+        <div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="bg-white p-6 rounded-lg shadow"><h3 className="text-gray-500">Receita Total</h3><p className="text-3xl font-bold text-blue-600">R$ {data.transactions.reduce((sum, t) => sum + t.value, 0).toLocaleString('pt-BR')}</p></div>
+                <div className="bg-white p-6 rounded-lg shadow"><h3 className="text-gray-500">Vaquinhas Ativas</h3><p className="text-3xl font-bold text-green-500">{vaquinhaStatusCounts['Ativa'] || 0}</p></div>
+                <div className="bg-white p-6 rounded-lg shadow"><h3 className="text-gray-500">Novos Usuários</h3><p className="text-3xl font-bold text-gray-800">{data.users.length}</p></div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                 <div className="bg-white p-6 rounded-lg shadow"><h3 className="font-bold mb-4">Receita (Últimos 6 Meses)</h3><div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">Gráfico de Linha (Receita)</div></div>
+                 <div className="bg-white p-6 rounded-lg shadow"><h3 className="font-bold mb-4">Status das Vaquinhas</h3><PieChart data={pieData} /></div>
+            </div>
+        </div>
+    );
+};
+
+const UsersView = ({ data, setData }: { data: AdminData['users'], setData: React.Dispatch<React.SetStateAction<AdminData>> }) => {
+    const { addToast } = useToast();
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
+    
+    const handleToggleBlock = (userId: number) => {
+        setData(prev => ({
+            ...prev,
+            users: prev.users.map(user => {
+                if (user.id === userId) {
+                    const newStatus = user.status === 'Ativo' ? 'Bloqueado' : 'Ativo';
+                    addToast(`Usuário ${newStatus.toLowerCase()} com sucesso!`);
+                    return { ...user, status: newStatus };
+                }
+                return user;
+            })
+        }));
+    };
+    
+    const filteredUsers = data.filter(user => 
+        (user.name.toLowerCase().includes(searchTerm.toLowerCase()) || user.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (statusFilter ? user.status === statusFilter : true)
+    );
+
+    return (
+        <div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Gerenciamento de Usuários</h1>
+            <div className="bg-white p-6 rounded-lg shadow">
+                <div className="flex justify-between items-center mb-4">
+                    <input type="text" placeholder="Pesquisar por nome ou e-mail..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="border rounded-md px-3 py-2 w-1/3"/>
+                    <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border rounded-md px-3 py-2">
+                        <option value="">Todos os status</option>
                         <option>Ativo</option>
                         <option>Pendente</option>
                         <option>Bloqueado</option>
                     </select>
-                    <input type="date" className="border rounded-md px-3 py-2"/>
                 </div>
-            </div>
-            {/* Table */}
-            <table className="w-full text-left">
-                <thead>
-                    <tr className="bg-gray-50 border-b">
-                        <th className="p-3">Nome</th><th>E-mail</th><th>Status</th><th>Data de Cadastro</th><th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {mockAdminData.users.map(user => (
-                        <tr key={user.id} className="border-b hover:bg-gray-50">
-                            <td className="p-3">{user.name}</td>
-                            <td>{user.email}</td>
-                            <td><span className={`px-2 py-1 text-xs rounded-full ${user.status === 'Ativo' ? 'bg-green-100 text-green-700' : user.status === 'Pendente' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{user.status}</span></td>
-                            <td>{user.date}</td>
-                            <td className="space-x-2">
-                                <button className="text-blue-600 hover:underline text-sm">Bloquear</button>
-                                <button className="text-blue-600 hover:underline text-sm">Verificar CPF</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    </div>
-);
-
-const VaquinhasView = () => (
-     <div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Gerenciamento de Vaquinhas</h1>
-        <div className="bg-white p-6 rounded-lg shadow">
-            <table className="w-full text-left">
-                <thead><tr className="bg-gray-50 border-b"><th className="p-3">Nome</th><th>Gestor</th><th>Status</th><th>Valor Arrecadado</th><th>Ações</th></tr></thead>
-                <tbody>
-                    {mockAdminData.vaquinhas.map(v => (
-                        <tr key={v.id} className="border-b hover:bg-gray-50">
-                            <td className="p-3">{v.name}</td><td>{v.manager}</td>
-                            <td><span className={`px-2 py-1 text-xs rounded-full ${v.status === 'Ativa' ? 'bg-green-100 text-green-700' : v.status === 'Finalizada' ? 'bg-gray-200 text-gray-700' : 'bg-red-100 text-red-700'}`}>{v.status}</span></td>
-                            <td>R$ {v.collected.toLocaleString('pt-BR')}</td>
-                            <td className="space-x-2"><button className="text-blue-600 hover:underline text-sm">Visualizar</button><button className="text-blue-600 hover:underline text-sm">Suspender</button></td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    </div>
-);
-
-const FinanceView = () => {
-    const BarChart = () => <div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">Gráfico de Barras (Receita por Modelo)</div>;
-    return (
-        <div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">Financeiro</h1>
-            <div className="bg-white p-6 rounded-lg shadow mb-6"><h3 className="font-bold mb-4">Receita por Modelo</h3><BarChart /></div>
-            <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="font-bold mb-4">Transações Recentes</h3>
-                 <table className="w-full text-left">
-                    <thead><tr className="bg-gray-50 border-b"><th className="p-3">Data</th><th>Valor</th><th>Tipo</th><th>Status</th></tr></thead>
+                <table className="w-full text-left">
+                    <thead>
+                        <tr className="bg-gray-50 border-b"><th className="p-3">Nome</th><th>E-mail</th><th>Status</th><th>Data de Cadastro</th><th>Ações</th></tr>
+                    </thead>
                     <tbody>
-                        {mockAdminData.transactions.map(t => (
-                            <tr key={t.id} className="border-b hover:bg-gray-50">
-                                <td className="p-3">{t.date}</td><td>R$ {t.value.toLocaleString('pt-BR')}</td><td>{t.type}</td><td><span className="text-green-700">{t.status}</span></td>
+                        {filteredUsers.map(user => (
+                            <tr key={user.id} className="border-b hover:bg-gray-50">
+                                <td className="p-3">{user.name}</td><td>{user.email}</td>
+                                <td><span className={`px-2 py-1 text-xs rounded-full ${user.status === 'Ativo' ? 'bg-green-100 text-green-700' : user.status === 'Pendente' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{user.status}</span></td>
+                                <td>{user.date}</td>
+                                <td className="space-x-2">
+                                    <button onClick={() => handleToggleBlock(user.id)} className="text-blue-600 hover:underline text-sm font-medium">{user.status === 'Ativo' ? 'Bloquear' : 'Ativar'}</button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -1063,33 +1148,104 @@ const FinanceView = () => {
     );
 };
 
-const ConfigView = () => (
-    <div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Configurações Gerais</h1>
-        <div className="bg-white p-6 rounded-lg shadow space-y-6">
-            <div>
-                <label className="block font-medium">Taxa Fixa por Vaquinha (R$)</label>
-                <input type="number" defaultValue="15" className="border rounded-md px-3 py-2 mt-1 w-full"/>
-            </div>
-            <div>
-                <label className="block font-medium">Taxa Percentual (%)</label>
-                <input type="number" defaultValue="3" className="border rounded-md px-3 py-2 mt-1 w-full"/>
-            </div>
-            <div>
-                <label className="block font-medium">Valor Máximo por Vaquinha (R$)</label>
-                <input type="number" defaultValue="10000" className="border rounded-md px-3 py-2 mt-1 w-full"/>
-            </div>
-            <div>
-                <h3 className="font-medium mb-2">Integrações de Pagamento</h3>
-                <div className="flex items-center space-x-4">
-                    <label className="flex items-center"><input type="checkbox" defaultChecked className="mr-2"/> Mercado Pago</label>
-                    <label className="flex items-center"><input type="checkbox" defaultChecked className="mr-2"/> PicPay</label>
-                </div>
-            </div>
-            <button className="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700">Salvar Alterações</button>
+const VaquinhasView = ({ data, setData }: { data: AdminData['vaquinhas'], setData: React.Dispatch<React.SetStateAction<AdminData>> }) => (
+     <div>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Gerenciamento de Vaquinhas</h1>
+        <div className="bg-white p-6 rounded-lg shadow">
+            <table className="w-full text-left">
+                <thead><tr className="bg-gray-50 border-b"><th className="p-3">Nome</th><th>Gestor</th><th>Status</th><th>Valor Arrecadado</th><th>Ações</th></tr></thead>
+                <tbody>
+                    {data.map(v => (
+                        <tr key={v.id} className="border-b hover:bg-gray-50">
+                            <td className="p-3">{v.name}</td><td>{v.manager}</td>
+                            <td><span className={`px-2 py-1 text-xs rounded-full ${v.status === 'Ativa' ? 'bg-green-100 text-green-700' : v.status === 'Finalizada' ? 'bg-gray-200 text-gray-700' : 'bg-red-100 text-red-700'}`}>{v.status}</span></td>
+                            <td>R$ {v.collected.toLocaleString('pt-BR')}</td>
+                            <td className="space-x-2"><button className="text-blue-600 hover:underline text-sm font-medium">Visualizar</button><button className="text-red-600 hover:underline text-sm font-medium">Suspender</button></td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     </div>
 );
+
+const FinanceView = ({ data }: { data: AdminData['transactions'] }) => (
+    <div>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Financeiro</h1>
+        <div className="bg-white p-6 rounded-lg shadow mb-6"><h3 className="font-bold mb-4">Receita por Modelo</h3><div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">Gráfico de Barras (Receita por Modelo)</div></div>
+        <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="font-bold mb-4">Transações Recentes</h3>
+             <table className="w-full text-left">
+                <thead><tr className="bg-gray-50 border-b"><th className="p-3">Data</th><th>Valor</th><th>Tipo</th><th>Status</th></tr></thead>
+                <tbody>
+                    {data.map(t => (
+                        <tr key={t.id} className="border-b hover:bg-gray-50">
+                            <td className="p-3">{t.date}</td><td>R$ {t.value.toLocaleString('pt-BR')}</td><td>{t.type}</td><td><span className="text-green-700">{t.status}</span></td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    </div>
+);
+
+const ConfigView = () => {
+    const { addToast } = useToast();
+    const [isSaving, setIsSaving] = useState(false);
+    const [config, setConfig] = useState({
+        fixedFee: '15',
+        percentageFee: '3',
+        maxAmount: '10000',
+        mercadoPago: true,
+        picPay: true,
+    });
+    
+    const handleSave = () => {
+        setIsSaving(true);
+        setTimeout(() => {
+            setIsSaving(false);
+            addToast('Configurações salvas com sucesso!');
+        }, 1500);
+    };
+    
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, checked } = e.target;
+        setConfig(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    return (
+        <div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Configurações Gerais</h1>
+            <div className="bg-white p-6 rounded-lg shadow space-y-6">
+                <div>
+                    <label className="block font-medium">Taxa Fixa por Vaquinha (R$)</label>
+                    <input type="number" name="fixedFee" value={config.fixedFee} onChange={handleChange} className="border rounded-md px-3 py-2 mt-1 w-full"/>
+                </div>
+                <div>
+                    <label className="block font-medium">Taxa Percentual (%)</label>
+                    <input type="number" name="percentageFee" value={config.percentageFee} onChange={handleChange} className="border rounded-md px-3 py-2 mt-1 w-full"/>
+                </div>
+                <div>
+                    <label className="block font-medium">Valor Máximo por Vaquinha (R$)</label>
+                    <input type="number" name="maxAmount" value={config.maxAmount} onChange={handleChange} className="border rounded-md px-3 py-2 mt-1 w-full"/>
+                </div>
+                <div>
+                    <h3 className="font-medium mb-2">Integrações de Pagamento</h3>
+                    <div className="flex items-center space-x-4">
+                        <label className="flex items-center"><input type="checkbox" name="mercadoPago" checked={config.mercadoPago} onChange={handleChange} className="mr-2"/> Mercado Pago</label>
+                        <label className="flex items-center"><input type="checkbox" name="picPay" checked={config.picPay} onChange={handleChange} className="mr-2"/> PicPay</label>
+                    </div>
+                </div>
+                <button onClick={handleSave} disabled={isSaving} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-400">
+                    {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+                </button>
+            </div>
+        </div>
+    );
+};
 
 const AddLicenseeForm = ({ licensee, onSave, onClose }: { licensee?: any, onSave: (data: any) => void, onClose: () => void }) => {
     const [formData, setFormData] = useState({
@@ -1130,7 +1286,7 @@ const AddLicenseeForm = ({ licensee, onSave, onClose }: { licensee?: any, onSave
             <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
                 <div className="flex justify-between items-center p-4 border-b">
                     <h2 className="text-xl font-bold">{licensee ? 'Editar' : 'Adicionar'} Licenciado</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800">&times;</button>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
                 </div>
                 <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
                     <div>
@@ -1199,20 +1355,24 @@ const AddLicenseeForm = ({ licensee, onSave, onClose }: { licensee?: any, onSave
     );
 };
 
-const WhiteLabelView = () => {
-    const [licensees, setLicensees] = useState(mockAdminData.licensees);
+const WhiteLabelView = ({ data, setData }: { data: AdminData['licensees'], setData: React.Dispatch<React.SetStateAction<AdminData>> }) => {
+    const { addToast } = useToast();
     const [showForm, setShowForm] = useState(false);
     const [selectedLicensee, setSelectedLicensee] = useState(null);
 
-    const handleSave = (data: any) => {
-        if (data.id) {
-            // Update existing
-            setLicensees(licensees.map(l => l.id === data.id ? data : l));
-        } else {
-            // Add new
-            const newLicensee = { ...data, id: Date.now() }; // simple id generation
-            setLicensees([...licensees, newLicensee]);
-        }
+    const handleSave = (licenseeData: any) => {
+        setData(prev => {
+            const licensees = prev.licensees;
+            if (licenseeData.id) {
+                 const updatedLicensees = licensees.map(l => l.id === licenseeData.id ? licenseeData : l);
+                 addToast('Licenciado atualizado com sucesso!');
+                 return {...prev, licensees: updatedLicensees };
+            } else {
+                const newLicensee = { ...licenseeData, id: Date.now() };
+                addToast('Licenciado adicionado com sucesso!');
+                return {...prev, licensees: [...licensees, newLicensee]};
+            }
+        });
         setShowForm(false);
         setSelectedLicensee(null);
     };
@@ -1226,6 +1386,16 @@ const WhiteLabelView = () => {
         setSelectedLicensee(null);
         setShowForm(true);
     };
+    
+    const handleDelete = (licenseeId: number) => {
+        if(window.confirm('Tem certeza que deseja remover este licenciado?')) {
+            setData(prev => {
+                const updatedLicensees = prev.licensees.filter(l => l.id !== licenseeId);
+                addToast('Licenciado removido.', 'error');
+                return {...prev, licensees: updatedLicensees};
+            });
+        }
+    }
 
     return (
         <div>
@@ -1239,35 +1409,17 @@ const WhiteLabelView = () => {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                        <thead>
-                            <tr className="bg-gray-50 border-b">
-                                <th className="p-3">Empresa</th>
-                                <th>Plano</th>
-                                <th>Status</th>
-                                <th>Cores</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
+                        <thead><tr className="bg-gray-50 border-b"><th className="p-3">Empresa</th><th>Plano</th><th>Status</th><th>Cores</th><th>Ações</th></tr></thead>
                         <tbody>
-                            {licensees.map(l => (
+                            {data.map(l => (
                                 <tr key={l.id} className="border-b hover:bg-gray-50">
                                     <td className="p-3 font-medium">{l.company}</td>
-                                    <td>
-                                        <span className={`px-2 py-1 text-xs rounded-full ${l.plan === 'Premium' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                                            {l.plan}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className={`px-2 py-1 text-xs rounded-full ${l.status === 'Ativo' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}`}>
-                                            {l.status}
-                                        </span>
-                                    </td>
-                                    <td className="flex items-center space-x-2 py-3">
-                                        <div className="w-5 h-5 rounded-full" style={{ backgroundColor: l.color1 }}></div>
-                                        <div className="w-5 h-5 rounded-full" style={{ backgroundColor: l.color2 }}></div>
-                                    </td>
-                                    <td>
-                                        <button onClick={() => handleEdit(l)} className="text-blue-600 hover:underline text-sm">Editar</button>
+                                    <td><span className={`px-2 py-1 text-xs rounded-full ${l.plan === 'Premium' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>{l.plan}</span></td>
+                                    <td><span className={`px-2 py-1 text-xs rounded-full ${l.status === 'Ativo' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}`}>{l.status}</span></td>
+                                    <td className="flex items-center space-x-2 py-3"><div className="w-5 h-5 rounded-full" style={{ backgroundColor: l.color1 }}></div><div className="w-5 h-5 rounded-full" style={{ backgroundColor: l.color2 }}></div></td>
+                                    <td className="space-x-4">
+                                        <button onClick={() => handleEdit(l)} className="text-blue-600 hover:underline text-sm font-medium">Editar</button>
+                                        <button onClick={() => handleDelete(l.id)} className="text-red-600 hover:underline text-sm font-medium">Remover</button>
                                     </td>
                                 </tr>
                             ))}
@@ -1279,39 +1431,60 @@ const WhiteLabelView = () => {
     );
 };
 
-const SupportView = () => (
+const SupportView = ({ data, setData }: { data: AdminData['tickets'], setData: React.Dispatch<React.SetStateAction<AdminData>> }) => {
+    const { addToast } = useToast();
+    const handleCloseTicket = (ticketId: number) => {
+        setData(prev => ({
+            ...prev,
+            tickets: prev.tickets.map(t => {
+                if(t.id === ticketId && t.status !== 'Fechado') {
+                    addToast('Ticket fechado com sucesso.');
+                    return {...t, status: 'Fechado'};
+                }
+                return t;
+            })
+        }));
+    }
+
+    return (
      <div>
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Tickets de Suporte</h1>
          <div className="bg-white p-6 rounded-lg shadow">
              <table className="w-full text-left">
-                <thead><tr className="bg-gray-50 border-b"><th className="p-3">Data</th><th>Usuário</th><th>Status</th><th>Prioridade</th><th>Ações</th></tr></thead>
+                <thead><tr className="bg-gray-50 border-b"><th className="p-3">Assunto</th><th>Usuário</th><th>Status</th><th>Prioridade</th><th>Ações</th></tr></thead>
                 <tbody>
-                    {mockAdminData.tickets.map(t => (
+                    {data.map(t => (
                         <tr key={t.id} className="border-b hover:bg-gray-50">
-                            <td className="p-3">{t.date}</td><td>{t.user}</td><td>{t.status}</td>
+                            <td className="p-3 font-medium">{t.subject}</td><td>{t.user}</td>
+                            <td><span className={`px-2 py-1 text-xs rounded-full ${t.status === 'Aberto' ? 'bg-green-100 text-green-700' : t.status === 'Pendente' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-200 text-gray-700'}`}>{t.status}</span></td>
                             <td><span className={`${t.priority === 'Alta' ? 'text-red-600' : 'text-yellow-600'}`}>{t.priority}</span></td>
-                            <td className="space-x-2"><button className="text-blue-600 hover:underline text-sm">Responder</button><button className="text-blue-600 hover:underline text-sm">Fechar</button></td>
+                            <td className="space-x-2">
+                                <button disabled={t.status === 'Fechado'} className="text-blue-600 hover:underline text-sm font-medium disabled:text-gray-400 disabled:no-underline">Responder</button>
+                                <button onClick={() => handleCloseTicket(t.id)} disabled={t.status === 'Fechado'} className="text-blue-600 hover:underline text-sm font-medium disabled:text-gray-400 disabled:no-underline">Fechar</button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
         </div>
     </div>
-);
+    );
+};
 
 const SystemAdminDashboard = () => {
     const [activeView, setActiveView] = useState<AdminView>('dashboard');
+    const [adminData, setAdminData] = useState(getInitialAdminData());
 
     const renderContent = () => {
         switch (activeView) {
-            case 'dashboard': return <DashboardView />;
-            case 'users': return <UsersView />;
-            case 'vaquinhas': return <VaquinhasView />;
-            case 'finance': return <FinanceView />;
+            case 'dashboard': return <DashboardView data={adminData} />;
+            case 'users': return <UsersView data={adminData.users} setData={setAdminData} />;
+            case 'vaquinhas': return <VaquinhasView data={adminData.vaquinhas} setData={setAdminData} />;
+            case 'finance': return <FinanceView data={adminData.transactions} />;
             case 'config': return <ConfigView />;
-            case 'white-label': return <WhiteLabelView />;
-            case 'support': return <SupportView />;
-            default: return <DashboardView />;
+            case 'white-label': return <WhiteLabelView data={adminData.licensees} setData={setAdminData} />;
+            case 'support': return <SupportView data={adminData.tickets} setData={setAdminData} />;
+            default: return <DashboardView data={adminData} />;
         }
     };
     
@@ -1472,7 +1645,7 @@ const Chatbot = () => {
 // --- END: NEW AI CHATBOT ---
 
 
-const App = () => {
+const AppContent = () => {
     const [userType, setUserType] = useState<string | null>(null); // null, 'groupAdmin', 'systemAdmin'
 
     const handleGroupAdminLogin = () => setUserType('groupAdmin');
@@ -1503,5 +1676,12 @@ const App = () => {
         </div>
     );
 };
+
+const App = () => (
+    <ToastProvider>
+        <AppContent />
+    </ToastProvider>
+);
+
 
 export default App;
