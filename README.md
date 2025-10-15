@@ -41,8 +41,8 @@ The platform owner who oversees the entire operation.
 
 **Prototype Workflow:**
 *   **Login:** Clicks the "Admin do Sistema" button to access the secure System Admin dashboard.
-*   **Monitor:** Views a global dashboard with panels for managing users, vaquinhas, finances, white-label clients, and support tickets.
-*   **Interact:** The dashboard is populated with mock data to simulate a live environment, and some features, like the White-Label management form, are interactive.
+*   **Monitor:** Views a global dashboard with panels for managing users, vaquinhas, finances, white-label clients, support tickets, and gateway integrations.
+*   **Interact:** The dashboard is populated with mock data to simulate a live environment, and many features, like forms and modals, are interactive.
 
 ### 2. Group Administrator (Gestor do Grupo)
 The person responsible for creating and managing a specific `vaquinha`.
