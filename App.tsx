@@ -862,6 +862,99 @@ const GroupAdminDashboard = () => (
 // --- START: SYSTEM ADMIN DASHBOARD ---
 type SystemAdminTab = 'Resumo' | 'Usuários' | 'Vaquinhas' | 'Financeiro' | 'White-Label' | 'Suporte' | 'Integrações Gateway' | 'Configurações';
 
+type User = {
+    id: number;
+    name: string;
+    email: string;
+    plan: 'Pro' | 'Flexível' | 'White-Label';
+    status: 'Ativo' | 'Suspenso';
+    vaquinhas: number;
+    lastLogin: string;
+    joinDate: string;
+};
+
+const UserEditModal = ({ isOpen, onClose, onSave, user }: { isOpen: boolean, onClose: () => void, onSave: (user: User) => void, user: User | null }) => {
+    const [formData, setFormData] = useState<Omit<User, 'id' | 'vaquinhas' | 'lastLogin' | 'joinDate'>>({
+        name: '',
+        email: '',
+        plan: 'Flexível',
+        status: 'Ativo',
+    });
+
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                name: user.name,
+                email: user.email,
+                plan: user.plan,
+                status: user.status,
+            });
+        } else {
+            // Reset for new user
+            setFormData({ name: '', email: '', plan: 'Flexível', status: 'Ativo' });
+        }
+    }, [user, isOpen]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = () => {
+        if (!formData.name || !formData.email) {
+            // Basic validation, in a real app this would be more robust
+            return;
+        }
+        
+        const userToSave: User = {
+            ...(user || { id: Date.now(), vaquinhas: 0, lastLogin: new Date().toISOString().split('T')[0], joinDate: new Date().toISOString().split('T')[0] }),
+            ...formData,
+        };
+        onSave(userToSave);
+    };
+
+    return (
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={user ? 'Editar Usuário' : 'Adicionar Novo Usuário'}
+            footer={
+                <>
+                    <Button variant="secondary" onClick={onClose}>Cancelar</Button>
+                    <Button variant="primary" onClick={handleSubmit}>Salvar</Button>
+                </>
+            }
+        >
+            <div className="space-y-4">
+                <div>
+                    <Label htmlFor="name">Nome Completo</Label>
+                    <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
+                </div>
+                <div>
+                    <Label htmlFor="email">E-mail</Label>
+                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
+                </div>
+                <div>
+                    <Label htmlFor="plan">Plano</Label>
+                    <Select id="plan" name="plan" value={formData.plan} onChange={handleChange}>
+                        <option value="Flexível">Flexível</option>
+                        <option value="Pro">Pro</option>
+                        <option value="White-Label">White-Label</option>
+                    </Select>
+                </div>
+                <div>
+                    <Label htmlFor="status">Status</Label>
+                    <Select id="status" name="status" value={formData.status} onChange={handleChange}>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Suspenso">Suspenso</option>
+                    </Select>
+                </div>
+            </div>
+        </Modal>
+    );
+};
+
+
 const SystemAdminDashboard = () => {
     const [activeTab, setActiveTab] = useState<SystemAdminTab>('Resumo');
 
@@ -952,39 +1045,348 @@ const SystemResumoView = () => (
 
 // --- Usuarios View ---
 const SystemUsuariosView = () => {
-    // Mock data and state management would go here
-    const mockUsers = useMemo(() => [
+    const initialUsers: User[] = useMemo(() => [
         { id: 1, name: 'Ana Silva', email: 'ana.silva@example.com', plan: 'Pro', status: 'Ativo', vaquinhas: 5, lastLogin: '2024-07-21', joinDate: '2023-01-15' },
         { id: 2, name: 'Bruno Costa', email: 'bruno.costa@example.com', plan: 'Flexível', status: 'Ativo', vaquinhas: 1, lastLogin: '2024-07-20', joinDate: '2023-02-20' },
         { id: 3, name: 'Carla Dias', email: 'carla.dias@example.com', plan: 'Pro', status: 'Suspenso', vaquinhas: 12, lastLogin: '2024-05-10', joinDate: '2023-03-10' },
         { id: 4, name: 'Daniel Alves', email: 'daniel.alves@example.com', plan: 'White-Label', status: 'Ativo', vaquinhas: 3, lastLogin: '2024-07-21', joinDate: '2023-04-05' },
+        { id: 5, name: 'Eduarda Lima', email: 'eduarda.lima@example.com', plan: 'Pro', status: 'Ativo', vaquinhas: 8, lastLogin: '2024-07-19', joinDate: '2023-05-12' },
+        { id: 6, name: 'Felipe Mendes', email: 'felipe.mendes@example.com', plan: 'Flexível', status: 'Suspenso', vaquinhas: 2, lastLogin: '2024-06-01', joinDate: '2023-06-18' },
+        { id: 7, name: 'Gabriela Souza', email: 'gabriela.souza@example.com', plan: 'Pro', status: 'Ativo', vaquinhas: 20, lastLogin: '2024-07-22', joinDate: '2023-07-25' },
+        { id: 8, name: 'Heitor Oliveira', email: 'heitor.oliveira@example.com', plan: 'White-Label', status: 'Ativo', vaquinhas: 6, lastLogin: '2024-07-20', joinDate: '2023-08-30' },
     ], []);
+
+    const { addToast } = useToast();
+    const [users, setUsers] = useState<User[]>(initialUsers);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('Todos');
+    const [planFilter, setPlanFilter] = useState('Todos');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingUser, setEditingUser] = useState<User | null>(null);
+
+    const ITEMS_PER_PAGE = 5;
+
+    const filteredUsers = useMemo(() => {
+        return users.filter(user =>
+            (user.name.toLowerCase().includes(searchTerm.toLowerCase()) || user.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
+            (statusFilter === 'Todos' || user.status === statusFilter) &&
+            (planFilter === 'Todos' || user.plan === planFilter)
+        );
+    }, [users, searchTerm, statusFilter, planFilter]);
+
+    const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
+
+    const paginatedUsers = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    }, [filteredUsers, currentPage, ITEMS_PER_PAGE]);
+
+    const handleOpenModal = (user: User | null) => {
+        setEditingUser(user);
+        setIsModalOpen(true);
+    };
+
+    const handleSaveUser = (userToSave: User) => {
+        if (editingUser) {
+            setUsers(users.map(u => u.id === userToSave.id ? userToSave : u));
+            addToast('Usuário atualizado com sucesso!', 'success');
+        } else {
+            setUsers([userToSave, ...users]);
+            addToast('Usuário adicionado com sucesso!', 'success');
+        }
+        setIsModalOpen(false);
+        setEditingUser(null);
+    };
+
+    const handleToggleStatus = (userId: number) => {
+        setUsers(users.map(u => {
+            if (u.id === userId) {
+                const newStatus = u.status === 'Ativo' ? 'Suspenso' : 'Ativo';
+                addToast(`Status de ${u.name} alterado para ${newStatus}.`, 'info');
+                return { ...u, status: newStatus };
+            }
+            return u;
+        }));
+    };
+
+    const handleDeleteUser = (userId: number, userName: string) => {
+        if (window.confirm(`Tem certeza que deseja deletar o usuário ${userName}? Esta ação não pode ser desfeita.`)) {
+            setUsers(users.filter(u => u.id !== userId));
+            addToast(`Usuário ${userName} deletado.`, 'success');
+        }
+    };
+    
+    const handleClearFilters = () => {
+        setSearchTerm('');
+        setStatusFilter('Todos');
+        setPlanFilter('Todos');
+        setCurrentPage(1);
+    }
 
     return (
         <div>
-            <PageTitle actions={<Button variant="primary">+ Novo Usuário</Button>}>
+            <PageTitle actions={<Button variant="primary" onClick={() => handleOpenModal(null)}>+ Novo Usuário</Button>}>
                 Gerenciamento de Usuários
             </PageTitle>
 
             <div className="bg-white p-6 rounded-lg shadow">
-                <p className="text-gray-600">Funcionalidade completa da aba de usuários com busca, filtros, paginação, e ações (editar, suspender, deletar) implementada.</p>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <Input
+                        placeholder="Buscar por nome ou e-mail..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        className="md:col-span-2"
+                    />
+                    <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+                        <option value="Todos">Todos os Status</option>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Suspenso">Suspenso</option>
+                    </Select>
+                     <Select value={planFilter} onChange={e => setPlanFilter(e.target.value as any)}>
+                        <option value="Todos">Todos os Planos</option>
+                        <option value="Flexível">Flexível</option>
+                        <option value="Pro">Pro</option>
+                        <option value="White-Label">White-Label</option>
+                    </Select>
+                </div>
+                
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-slate-50 border-b">
+                                <th className="p-4 font-semibold text-gray-600">Nome</th>
+                                <th className="p-4 font-semibold text-gray-600">Plano</th>
+                                <th className="p-4 font-semibold text-gray-600">Status</th>
+                                <th className="p-4 font-semibold text-gray-600 text-center">Nº Vaquinhas</th>
+                                <th className="p-4 font-semibold text-gray-600">Último Login</th>
+                                <th className="p-4 font-semibold text-gray-600"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {paginatedUsers.map(user => (
+                                <tr key={user.id} className="border-b hover:bg-slate-50">
+                                    <td className="p-4">
+                                        <p className="font-medium text-gray-800">{user.name}</p>
+                                        <p className="text-sm text-gray-500">{user.email}</p>
+                                    </td>
+                                    <td className="p-4">{user.plan}</td>
+                                    <td className="p-4">
+                                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${user.status === 'Ativo' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
+                                            {user.status}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 text-center">{user.vaquinhas}</td>
+                                    <td className="p-4">{new Date(user.lastLogin).toLocaleDateString('pt-BR')}</td>
+                                    <td className="p-4 text-right">
+                                        <Dropdown
+                                            button={
+                                                <button className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" /></svg>
+                                                </button>
+                                            }
+                                        >
+                                            <DropdownItem onClick={() => handleOpenModal(user)}>Editar</DropdownItem>
+                                            <DropdownItem onClick={() => handleToggleStatus(user.id)}>{user.status === 'Ativo' ? 'Suspender' : 'Ativar'}</DropdownItem>
+                                            <DropdownItem onClick={() => handleDeleteUser(user.id, user.name)}>Deletar</DropdownItem>
+                                        </Dropdown>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                 {paginatedUsers.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                        <p className="mb-2">Nenhum usuário encontrado.</p>
+                        <Button variant="secondary" onClick={handleClearFilters}>Limpar Filtros</Button>
+                    </div>
+                 )}
+
+                {totalPages > 1 && (
+                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                )}
+            </div>
+
+            <UserEditModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSaveUser} user={editingUser} />
+        </div>
+    );
+};
+
+
+// --- Vaquinhas View ---
+type Vaquinha = {
+    id: number;
+    name: string;
+    creator: string;
+    goal: number;
+    collected: number;
+    status: 'Ativa' | 'Concluída' | 'Cancelada' | 'Planejando';
+    participants: number;
+    creationDate: string;
+};
+
+const SystemVaquinhasView = () => {
+    const initialVaquinhas: Vaquinha[] = useMemo(() => [
+        { id: 101, name: 'Viagem para a Praia 2024', creator: 'Ana Silva', goal: 5000, collected: 3750, status: 'Ativa', participants: 15, creationDate: '2024-06-01' },
+        { id: 102, name: 'Presente Surpresa do Chefe', creator: 'Bruno Costa', goal: 800, collected: 800, status: 'Concluída', participants: 22, creationDate: '2024-05-15' },
+        { id: 103, name: 'Fundo de Formatura 2025', creator: 'Gabriela Souza', goal: 25000, collected: 12500, status: 'Ativa', participants: 45, creationDate: '2024-03-10' },
+        { id: 104, name: 'Compra de Equipamento Fotográfico', creator: 'Daniel Alves', goal: 3500, collected: 1200, status: 'Cancelada', participants: 8, creationDate: '2024-04-20' },
+        { id: 105, name: 'Churrasco de Fim de Ano da Empresa', creator: 'Eduarda Lima', goal: 1500, collected: 0, status: 'Planejando', participants: 0, creationDate: '2024-07-20' },
+        { id: 106, name: 'Ajuda Custo - Maratona de SP', creator: 'Felipe Mendes', goal: 2000, collected: 2000, status: 'Concluída', participants: 30, creationDate: '2024-02-01' },
+        { id: 107, name: 'Rateio Aluguel Casa de Campo', creator: 'Ana Silva', goal: 2400, collected: 1800, status: 'Ativa', participants: 6, creationDate: '2024-07-05' },
+        { id: 108, name: 'Projeto Social - Cestas Básicas', creator: 'Heitor Oliveira', goal: 10000, collected: 9500, status: 'Ativa', participants: 120, creationDate: '2024-06-15' },
+    ], []);
+
+    const { addToast } = useToast();
+    const [vaquinhas, setVaquinhas] = useState<Vaquinha[]>(initialVaquinhas);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('Todos');
+    const [currentPage, setCurrentPage] = useState(1);
+    
+    const ITEMS_PER_PAGE = 5;
+
+    const filteredVaquinhas = useMemo(() => {
+        return vaquinhas.filter(v =>
+            (v.name.toLowerCase().includes(searchTerm.toLowerCase()) || v.creator.toLowerCase().includes(searchTerm.toLowerCase())) &&
+            (statusFilter === 'Todos' || v.status === statusFilter)
+        );
+    }, [vaquinhas, searchTerm, statusFilter]);
+
+    const totalPages = Math.ceil(filteredVaquinhas.length / ITEMS_PER_PAGE);
+
+    const paginatedVaquinhas = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredVaquinhas.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    }, [filteredVaquinhas, currentPage]);
+
+    const handleToggleStatus = (vaquinhaId: number) => {
+        setVaquinhas(vaquinhas.map(v => {
+            if (v.id === vaquinhaId) {
+                const newStatus = v.status === 'Ativa' ? 'Cancelada' : 'Ativa';
+                addToast(`Status de "${v.name}" alterado para ${newStatus}.`, 'info');
+                return { ...v, status: newStatus };
+            }
+            return v;
+        }));
+    };
+    
+    const handleDelete = (vaquinhaId: number, vaquinhaName: string) => {
+        if (window.confirm(`Tem certeza que deseja deletar a vaquinha "${vaquinhaName}"?`)) {
+            setVaquinhas(vaquinhas.filter(v => v.id !== vaquinhaId));
+            addToast(`Vaquinha "${vaquinhaName}" deletada.`, 'success');
+        }
+    };
+    
+    const handleClearFilters = () => {
+        setSearchTerm('');
+        setStatusFilter('Todos');
+        setCurrentPage(1);
+    }
+    
+    const formatCurrency = (value: number) => {
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    }
+
+    const statusBadges: { [key in Vaquinha['status']]: string } = {
+        Ativa: 'bg-emerald-100 text-emerald-800',
+        Concluída: 'bg-sky-100 text-sky-800',
+        Cancelada: 'bg-red-100 text-red-800',
+        Planejando: 'bg-gray-100 text-gray-800',
+    };
+
+    return (
+        <div>
+            <PageTitle>Gerenciamento de Vaquinhas</PageTitle>
+            <div className="bg-white p-6 rounded-lg shadow">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <Input
+                        placeholder="Buscar por nome ou criador..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        className="md:col-span-2"
+                    />
+                    <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+                        <option value="Todos">Todos os Status</option>
+                        <option value="Ativa">Ativa</option>
+                        <option value="Concluída">Concluída</option>
+                        <option value="Cancelada">Cancelada</option>
+                        <option value="Planejando">Planejando</option>
+                    </Select>
+                </div>
+                
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-slate-50 border-b">
+                                <th className="p-4 font-semibold text-gray-600">Vaquinha</th>
+                                <th className="p-4 font-semibold text-gray-600">Progresso</th>
+                                <th className="p-4 font-semibold text-gray-600">Status</th>
+                                <th className="p-4 font-semibold text-gray-600 text-center">Participantes</th>
+                                <th className="p-4 font-semibold text-gray-600">Data de Criação</th>
+                                <th className="p-4 font-semibold text-gray-600"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {paginatedVaquinhas.map(v => (
+                                <tr key={v.id} className="border-b hover:bg-slate-50">
+                                    <td className="p-4">
+                                        <p className="font-medium text-gray-800">{v.name}</p>
+                                        <p className="text-sm text-gray-500">Criado por: {v.creator}</p>
+                                    </td>
+                                    <td className="p-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-medium text-gray-700">
+                                                {formatCurrency(v.collected)} / {formatCurrency(v.goal)}
+                                            </span>
+                                            <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                                <div className="bg-emerald-500 h-2 rounded-full" style={{ width: `${Math.min((v.collected / v.goal) * 100, 100)}%` }}></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="p-4">
+                                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusBadges[v.status]}`}>
+                                            {v.status}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 text-center">{v.participants}</td>
+                                    <td className="p-4">{new Date(v.creationDate).toLocaleDateString('pt-BR')}</td>
+                                    <td className="p-4 text-right">
+                                        <Dropdown
+                                            button={
+                                                <button className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" /></svg>
+                                                </button>
+                                            }
+                                        >
+                                            <DropdownItem onClick={() => addToast('Funcionalidade de detalhes em desenvolvimento.', 'info')}>Ver Detalhes</DropdownItem>
+                                            <DropdownItem onClick={() => handleToggleStatus(v.id)}>
+                                                {v.status === 'Ativa' ? 'Suspender' : 'Reativar'}
+                                            </DropdownItem>
+                                            <DropdownItem onClick={() => handleDelete(v.id, v.name)}>Deletar</DropdownItem>
+                                        </Dropdown>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {paginatedVaquinhas.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                        <p className="mb-2">Nenhuma vaquinha encontrada.</p>
+                        <Button variant="secondary" onClick={handleClearFilters}>Limpar Filtros</Button>
+                    </div>
+                 )}
+
+                {totalPages > 1 && (
+                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                )}
             </div>
         </div>
     );
 };
 
-// --- Vaquinhas View ---
-const SystemVaquinhasView = () => {
-     // Mock data and state management would go here
-    return (
-        <div>
-            <PageTitle>Gerenciamento de Vaquinhas</PageTitle>
-            <div className="bg-white p-6 rounded-lg shadow">
-                 <p className="text-gray-600">Funcionalidade completa da aba de vaquinhas com busca, filtros, paginação, e ações (suspender, deletar) implementada.</p>
-            </div>
-        </div>
-    );
-};
 
 // --- Financeiro View ---
 const SystemFinanceiroView = () => {
