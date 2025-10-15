@@ -41,7 +41,7 @@ The platform owner who oversees the entire operation.
 
 **Prototype Workflow:**
 *   **Login:** Clicks the "Admin do Sistema" button to access the secure System Admin dashboard.
-*   **Monitor:** Views a global dashboard with panels for managing users, vaquinhas, finances, white-label clients, support tickets, and gateway integrations.
+*   **Monitor:** Views a global dashboard with panels for managing users, vaquinhas, finances, white-label clients, support tickets, gateway integrations, and platform settings.
 *   **Interact:** The dashboard is populated with mock data to simulate a live environment, and many features, like forms and modals, are interactive.
 
 ### 2. Group Administrator (Gestor do Grupo)

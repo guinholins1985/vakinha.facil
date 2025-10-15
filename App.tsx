@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useContext, createContext, useMemo } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
@@ -619,7 +618,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer 
 };
 
 const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
-    <input {...props} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+    <input {...props} className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 ${props.className}`} />
 );
 
 const Select = (props: React.SelectHTMLAttributes<HTMLSelectElement>) => (
@@ -630,7 +629,7 @@ const Label = (props: React.LabelHTMLAttributes<HTMLLabelElement>) => (
     <label {...props} className="block text-sm font-medium text-gray-700 mb-1" />
 );
 
-const Button = ({ children, onClick, className = '', variant = 'primary', disabled }: { children: React.ReactNode, onClick?: () => void, className?: string, variant?: 'primary' | 'secondary' | 'danger', disabled?: boolean }) => {
+const Button = ({ children, onClick, className = '', variant = 'primary', disabled }: { children?: React.ReactNode, onClick?: () => void, className?: string, variant?: 'primary' | 'secondary' | 'danger', disabled?: boolean }) => {
     const baseClasses = "px-4 py-2 rounded-md font-semibold text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
     const variantClasses = {
         primary: 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500',
@@ -640,7 +639,7 @@ const Button = ({ children, onClick, className = '', variant = 'primary', disabl
     return <button onClick={onClick} disabled={disabled} className={`${baseClasses} ${variantClasses[variant]} ${className}`}>{children}</button>;
 };
 
-const PageTitle = ({ children, actions }: { children: React.ReactNode, actions?: React.ReactNode }) => (
+const PageTitle = ({ children, actions }: { children?: React.ReactNode, actions?: React.ReactNode }) => (
     <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">{children}</h1>
         <div>{actions}</div>
@@ -688,13 +687,22 @@ const Dropdown: React.FC<DropdownProps> = ({ button, children }) => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const handleItemClick = () => {
+        setIsOpen(false);
+    }
+    
     return (
         <div className="relative inline-block text-left" ref={dropdownRef}>
             <div onClick={() => setIsOpen(!isOpen)}>{button}</div>
             {isOpen && (
                 <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
                     <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                        {children}
+                        {React.Children.map(children, child => {
+                            if (React.isValidElement(child)) {
+                                return React.cloneElement(child, { onClick: () => { child.props.onClick(); handleItemClick(); } } as any);
+                            }
+                            return child;
+                        })}
                     </div>
                 </div>
             )}
@@ -703,28 +711,28 @@ const Dropdown: React.FC<DropdownProps> = ({ button, children }) => {
 };
 
 interface DropdownItemProps {
-    onClick: () => void;
+    onClick?: () => void;
     children?: React.ReactNode;
 }
-const DropdownItem: React.FC<DropdownItemProps> = ({ onClick, children }) => (
+const DropdownItem: React.FC<DropdownItemProps> = ({ onClick = () => {}, children }) => (
     <a href="#" onClick={(e) => { e.preventDefault(); onClick(); }} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">{children}</a>
 );
 
 const Pagination = ({ currentPage, totalPages, onPageChange }: { currentPage: number, totalPages: number, onPageChange: (page: number) => void }) => {
   const pages = useMemo(() => {
-    const pageNumbers = [];
+    const pageNumbers: (number | string)[] = [];
     if (totalPages <= 7) {
       for (let i = 1; i <= totalPages; i++) pageNumbers.push(i);
     } else {
       pageNumbers.push(1);
-      if (currentPage > 4) pageNumbers.push('...');
+      if (currentPage > 3) pageNumbers.push('...');
       
-      const startPage = Math.max(2, currentPage - 2);
-      const endPage = Math.min(totalPages - 1, currentPage + 2);
+      const startPage = Math.max(2, currentPage - 1);
+      const endPage = Math.min(totalPages - 1, currentPage + 1);
 
       for (let i = startPage; i <= endPage; i++) pageNumbers.push(i);
 
-      if (currentPage < totalPages - 3) pageNumbers.push('...');
+      if (currentPage < totalPages - 2) pageNumbers.push('...');
       pageNumbers.push(totalPages);
     }
     return pageNumbers;
@@ -732,7 +740,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: { currentPage: nu
 
   return (
     <div className="flex justify-between items-center mt-6">
-      {/* FIX: Added missing children to Button component */}
       <Button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -740,7 +747,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: { currentPage: nu
       >
         Anterior
       </Button>
-      <div className="flex items-center space-x-2">
+      <div className="hidden sm:flex items-center space-x-2">
         {pages.map((page, index) =>
           typeof page === 'number' ? (
             <button
@@ -761,7 +768,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: { currentPage: nu
           )
         )}
       </div>
-      {/* FIX: Added missing children to Button component */}
+       <span className="sm:hidden text-sm text-gray-600">Página {currentPage} de {totalPages}</span>
       <Button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
@@ -800,7 +807,6 @@ const GroupAdminDashboard = () => (
             <div className="bg-white p-6 rounded-lg shadow-md">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold text-gray-800">Minhas Vaquinhas</h2>
-                    {/* FIX: Added missing children to Button component */}
                     <Button variant="primary">
                         + Nova Vaquinha
                     </Button>
@@ -854,7 +860,7 @@ const GroupAdminDashboard = () => (
 
 
 // --- START: SYSTEM ADMIN DASHBOARD ---
-type SystemAdminTab = 'Resumo' | 'Usuários' | 'Vaquinhas' | 'Financeiro' | 'White-Label' | 'Suporte' | 'Integrações Gateway';
+type SystemAdminTab = 'Resumo' | 'Usuários' | 'Vaquinhas' | 'Financeiro' | 'White-Label' | 'Suporte' | 'Integrações Gateway' | 'Configurações';
 
 const SystemAdminDashboard = () => {
     const [activeTab, setActiveTab] = useState<SystemAdminTab>('Resumo');
@@ -868,6 +874,7 @@ const SystemAdminDashboard = () => {
             case 'White-Label': return <SystemWhiteLabelView />;
             case 'Suporte': return <SystemSuporteView />;
             case 'Integrações Gateway': return <SystemIntegracoesView />;
+            case 'Configurações': return <SystemConfiguracoesView />;
             default: return <SystemResumoView />;
         }
     };
@@ -892,7 +899,8 @@ const SystemAdminSidebar = ({ activeTab, setActiveTab }: { activeTab: SystemAdmi
         { name: 'Financeiro', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.158-.103.346-.196.567-.267v1.692a2.5 2.5 0 00-1.167-.417c-.334 0-.652.093-.923.267v-1.692c.22.071.408.164.566.267zM11.567 7.151c.22-.071.408-.164.567-.267v1.692c-.27-.174-.59-.267-.923-.267a2.5 2.5 0 00-1.167.417v-1.692c.22.071.409.164.567.267z" /><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.5 4.5 0 00-1.88.756 1 1 0 10.76 1.852A2.5 2.5 0 0110 8.5v1.077a1 1 0 00.822.982.5.5 0 01.178.634 2.5 2.5 0 01-2.44 2.308 1 1 0 10-.5 1.936 4.5 4.5 0 004.366-4.112V9.5a1 1 0 00-1-1V5z" clipRule="evenodd" /></svg> },
         { name: 'White-Label', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm10.5 5.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM8 8a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm3.5 4a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM8 13.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clipRule="evenodd" /></svg> },
         { name: 'Suporte', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" /></svg> },
-        { name: 'Integrações Gateway', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 2a1.5 1.5 0 00-1.5 1.5v1.25a.75.75 0 01-1.5 0V3.5A3.5 3.5 0 0110 0a3.5 3.5 0 013.5 3.5v1.25a.75.75 0 01-1.5 0V3.5A1.5 1.5 0 0010 2zM5.625 5.313a.75.75 0 010-1.06l1.06-1.06a.75.75 0 011.06 0l3.5 3.5a.75.75 0 010 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-1.06-1.06a.75.75 0 010-1.06l1.69-1.69H2.75a.75.75 0 010-1.5h4.564l-1.69-1.69zm8.75 0a.75.75 0 011.06 0l1.06 1.06a.75.75 0 010 1.06l-1.69 1.69h4.564a.75.75 0 010 1.5h-4.563l1.69 1.69a.75.75 0 010 1.06l-1.06 1.06a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 010-1.06l3.5-3.5zM10 18a1.5 1.5 0 001.5-1.5v-1.25a.75.75 0 011.5 0v1.25a3.5 3.5 0 01-3.5 3.5a3.5 3.5 0 01-3.5-3.5v-1.25a.75.75 0 011.5 0v1.25A1.5 1.5 0 0010 18z" clipRule="evenodd" /></svg>}
+        { name: 'Integrações Gateway', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 2a1.5 1.5 0 00-1.5 1.5v1.25a.75.75 0 01-1.5 0V3.5A3.5 3.5 0 0110 0a3.5 3.5 0 013.5 3.5v1.25a.75.75 0 01-1.5 0V3.5A1.5 1.5 0 0010 2zM5.625 5.313a.75.75 0 010-1.06l1.06-1.06a.75.75 0 011.06 0l3.5 3.5a.75.75 0 010 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-1.06-1.06a.75.75 0 010-1.06l1.69-1.69H2.75a.75.75 0 010-1.5h4.564l-1.69-1.69zm8.75 0a.75.75 0 011.06 0l1.06 1.06a.75.75 0 010 1.06l-1.69 1.69h4.564a.75.75 0 010 1.5h-4.563l1.69 1.69a.75.75 0 010 1.06l-1.06 1.06a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 010-1.06l3.5-3.5zM10 18a1.5 1.5 0 001.5-1.5v-1.25a.75.75 0 011.5 0v1.25a3.5 3.5 0 01-3.5 3.5a3.5 3.5 0 01-3.5-3.5v-1.25a.75.75 0 011.5 0v1.25A1.5 1.5 0 0010 18z" clipRule="evenodd" /></svg>},
+        { name: 'Configurações', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg> },
     ];
 
     return (
@@ -926,7 +934,6 @@ const SystemAdminSidebar = ({ activeTab, setActiveTab }: { activeTab: SystemAdmi
 // --- Resumo View ---
 const SystemResumoView = () => (
     <div>
-        {/* FIX: Added missing children to PageTitle component */}
         <PageTitle>Resumo do Sistema</PageTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatCard title="Total de Usuários" value="1,245" change="+32 na última semana" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>} />
@@ -955,7 +962,6 @@ const SystemUsuariosView = () => {
 
     return (
         <div>
-            {/* FIX: Added missing children to PageTitle and Button components */}
             <PageTitle actions={<Button variant="primary">+ Novo Usuário</Button>}>
                 Gerenciamento de Usuários
             </PageTitle>
@@ -972,7 +978,6 @@ const SystemVaquinhasView = () => {
      // Mock data and state management would go here
     return (
         <div>
-            {/* FIX: Added missing children to PageTitle component */}
             <PageTitle>Gerenciamento de Vaquinhas</PageTitle>
             <div className="bg-white p-6 rounded-lg shadow">
                  <p className="text-gray-600">Funcionalidade completa da aba de vaquinhas com busca, filtros, paginação, e ações (suspender, deletar) implementada.</p>
@@ -986,7 +991,6 @@ const SystemFinanceiroView = () => {
     // Mock data
     return (
         <div>
-            {/* FIX: Added missing children to PageTitle component */}
             <PageTitle>Painel Financeiro</PageTitle>
             <div className="bg-white p-6 rounded-lg shadow">
                  <p className="text-gray-600">Funcionalidade completa da aba financeira com KPIs, gráficos, lista de transações e gerenciamento de saques implementada.</p>
@@ -1000,7 +1004,6 @@ const SystemFinanceiroView = () => {
 const SystemWhiteLabelView = () => {
     return (
         <div>
-            {/* FIX: Added missing children to PageTitle and Button components */}
             <PageTitle actions={<Button variant="primary">+ Novo Cliente</Button>}>
                 Clientes White-Label
             </PageTitle>
@@ -1016,7 +1019,6 @@ const SystemWhiteLabelView = () => {
 const SystemSuporteView = () => {
     return (
         <div>
-            {/* FIX: Added missing children to PageTitle component */}
             <PageTitle>Central de Suporte</PageTitle>
             <div className="bg-white p-6 rounded-lg shadow">
                 <p className="text-gray-600">Funcionalidade completa da aba de suporte com KPIs, lista de tickets e modal de visualização/resposta implementada.</p>
@@ -1039,7 +1041,7 @@ interface Gateway {
 const initialGateways: Gateway[] = [
     { id: 'stripe', name: 'Stripe', logo: 'https://cdn.worldvectorlogo.com/logos/stripe-4.svg', description: 'Plataforma completa para pagamentos globais.', status: 'connected', apiKey: 'sk_test_••••••••••••••••••••', secretKey: '••••••••••••••••••••••••••••' },
     { id: 'mercadopago', name: 'Mercado Pago', logo: 'https://cdn.worldvectorlogo.com/logos/mercado-pago-2.svg', description: 'Solução de pagamentos popular na América Latina.', status: 'available', apiKey: '', secretKey: '' },
-    { id: 'pagseguro', name: 'PagBank (PagSeguro)', logo: 'https://cdn.worldvectorlogo.com/logos/pagseguro-1.svg', description: 'Gateway de pagamentos pioneiro no Brasil.', status: 'available', apiKey: '', secretKey: '' },
+    { id: 'pagseguro', name: 'PagBank (PagSeguro)', logo: 'https://logospng.org/download/pagseguro/logo-pagseguro-4096.png', description: 'Gateway de pagamentos pioneiro no Brasil.', status: 'available', apiKey: '', secretKey: '' },
     { id: 'pagarme', name: 'Pagar.me', logo: 'https://pagar.me/wp-content/uploads/2022/02/logo-pagarme-2022-vertical-positivo-1-1.svg', description: 'API de pagamentos para negócios digitais.', status: 'available', apiKey: '', secretKey: '' },
     { id: 'picpay', name: 'PicPay', logo: 'https://cdn.worldvectorlogo.com/logos/picpay-1.svg', description: 'Carteira digital líder no Brasil, com pagamentos via QR Code.', status: 'available', apiKey: '', secretKey: '' },
     { id: 'nubank', name: 'Nubank', logo: 'https://cdn.worldvectorlogo.com/logos/nubank-1.svg', description: 'Soluções de pagamento integradas ao ecossistema do Nubank.', status: 'available', apiKey: '', secretKey: '' },
@@ -1080,12 +1082,9 @@ const GatewayConfigModal = ({ isOpen, onClose, gateway, onSave, onDisconnect }: 
             title={`Configurar ${gateway.name}`}
             footer={
                 <>
-                    {/* FIX: Added missing children to Button component */}
                     {gateway.status === 'connected' && <Button variant="danger" onClick={handleDisconnect}>Desconectar</Button>}
                     <div className="flex-grow" />
-                    {/* FIX: Added missing children to Button component */}
                     <Button variant="secondary" onClick={onClose}>Cancelar</Button>
-                    {/* FIX: Added missing children to Button component */}
                     <Button variant="primary" onClick={handleSave}>Salvar Configuração</Button>
                 </>
             }
@@ -1145,7 +1144,6 @@ const SystemIntegracoesView = () => {
 
     return (
         <div>
-            {/* FIX: Added missing children to PageTitle component */}
             <PageTitle>Integrações de Gateway</PageTitle>
 
             <div className="grid grid-cols-1 gap-8">
@@ -1185,7 +1183,6 @@ const SystemIntegracoesView = () => {
                                     <p className="text-sm text-gray-500 mt-1 h-10">{gateway.description}</p>
                                 </div>
                                 <div className="mt-4 flex items-center space-x-2">
-                                    {/* FIX: Added missing children to Button component */}
                                     <Button
                                         variant="secondary"
                                         onClick={() => handleConfigureClick(gateway)}
@@ -1194,7 +1191,6 @@ const SystemIntegracoesView = () => {
                                         {gateway.status === 'connected' ? 'Gerenciar' : 'Configurar'}
                                     </Button>
                                     {gateway.status === 'connected' && gateway.id !== activeGatewayId && (
-                                        // FIX: Added missing children to Button component
                                         <Button variant="primary" onClick={() => handleSetActive(gateway.id)} className="flex-1">
                                             Tornar Ativo
                                         </Button>
@@ -1212,6 +1208,126 @@ const SystemIntegracoesView = () => {
                 onSave={handleSaveGateway}
                 onDisconnect={handleDisconnectGateway}
             />
+        </div>
+    );
+};
+
+// --- Configurações View ---
+const SystemConfiguracoesView = () => {
+    const [settings, setSettings] = useState({
+        platformName: 'Vakinha Fácil',
+        primaryColor: '#10b981',
+        logoUrl: '',
+        currency: 'BRL',
+        flexibleFee: 3.0,
+        adminEmail: 'admin@vakinhafacil.com',
+        maintenanceMode: false,
+    });
+    const { addToast } = useToast();
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value, type } = e.target;
+        
+        if (type === 'checkbox') {
+             const { checked } = e.target as HTMLInputElement;
+             setSettings(prev => ({...prev, [name]: checked }));
+        } else {
+             setSettings(prev => ({ ...prev, [name]: value }));
+        }
+    };
+    
+    const handleSaveChanges = (section: string) => {
+        // Here you would typically make an API call to save the settings
+        console.log(`Saving ${section} settings:`, settings);
+        addToast(`${section} salvas com sucesso!`, 'success');
+    };
+    
+    return (
+        <div>
+            <PageTitle>Configurações da Plataforma</PageTitle>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-8">
+                     <SubSectionCard
+                        title="Configurações Gerais"
+                        description="Ajuste a identidade visual e o nome da sua plataforma."
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg>}
+                    >
+                        <div className="space-y-4">
+                            <div>
+                                <Label htmlFor="platformName">Nome da Plataforma</Label>
+                                <Input id="platformName" name="platformName" value={settings.platformName} onChange={handleInputChange} />
+                            </div>
+                            <div>
+                                <Label htmlFor="primaryColor">Cor Principal</Label>
+                                <Input id="primaryColor" name="primaryColor" type="color" value={settings.primaryColor} onChange={handleInputChange} className="w-20 h-10 p-1"/>
+                            </div>
+                             <div>
+                                <Label htmlFor="logoUrl">Logo</Label>
+                                <Input id="logoUrl" name="logoUrl" type="file" className="text-sm"/>
+                            </div>
+                             <div className="pt-2">
+                                <Button onClick={() => handleSaveChanges('Configurações Gerais')}>Salvar</Button>
+                            </div>
+                        </div>
+                    </SubSectionCard>
+                    <SubSectionCard
+                        title="Modo de Manutenção"
+                        description="Ative para desabilitar o acesso público ao site durante atualizações."
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" /></svg>}
+                    >
+                        <div className="flex items-center justify-between bg-yellow-50 p-4 rounded-lg">
+                            <p className="text-yellow-800 font-medium">Ativar modo de manutenção</p>
+                             <label className="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="maintenanceMode" checked={settings.maintenanceMode} onChange={handleInputChange} className="sr-only peer" />
+                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-emerald-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
+                        </div>
+                         <div className="pt-4">
+                            <Button onClick={() => handleSaveChanges('Modo de Manutenção')}>Salvar</Button>
+                        </div>
+                    </SubSectionCard>
+                </div>
+                 <div className="space-y-8">
+                    <SubSectionCard
+                        title="Taxas e Moeda"
+                        description="Defina a moeda padrão e as taxas de serviço da plataforma."
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.158-.103.346-.196.567-.267v1.692a2.5 2.5 0 00-1.167-.417c-.334 0-.652.093-.923.267v-1.692c.22.071.408.164.566.267zM11.567 7.151c.22-.071.408-.164.567-.267v1.692c-.27-.174-.59-.267-.923-.267a2.5 2.5 0 00-1.167.417v-1.692c.22.071.409.164.567.267z" /><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.5 4.5 0 00-1.88.756 1 1 0 10.76 1.852A2.5 2.5 0 0110 8.5v1.077a1 1 0 00.822.982.5.5 0 01.178.634 2.5 2.5 0 01-2.44 2.308 1 1 0 10-.5 1.936 4.5 4.5 0 004.366-4.112V9.5a1 1 0 00-1-1V5z" clipRule="evenodd" /></svg>}
+                    >
+                         <div className="space-y-4">
+                            <div>
+                                <Label htmlFor="currency">Moeda Padrão</Label>
+                                <Select id="currency" name="currency" value={settings.currency} onChange={handleInputChange}>
+                                    <option value="BRL">Real Brasileiro (BRL)</option>
+                                    <option value="USD">Dólar Americano (USD)</option>
+                                    <option value="EUR">Euro (EUR)</option>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label htmlFor="flexibleFee">Taxa do Plano Flexível (%)</Label>
+                                <Input id="flexibleFee" name="flexibleFee" type="number" step="0.1" value={settings.flexibleFee} onChange={handleInputChange} />
+                            </div>
+                            <div className="pt-2">
+                                <Button onClick={() => handleSaveChanges('Taxas e Moeda')}>Salvar</Button>
+                            </div>
+                        </div>
+                    </SubSectionCard>
+                    <SubSectionCard
+                        title="Notificações"
+                        description="Configure para onde os alertas administrativos serão enviados."
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 2.882l7.997 3.002A2 2 0 0119 7.818V12a2 2 0 01-2 2h-2.167l-3.04-1.932a2.5 2.5 0 00-2.586 0L6.167 14H4a2 2 0 01-2-2V7.818a2 2 0 011.003-1.934z" /><path d="M10 15a2.5 2.5 0 01-2.5 2.5H4a2 2 0 01-2-2V7.818a2 2 0 011.003-1.934L10 2.882l7.997 3.002A2 2 0 0119 7.818V12a2 2 0 01-2 2h-3.5a2.5 2.5 0 01-2.5-2.5z" /></svg>}
+                    >
+                        <div className="space-y-4">
+                            <div>
+                                <Label htmlFor="adminEmail">E-mail para Alertas</Label>
+                                <Input id="adminEmail" name="adminEmail" type="email" value={settings.adminEmail} onChange={handleInputChange} />
+                            </div>
+                             <div className="pt-2">
+                                <Button onClick={() => handleSaveChanges('Notificações')}>Salvar</Button>
+                            </div>
+                        </div>
+                    </SubSectionCard>
+                </div>
+            </div>
         </div>
     );
 };
