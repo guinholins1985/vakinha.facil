@@ -87,6 +87,7 @@ const ICONS = {
   edit: "M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10",
   trash: "M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.134-2.033-2.134H8.033c-1.12 0-2.033.954-2.033 2.134v.916m7.5 0a48.667 48.667 0 00-7.5 0",
   eye: "M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.432 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M12 15a3 3 0 100-6 3 3 0 000 6z",
+  eyeSlash: "M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243l-4.243-4.243",
   checkCircle: "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
   xCircle: "M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
   creditCard: "M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h6m3-3.75l-3 3m0 0l-3-3m3 3V15m6-1.5V6a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6v12a2.25 2.25 0 002.25 2.25h10.5A2.25 2.25 0 0019.5 18v-2.25",
@@ -145,7 +146,7 @@ const FormActions = ({ onCancel, onSaveLabel }: { onCancel: () => void; onSaveLa
 );
 
 const StatCard = ({ title, value, iconPath, colorClass }: { title: string, value: string, iconPath: string, colorClass: string }) => (
-    <div className="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
+    <div className="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1">
         <div className={`p-3 rounded-full ${colorClass}`}>
             <Icon path={iconPath} className="w-6 h-6 text-white" />
         </div>
@@ -165,7 +166,7 @@ const QuickActionButton = ({ label, iconPath, onClick }: { label: string, iconPa
     </button>
 );
 
-const LandingPage = ({ onLoginClick }: { onLoginClick: () => void }) => {
+const LandingPage = ({ onLoginClick, onRegisterClick }: { onLoginClick: () => void; onRegisterClick: () => void }) => {
     return (
         <div className="bg-white font-sans text-gray-800">
             {/* Header */}
@@ -173,39 +174,79 @@ const LandingPage = ({ onLoginClick }: { onLoginClick: () => void }) => {
                 <div className="container mx-auto px-6 py-4 flex justify-between items-center">
                     <h1 className="text-2xl font-bold font-heading text-indigo-600">Vakinha Fácil</h1>
                     <nav className="hidden md:flex items-center space-x-8">
-                        <a href="#" className="text-gray-600 hover:text-indigo-600 font-semibold">Vaquinhas</a>
-                        <a href="#" className="text-gray-600 hover:text-indigo-600 font-semibold">Rifas</a>
-                        <a href="#" className="text-gray-600 hover:text-indigo-600 font-semibold">Como Funciona</a>
+                        <a href="#features" className="text-gray-600 hover:text-indigo-600 font-semibold">Recursos</a>
+                        <a href="#how-it-works" className="text-gray-600 hover:text-indigo-600 font-semibold">Como Funciona</a>
+                        <a href="#testimonials" className="text-gray-600 hover:text-indigo-600 font-semibold">Depoimentos</a>
                     </nav>
                     <button onClick={onLoginClick} className="bg-indigo-600 text-white px-5 py-2 rounded-full font-bold hover:bg-indigo-700 transition-colors">Entrar</button>
                 </div>
             </header>
 
             {/* Hero Section */}
-            <section className="pt-32 pb-20 bg-gray-50">
+            <section className="pt-32 pb-20 bg-gradient-to-br from-indigo-50 via-white to-white">
                 <div className="container mx-auto px-6 text-center">
                     <h2 className="text-4xl md:text-6xl font-extrabold font-heading mb-4 animate-fade-in">Arrecade fundos para seus sonhos.</h2>
                     <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>Crie vaquinhas online ou rifas de forma transparente, segura e sem burocracia. Automatize sua arrecadação em 3 cliques.</p>
-                    <button onClick={onLoginClick} className="bg-green-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-green-600 transition-transform transform hover:scale-105 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-                        Começar Agora <Icon path={ICONS.arrowRight} className="w-5 h-5 inline-block ml-2" />
-                    </button>
+                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                        <button onClick={onRegisterClick} className="bg-green-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-green-600 transition-transform transform hover:scale-105 w-full sm:w-auto">
+                            Criar minha Vaquinha Grátis <Icon path={ICONS.arrowRight} className="w-5 h-5 inline-block ml-2" />
+                        </button>
+                    </div>
+                </div>
+            </section>
+            
+            {/* How it Works Section */}
+            <section id="how-it-works" className="py-20 bg-white">
+                <div className="container mx-auto px-6">
+                    <div className="text-center mb-12">
+                        <h3 className="text-3xl font-bold font-heading">Como Funciona? É simples!</h3>
+                        <p className="text-gray-600 mt-2">Crie sua campanha em apenas 3 passos.</p>
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-10">
+                        <div className="text-center"><div className="flex items-center justify-center w-20 h-20 mx-auto bg-indigo-100 rounded-full mb-4"><Icon path={ICONS.plusCircle} className="w-10 h-10 text-indigo-600"/></div><h4 className="text-xl font-bold mb-2">1. Crie sua Campanha</h4><p className="text-gray-600">Defina sua meta, conte sua história e personalize a página da sua vaquinha ou rifa em minutos.</p></div>
+                        <div className="text-center"><div className="flex items-center justify-center w-20 h-20 mx-auto bg-green-100 rounded-full mb-4"><Icon path={ICONS.link} className="w-10 h-10 text-green-600"/></div><h4 className="text-xl font-bold mb-2">2. Divulgue o Link</h4><p className="text-gray-600">Compartilhe o link exclusivo da sua campanha com amigos, família e nas redes sociais.</p></div>
+                        <div className="text-center"><div className="flex items-center justify-center w-20 h-20 mx-auto bg-purple-100 rounded-full mb-4"><Icon path={ICONS.creditCard} className="w-10 h-10 text-purple-600"/></div><h4 className="text-xl font-bold mb-2">3. Receba o Dinheiro</h4><p className="text-gray-600">Acompanhe as contribuições em tempo real e saque o valor arrecadado diretamente para sua conta.</p></div>
+                    </div>
                 </div>
             </section>
             
             {/* Features Section */}
-            <section className="py-20">
+            <section id="features" className="py-20 bg-gray-50">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-12">
                         <h3 className="text-3xl font-bold font-heading">Por que escolher a Vakinha Fácil?</h3>
                         <p className="text-gray-600 mt-2">Tudo que você precisa em um só lugar.</p>
                     </div>
                     <div className="grid md:grid-cols-3 gap-10">
-                        <div className="text-center p-6 bg-white rounded-lg"><div className="inline-block p-4 bg-indigo-100 rounded-full mb-4"><Icon path={ICONS.featureShield} className="w-8 h-8 text-indigo-600"/></div><h4 className="text-xl font-bold mb-2">Seguro e Transparente</h4><p className="text-gray-600">Acompanhe todas as doações e vendas em tempo real, com total segurança para você e seus contribuidores.</p></div>
-                        <div className="text-center p-6 bg-white rounded-lg"><div className="inline-block p-4 bg-green-100 rounded-full mb-4"><Icon path={ICONS.featureCash} className="w-8 h-8 text-green-600"/></div><h4 className="text-xl font-bold mb-2">Vaquinhas e Rifas</h4><p className="text-gray-600">A única plataforma que permite criar tanto campanhas de arrecadação contínua quanto rifas com prêmios.</p></div>
-                        <div className="text-center p-6 bg-white rounded-lg"><div className="inline-block p-4 bg-purple-100 rounded-full mb-4"><Icon path={ICONS.featureGift} className="w-8 h-8 text-purple-600"/></div><h4 className="text-xl font-bold mb-2">Fácil de Usar</h4><p className="text-gray-600">Crie e divulgue sua campanha em minutos, sem complicação e com total autonomia.</p></div>
+                        <div className="text-center p-6 bg-white rounded-lg transition-transform transform hover:scale-105 shadow-sm hover:shadow-lg"><div className="inline-block p-4 bg-indigo-100 rounded-full mb-4"><Icon path={ICONS.featureShield} className="w-8 h-8 text-indigo-600"/></div><h4 className="text-xl font-bold mb-2">Seguro e Transparente</h4><p className="text-gray-600">Acompanhe todas as doações e vendas em tempo real, com total segurança para você e seus contribuidores.</p></div>
+                        <div className="text-center p-6 bg-white rounded-lg transition-transform transform hover:scale-105 shadow-sm hover:shadow-lg"><div className="inline-block p-4 bg-green-100 rounded-full mb-4"><Icon path={ICONS.featureCash} className="w-8 h-8 text-green-600"/></div><h4 className="text-xl font-bold mb-2">Vaquinhas e Rifas</h4><p className="text-gray-600">A única plataforma que permite criar tanto campanhas de arrecadação contínua quanto rifas com prêmios.</p></div>
+                        <div className="text-center p-6 bg-white rounded-lg transition-transform transform hover:scale-105 shadow-sm hover:shadow-lg"><div className="inline-block p-4 bg-purple-100 rounded-full mb-4"><Icon path={ICONS.featureGift} className="w-8 h-8 text-purple-600"/></div><h4 className="text-xl font-bold mb-2">Fácil de Usar</h4><p className="text-gray-600">Crie e divulgue sua campanha em minutos, sem complicação e com total autonomia.</p></div>
                     </div>
                 </div>
             </section>
+            
+            {/* Testimonials Section */}
+            <section id="testimonials" className="py-20 bg-white">
+                 <div className="container mx-auto px-6">
+                    <div className="text-center mb-12">
+                        <h3 className="text-3xl font-bold font-heading">Milhares de Sonhos Realizados</h3>
+                        <p className="text-gray-600 mt-2">Veja o que nossos usuários dizem sobre a plataforma.</p>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto">
+                        <div className="bg-gray-50 p-8 rounded-lg">
+                            <p className="text-gray-600 italic mb-4">"Consegui arrecadar o valor para a formatura da minha turma em menos de um mês! A plataforma é super intuitiva e o suporte foi incrível. Recomendo demais!"</p>
+                            <p className="font-bold text-gray-800">Carla Mendes</p>
+                            <p className="text-sm text-gray-500">Comissão de Formatura</p>
+                        </div>
+                        <div className="bg-gray-50 p-8 rounded-lg">
+                            <p className="text-gray-600 italic mb-4">"A rifa online foi um sucesso! Vendemos todos os números e o sorteio foi super transparente. A melhor ferramenta que já usei para ajudar nossa ONG."</p>
+                            <p className="font-bold text-gray-800">João Pereira</p>
+                            <p className="text-sm text-gray-500">Diretor da ONG Coração Aberto</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
 
             {/* Footer */}
             <footer className="bg-gray-900 text-white py-10">
@@ -223,7 +264,8 @@ const DashboardPage = ({ onQuickActionClick }: { onQuickActionClick: (page: Page
         { month: 'Abr', users: 81 }, { month: 'Mai', users: 56 }, { month: 'Jun', users: 55 },
         { month: 'Jul', users: 40 }, { month: 'Ago', users: 62 }, { month: 'Set', users: 75 }
     ];
-    const maxUsers = Math.max(...userGrowthData.map(d => d.users));
+    const maxUsers = Math.max(...userGrowthData.map(d => d.users), 100);
+    const [tooltip, setTooltip] = useState<{ content: string; x: number; y: number } | null>(null);
 
     return (
     <div className="p-6 animate-fade-in space-y-6">
@@ -248,13 +290,42 @@ const DashboardPage = ({ onQuickActionClick }: { onQuickActionClick: (page: Page
             </div>
             <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
                  <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Crescimento de Usuários (Últimos Meses)</h3>
-                 <div className="flex items-end h-48 space-x-2">
-                    {userGrowthData.map(data => (
-                        <div key={data.month} className="flex-1 flex flex-col items-center">
-                            <div className="w-full bg-indigo-500 rounded-t-md hover:bg-indigo-600 transition-colors" style={{ height: `${(data.users / maxUsers) * 100}%` }}></div>
-                            <span className="text-xs text-gray-500 mt-1">{data.month}</span>
+                 <div className="relative h-48" onMouseLeave={() => setTooltip(null)}>
+                     {tooltip && (
+                        <div className="absolute bg-gray-800 text-white text-xs rounded py-1 px-2 pointer-events-none transition-transform" style={{ left: `${tooltip.x}%`, top: `${tooltip.y}%`, transform: 'translate(-50%, -120%)' }}>
+                            {tooltip.content}
                         </div>
-                    ))}
+                    )}
+                    <svg className="w-full h-full" aria-label="Gráfico de crescimento de usuários">
+                        {userGrowthData.map((data, index) => {
+                            const barHeight = (data.users / maxUsers) * 100;
+                            const barWidth = 100 / (userGrowthData.length * 1.5);
+                            const x = (100 / userGrowthData.length) * index + (100 / userGrowthData.length - barWidth) / 2;
+                            return (
+                                <g key={data.month}>
+                                    <rect
+                                        x={`${x}%`}
+                                        y={`${100 - barHeight}%`}
+                                        width={`${barWidth}%`}
+                                        height={`${barHeight}%`}
+                                        className="fill-current text-indigo-200 rounded-t-md"
+                                        aria-label={`Mês: ${data.month}, Usuários: ${data.users}`}
+                                    />
+                                    <rect
+                                        x={`${x}%`}
+                                        y="0"
+                                        width={`${barWidth}%`}
+                                        height="100%"
+                                        className="opacity-0 cursor-pointer"
+                                        onMouseEnter={() => setTooltip({ content: `${data.users} usuários`, x: x + barWidth / 2, y: 100 - barHeight })}
+                                    />
+                                </g>
+                            );
+                        })}
+                    </svg>
+                     <div className="absolute bottom-0 left-0 right-0 flex justify-around -mb-4">
+                        {userGrowthData.map(data => <span key={data.month} className="text-xs text-gray-500">{data.month}</span>)}
+                     </div>
                  </div>
             </div>
         </div>
@@ -1476,7 +1547,7 @@ const MarketingPage = ({ onAddCampaign, onAddCoupon }: { onAddCampaign: () => vo
     );
 };
 
-const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
+const LoginPage = ({ onLogin, onGoToRegister }: { onLogin: () => void, onGoToRegister: () => void }) => {
     const [activeTab, setActiveTab] = useState('admin');
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
@@ -1576,10 +1647,120 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                         </button>
                     </div>
                 </form>
+                <p className="mt-4 text-center text-sm text-gray-600">
+                    Não tem uma conta?{' '}
+                    <button onClick={onGoToRegister} className="font-semibold text-indigo-600 hover:text-indigo-500">
+                        Cadastre-se
+                    </button>
+                </p>
             </div>
         </div>
     );
 };
+
+const RegistrationPage = ({ onRegister, onGoToLogin }: { onRegister: () => void; onGoToLogin: () => void }) => {
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [termsAccepted, setTermsAccepted] = useState(false);
+    const [passwordShown, setPasswordShown] = useState(false);
+
+    const validate = () => {
+        const newErrors: { [key: string]: string } = {};
+        if (!formData.name) newErrors.name = 'Nome completo é obrigatório.';
+        if (!formData.email) {
+            newErrors.email = 'E-mail é obrigatório.';
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = 'Formato de e-mail inválido.';
+        }
+        if (!formData.password) {
+            newErrors.password = 'Senha é obrigatória.';
+        } else if (formData.password.length < 8) {
+            newErrors.password = 'A senha deve ter pelo menos 8 caracteres.';
+        }
+        if (formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = 'As senhas não coincidem.';
+        }
+        if (!termsAccepted) {
+            newErrors.terms = 'Você deve aceitar os termos de serviço.';
+        }
+        return newErrors;
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const validationErrors = validate();
+        setErrors(validationErrors);
+        if (Object.keys(validationErrors).length === 0) {
+            console.log('Formulário válido, registrando usuário:', formData);
+            alert('Cadastro realizado com sucesso! Você será redirecionado para o login.');
+            onRegister();
+        }
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    return (
+        <div className="flex items-center justify-center min-h-screen bg-gray-100 font-sans">
+            <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-xl animate-fade-in">
+                <div className="text-center">
+                    <h1 className="text-3xl font-bold font-heading text-gray-900">Criar Conta</h1>
+                    <p className="mt-2 text-sm text-gray-600">Junte-se à Vakinha Fácil e comece a arrecadar!</p>
+                </div>
+                <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+                    <div>
+                        <label htmlFor="name" className="text-sm font-medium text-gray-700">Nome Completo</label>
+                        <input id="name" name="name" type="text" required className={`w-full px-3 py-2 mt-1 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`} placeholder="Seu nome completo" value={formData.name} onChange={handleChange} />
+                        {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name}</p>}
+                    </div>
+                    <div>
+                        <label htmlFor="email" className="text-sm font-medium text-gray-700">E-mail</label>
+                        <input id="email" name="email" type="email" required className={`w-full px-3 py-2 mt-1 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`} placeholder="seu-email@example.com" value={formData.email} onChange={handleChange} />
+                        {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
+                    </div>
+                    <div>
+                        <label htmlFor="password"className="text-sm font-medium text-gray-700">Senha</label>
+                        <div className="relative">
+                            <input id="password" name="password" type={passwordShown ? 'text' : 'password'} required className={`w-full px-3 py-2 mt-1 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`} placeholder="Mínimo 8 caracteres" value={formData.password} onChange={handleChange} />
+                            <button type="button" onClick={() => setPasswordShown(!passwordShown)} className="absolute inset-y-0 right-0 top-1 pr-3 flex items-center text-sm leading-5">
+                                <Icon path={passwordShown ? ICONS.eyeSlash : ICONS.eye} className="h-5 w-5 text-gray-500" />
+                            </button>
+                        </div>
+                        {errors.password && <p className="text-xs text-red-600 mt-1">{errors.password}</p>}
+                    </div>
+                    <div>
+                        <label htmlFor="confirmPassword"className="text-sm font-medium text-gray-700">Confirmar Senha</label>
+                        <input id="confirmPassword" name="confirmPassword" type="password" required className={`w-full px-3 py-2 mt-1 border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`} value={formData.confirmPassword} onChange={handleChange} />
+                        {errors.confirmPassword && <p className="text-xs text-red-600 mt-1">{errors.confirmPassword}</p>}
+                    </div>
+                    <div className="flex items-start">
+                        <div className="flex items-center h-5">
+                           <input id="terms" name="terms" type="checkbox" className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
+                        </div>
+                        <div className="ml-3 text-sm">
+                            <label htmlFor="terms" className="font-medium text-gray-700">Eu li e aceito os <a href="#" className="text-indigo-600 hover:underline">Termos de Serviço</a></label>
+                        </div>
+                    </div>
+                    {errors.terms && <p className="text-xs text-red-600 -mt-2">{errors.terms}</p>}
+                    
+                    <div className="pt-2">
+                        <button type="submit" className="w-full px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Criar Conta
+                        </button>
+                    </div>
+                </form>
+                <p className="mt-4 text-center text-sm text-gray-600">
+                    Já tem uma conta?{' '}
+                    <button onClick={onGoToLogin} className="font-semibold text-indigo-600 hover:text-indigo-500">
+                        Faça Login
+                    </button>
+                </p>
+            </div>
+        </div>
+    );
+};
+
 
 // --- FORM COMPONENTS for Modals ---
 const AddUserForm = ({ onClose }: { onClose: () => void }) => (
@@ -1669,7 +1850,7 @@ const ViewTicketModal = ({ onClose, ticket }: { onClose: () => void, ticket: any
 );
 
 function App() {
-  const [view, setView] = useState<'landing' | 'login' | 'dashboard'>('landing');
+  const [view, setView] = useState<'landing' | 'login' | 'register' | 'dashboard'>('landing');
   const [activePage, setActivePage] = useState<PageName>('dashboard');
   const [modalState, setModalState] = useState<ModalState>({ type: null, data: null });
   
@@ -1768,11 +1949,15 @@ function App() {
   };
 
   if (view === 'landing') {
-      return <LandingPage onLoginClick={() => setView('login')} />;
+      return <LandingPage onLoginClick={() => setView('login')} onRegisterClick={() => setView('register')} />;
   }
   
   if (view === 'login') {
-      return <LoginPage onLogin={handleLogin} />;
+      return <LoginPage onLogin={handleLogin} onGoToRegister={() => setView('register')} />;
+  }
+
+  if (view === 'register') {
+      return <RegistrationPage onRegister={() => setView('login')} onGoToLogin={() => setView('login')} />;
   }
 
   return (
@@ -1782,7 +1967,6 @@ function App() {
               <Header title={currentPage.title} description={currentPage.description} onNavigate={setActivePage} />
               {currentPage.component}
           </main>
-{/* The TypeScript compiler was having trouble inferring the 'children' prop when passed via JSX child syntax. By changing to an explicit prop on a self-closing component, we make the type checker's job easier and resolve the error. */}
           <Modal
             isOpen={modalState.type !== null}
             onClose={closeModal}
