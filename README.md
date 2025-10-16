@@ -272,3 +272,25 @@ Crie um plano de manutenção contínua para o "Vakinha Fácil" com as seguintes
   - Verificação de contas (upload e aprovação de documentos).
   - Histórico de atividades (log de ações: criações, doações, saques).
   - Opção para bloquear/desbloquear usuários.
+
+---
+
+## MÓDULO 3: GESTÃO DE VAQUINHAS
+
+- **Ação**: Implementar e ativar:
+  - Lista de vaquinhas com filtros por status (ativa, encerrada, cancelada), valor arrecadado, meta.
+  - Página de detalhes da vaquinha (doadores, valor arrecadado, prazo, descrição, imagens).
+  - Fluxo de aprovação/rejeição manual de vaquinhas (com campo para justificativa).
+  - Edição manual de metas, prazos ou encerramento antecipado.
+  - Relatórios por vaquinha (gráficos de progresso, lista de doadores, exportação em CSV/PDF).
+  
+---
+
+## MÓDULO 4: FINANCEIRO
+
+- **Ação**: Implementar e ativar:
+  - Histórico de transações (pagamentos, saques, estornos, taxas).
+  - Relatórios financeiros (gráficos de receita, despesas, lucro líquido).
+  - Configuração de taxas por tipo de vaquinha ou plano.
+  - Integração com gateways de pagamento (Mercado Pago, PagSeguro, Stripe).
+  - Gerenciamento de saques e reembolsos (com aprovação manual).
