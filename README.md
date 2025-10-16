@@ -70,3 +70,49 @@ The prototype's UI showcases a flexible, multi-tiered pricing structure designed
 | **Uso Flexível**  | R$ 15 / vaquinha + 3% do valor| Ideal para eventos pontuais e vaquinhas únicas, sem compromisso mensal. |
 | **Assinatura Pro**| R$ 19,90 / mês                | Para gestores de grupos frequentes, com vaquinhas ilimitadas e taxas reduzidas. |
 | **White-Label**   | A partir de R$ 300 / mês      | Licencie a plataforma para usar com sua própria marca e modelo de negócio. |
+
+---
+
+## 🔧 Suporte e Manutenção
+
+Esta seção detalha o plano de implementação para o sistema de suporte e manutenção da plataforma "Vakinha Fácil", utilizando Zendesk como a ferramenta central.
+
+### 8.1. Configurar Suporte (Zendesk)
+
+O sistema de suporte será configurado para incluir os seguintes componentes:
+
+#### 1. Canais de Atendimento
+- **E-mail**: `suporte@vakinhafacil.com.br`.
+- **Chat ao vivo**: Integração com WhatsApp via Twilio.
+- **Formulário de contato**: Disponível no site.
+
+#### 2. Fluxo de Atendimento
+- **Prioridades**:
+  - **Alta**: Problemas com pagamentos.
+  - **Média**: Dúvidas sobre funcionalidades.
+  - **Baixa**: Sugestões de melhoria.
+- **Resposta Automática**:
+  ```
+  Olá [Nome],
+  Obrigado por entrar em contato! Sua solicitação (ID: #[Ticket ID]) foi recebida.
+  Respondemos em até 24 horas.
+  ```
+- **Respostas Padrão (Macros)**:
+  - "Como criar uma vaquinha?"
+  - "Como convidar participantes?"
+  - "Como receber o dinheiro?"
+
+#### 3. Integração com Slack
+- Notificar a equipe no canal `#suporte` do Slack sempre que um novo ticket for aberto.
+
+#### 4. Base de Conhecimento (Knowledge Base)
+- Criar artigos para os seguintes tópicos:
+  - "Primeiros passos no Vakinha Fácil".
+  - "Como configurar pagamentos recorrentes".
+  - "Como solicitar a distribuição do valor arrecadado".
+
+#### 5. Métricas e KPIs
+- Acompanhar as seguintes métricas de performance:
+  - Tempo médio de primeira resposta.
+  - Taxa de resolução no primeiro contato.
+  - Nível de satisfação do usuário (CSAT) através de pesquisa pós-atendimento.

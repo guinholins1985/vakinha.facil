@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useContext, createContext, useMemo } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
@@ -188,10 +187,12 @@ const AiChatbot = () => {
 // --- END: AI CHATBOT ---
 
 
-const LogoIcon = () => (
-    <svg className="w-9 h-9 text-emerald-500" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-    </svg>
+const Logo = ({ className }: { className?: string }) => (
+    <img 
+        src="https://i.imgur.com/i9zB081.png"
+        alt="Vakinha Fácil Logo"
+        className={className}
+    />
 );
 
 const Header = ({ userType, onGroupAdminLogin, onSystemAdminLogin, onLogout }: { userType: string | null, onGroupAdminLogin: () => void, onSystemAdminLogin: () => void, onLogout: () => void }) => (
@@ -199,8 +200,7 @@ const Header = ({ userType, onGroupAdminLogin, onSystemAdminLogin, onLogout }: {
         <div className="container mx-auto px-6 py-4">
             <nav className="flex justify-between items-center">
                 <div className="flex items-center space-x-3">
-                    <LogoIcon />
-                    <span className="text-2xl font-bold text-gray-800 tracking-tight font-heading">Vakinha Fácil</span>
+                    <Logo className="w-48" />
                 </div>
                 <div className="flex items-center space-x-4">
                     {userType ? (
@@ -547,8 +547,7 @@ const Footer = () => (
              <div className="grid md:grid-cols-4 gap-8">
                 <div>
                      <div className="flex items-center space-x-3 mb-4">
-                        <LogoIcon />
-                        <span className="text-xl font-bold text-white tracking-tight font-heading">Vakinha Fácil</span>
+                        <Logo className="w-28" />
                     </div>
                     <p className="text-sm text-slate-400">Automatize vaquinhas coletivas em 3 cliques. Transparente, seguro e sem burocracia.</p>
                 </div>
@@ -1007,7 +1006,7 @@ const SystemAdminSidebar = ({ activeTab, setActiveTab }: { activeTab: SystemAdmi
         <aside className="w-64 bg-white shadow-md">
             <div className="p-4">
                 <div className="flex items-center space-x-3">
-                    <LogoIcon />
+                    <Logo className="w-24" />
                     <span className="text-xl font-bold text-gray-800">Admin</span>
                 </div>
             </div>
@@ -1921,10 +1920,88 @@ const SystemSuporteView = () => {
                 {paginatedTickets.length === 0 && <div className="text-center py-12 text-gray-500"><p className="mb-2">Nenhum ticket encontrado.</p><Button variant="secondary" onClick={handleClearFilters}>Limpar Filtros</Button></div>}
                 {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />}
             </div>
+
+            <div className="mt-8">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">Configurações do Zendesk</h2>
+                <p className="text-gray-600 mb-6 -mt-2">Gerencie as configurações da sua integração com o Zendesk, conforme o plano de implementação.</p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <SubSectionCard
+                        title="Canais de Atendimento"
+                        description="Pontos de contato com o cliente."
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clipRule="evenodd" /></svg>}
+                    >
+                        <ul className="space-y-3 text-sm">
+                            <li className="flex justify-between items-center"><span>E-mail: <code className="text-xs">suporte@vakinhafacil.com.br</code></span><span className="font-semibold text-emerald-600">Ativo</span></li>
+                            <li className="flex justify-between items-center"><span>Chat ao vivo (WhatsApp via Twilio)</span><span className="font-semibold text-emerald-600">Ativo</span></li>
+                            <li className="flex justify-between items-center"><span>Formulário de Contato no Site</span><span className="font-semibold text-emerald-600">Ativo</span></li>
+                        </ul>
+                    </SubSectionCard>
+
+                    <SubSectionCard
+                        title="Fluxo de Atendimento"
+                        description="Automações e respostas padrão (macros)."
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" /></svg>}
+                    >
+                        <div className="space-y-4 text-sm">
+                            <div>
+                                <h4 className="font-semibold text-gray-700">Resposta Automática</h4>
+                                <p className="text-xs text-gray-500 bg-gray-100 p-2 rounded mt-1 italic">"Olá [Nome], Obrigado por entrar em contato! Sua solicitação (ID: #[Ticket ID]) foi recebida. Respondemos em até 24 horas."</p>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-gray-700">Respostas Padrão</h4>
+                                <ul className="list-disc list-inside text-gray-600 mt-1 space-y-1">
+                                    <li>Como criar uma vaquinha?</li>
+                                    <li>Como convidar participantes?</li>
+                                    <li>Como receber o dinheiro?</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </SubSectionCard>
+
+                    <SubSectionCard
+                        title="Integrações"
+                        description="Conecte o suporte a outras ferramentas."
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M5 8a1 1 0 000 2h1.586l-1.293 1.293a1 1 0 101.414 1.414L8.414 11H10a1 1 0 100-2H8.414l1.707-1.707A1 1 0 008.707 6L7 7.707V6.5A1 1 0 005 6v2z" /><path d="M15 12a1 1 0 100-2h-1.586l1.293-1.293a1 1 0 10-1.414-1.414L11.586 9H10a1 1 0 100 2h1.586l-1.707 1.707a1 1 0 001.414 1.414L13 12.293V13.5a1 1 0 102 0v-1.5z" /></svg>}
+                    >
+                        <ul className="space-y-3 text-sm">
+                            <li className="flex justify-between items-center">
+                                <span>Notificações no Slack</span>
+                                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800">Conectado</span>
+                            </li>
+                             <li className="flex justify-between items-center">
+                                <span>Twilio (WhatsApp)</span>
+                                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800">Conectado</span>
+                            </li>
+                        </ul>
+                    </SubSectionCard>
+
+                    <SubSectionCard
+                        title="Base de Conhecimento"
+                        description="Gerencie artigos de ajuda para os usuários."
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" /></svg>}
+                    >
+                        <div className="space-y-2 text-sm">
+                            <p className="font-semibold text-gray-700">Principais Artigos:</p>
+                            <ul className="list-disc list-inside text-gray-600">
+                                <li>Primeiros passos no Vakinha Fácil</li>
+                                <li>Como configurar pagamentos recorrentes</li>
+                                <li>Como solicitar a distribuição do valor</li>
+                            </ul>
+                            <div className="pt-2">
+                                <Button variant="secondary" onClick={() => addToast('Abrindo gerenciador de artigos...', 'info')}>
+                                    Gerenciar Artigos
+                                </Button>
+                            </div>
+                        </div>
+                    </SubSectionCard>
+                </div>
+            </div>
+
             <TicketDetailModal isOpen={!!selectedTicket} onClose={() => setSelectedTicket(null)} ticket={selectedTicket} onReply={handleReply} />
         </div>
     );
 };
+
 
 // --- Integrações Gateway View ---
 interface Gateway {
