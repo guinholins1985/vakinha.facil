@@ -54,11 +54,36 @@ interface PushNotificationsProps {
 
 type PageName = 'dashboard' | 'users' | 'vaquinhas' | 'rifas' | 'finance' | 'marketing' | 'support' | 'settings' | 'notifications' | 'whitelabel';
 
-type ModalType = 'addUser' | 'addVaquinha' | 'addRifa' | 'addClient' | 'addCampaign' | 'addCoupon' | 'viewTicket' | null;
+type ModalType = 'addUser' | 'addVaquinha' | 'addRifa' | 'addClient' | 'addCampaign' | 'addCoupon' | 'viewTicket' | 'confirmDraw' | null;
 
 interface ModalState {
   type: ModalType;
   data?: any; 
+}
+
+interface RifaParticipant {
+    id: number;
+    name: string;
+    tickets: number[];
+    status: 'Pago' | 'Pendente';
+}
+interface RifaWinner {
+    participantId: number;
+    ticketNumber: number;
+    drawDate: string;
+}
+interface Rifa {
+    id: number;
+    prize: string;
+    description: string;
+    imageUrl: string;
+    status: 'Ativa' | 'Pendente' | 'Sorteada' | 'Cancelada';
+    sold: number;
+    total: number;
+    price: number;
+    drawDate: string;
+    participants: RifaParticipant[];
+    winner: RifaWinner | null;
 }
 
 
@@ -99,6 +124,8 @@ const ICONS = {
   notifications: "M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0",
   whitelabel: "M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6M9 11.25h6m-6 4.5h6M6.75 21v-2.25a2.25 2.25 0 012.25-2.25h6a2.25 2.25 0 012.25 2.25V21m-12-2.25v-2.25a2.25 2.25 0 00-2.25-2.25H3.75m16.5 4.5V16.5a2.25 2.25 0 00-2.25-2.25h-1.5",
   arrowRight: "M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3",
+  arrowLeft: "M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18",
+  documentText: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
   featureShield: "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.286zm0 13.036h.008v.016h-.008v-.016z",
   featureCash: "M2.25 18.75a6 6 0 006-6 6 6 0 00-6-6v12zM12.75 18.75a6 6 0 006-6 6 6 0 00-6-6v12zM12.75 7.5a6 6 0 016 6 6 6 0 01-6-6zM21 13.5a8.25 8.25 0 01-8.25 8.25H8.25a8.25 8.25 0 01-8.25-8.25V12a8.25 8.25 0 018.25-8.25h4.5A8.25 8.25 0 0121 12v1.5z",
   featureGift: "M12 3.75a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0112 3.75zM12 18.75a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0112 18.75zM8.25 6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 018.25 6zM15 15a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75zM3.75 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM18.75 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM4.5 8.25a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 014.5 8.25zM17.25 15a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75z"
@@ -131,10 +158,10 @@ const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose:
     );
 };
 
-const FormField = ({ label, id, type = 'text', placeholder = '', required = true, children }: { label: string; id: string; type?: string; placeholder?: string; required?: boolean; children?: React.ReactNode }) => (
+const FormField = ({ label, id, type = 'text', placeholder = '', required = true, children, value, onChange }: { label: string; id: string; type?: string; placeholder?: string; required?: boolean; children?: React.ReactNode, value?: string, onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void }) => (
     <div>
         <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-        {children || <input type={type} id={id} placeholder={placeholder} required={required} className="p-2 border rounded-md w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>}
+        {children || <input type={type} id={id} name={id} placeholder={placeholder} required={required} value={value} onChange={onChange} className="p-2 border rounded-md w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>}
     </div>
 );
 
@@ -416,7 +443,7 @@ const VaquinhasPage = ({ onAddVaquinha }: { onAddVaquinha: () => void }) => {
     return (
         <div className="p-6 animate-fade-in">
             <div className="bg-white p-6 rounded-lg shadow-md">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
                     <h3 className="text-xl font-bold font-heading text-gray-800">Todas as Vaquinhas</h3>
                     <div className="flex items-center gap-2">
                         <input type="text" placeholder="Buscar vaquinha..." className="p-2 border rounded-md text-sm"/>
@@ -454,24 +481,206 @@ const VaquinhasPage = ({ onAddVaquinha }: { onAddVaquinha: () => void }) => {
     );
 };
 
-const RifasPage = ({ onAddRifa }: { onAddRifa: () => void }) => {
-    const rifas = [
-        { id: 1, prize: 'iPhone 15 Pro Max', status: 'Ativa', sold: 880, total: 1000, price: 25, drawDate: '2024-08-30' },
-        { id: 2, prize: 'Viagem para Cancún (casal)', status: 'Ativa', sold: 450, total: 1500, price: 50, drawDate: '2024-09-15' },
-        { id: 3, prize: 'Kit Gamer Completo', status: 'Sorteada', sold: 500, total: 500, price: 20, drawDate: '2024-07-20' },
-        { id: 4, prize: 'Vale Compras de R$500', status: 'Pendente', sold: 0, total: 200, price: 10, drawDate: '2024-08-25' },
-    ];
+const Countdown = ({ targetDate }: { targetDate: string }) => {
+    const calculateTimeLeft = () => {
+        const difference = +new Date(targetDate) - +new Date();
+        let timeLeft: { [key: string]: number } = {};
 
-    const getStatusClass = (status: string) => {
+        if (difference > 0) {
+            timeLeft = {
+                dias: Math.floor(difference / (1000 * 60 * 60 * 24)),
+                horas: Math.floor((difference / (1000 * 60 * 60)) % 24),
+                minutos: Math.floor((difference / 1000 / 60) % 60),
+                segundos: Math.floor((difference / 1000) % 60)
+            };
+        }
+        return timeLeft;
+    };
+
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setTimeLeft(calculateTimeLeft());
+        }, 1000);
+        return () => clearTimeout(timer);
+    });
+
+    const timerComponents: React.ReactElement[] = [];
+
+    Object.keys(timeLeft).forEach(interval => {
+        if (!timeLeft[interval] && timeLeft[interval] !== 0) {
+            return;
+        }
+        timerComponents.push(
+            <div key={interval} className="text-center">
+                <span className="text-2xl md:text-3xl font-bold text-indigo-600">{timeLeft[interval].toString().padStart(2, '0')}</span>
+                <span className="block text-xs uppercase text-gray-500">{interval}</span>
+            </div>
+        );
+    });
+
+    return (
+        <div className="flex space-x-4">
+            {timerComponents.length ? timerComponents : <span className="text-xl font-bold text-red-500">Sorteio Encerrado!</span>}
+        </div>
+    );
+};
+
+const RifaDetailsPage = ({ rifa, onBack, onDrawWinner, onUpdateStatus }: { rifa: Rifa; onBack: () => void; onDrawWinner: (id: number) => void; onUpdateStatus: (id: number, status: Rifa['status']) => void; }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const filteredParticipants = rifa.participants.filter(p =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.tickets.some(t => t.toString().includes(searchTerm))
+    );
+
+    const getTicketStatus = (ticketNumber: number) => {
+        for (const p of rifa.participants) {
+            if (p.tickets.includes(ticketNumber)) {
+                return p.status === 'Pago' ? 'sold' : 'pending';
+            }
+        }
+        return 'available';
+    };
+
+    const winner = rifa.winner ? rifa.participants.find(p => p.id === rifa.winner?.participantId) : null;
+
+    return (
+        <div className="p-4 md:p-6 animate-fade-in space-y-6">
+            <div className="flex items-center">
+                <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-200 mr-4">
+                    <Icon path={ICONS.arrowLeft} className="w-6 h-6 text-gray-700" />
+                </button>
+                <div>
+                    <h2 className="text-2xl font-bold font-heading text-gray-800">{rifa.prize}</h2>
+                    <p className="text-sm text-gray-500">Gerenciamento detalhado da rifa #{rifa.id}</p>
+                </div>
+            </div>
+
+            {/* Main Details Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left Column */}
+                <div className="lg:col-span-2 space-y-6">
+                    {/* Prize & Countdown */}
+                    <div className="bg-white p-6 rounded-lg shadow-md">
+                         <div className="flex flex-col md:flex-row gap-6">
+                             <img src={rifa.imageUrl} alt={rifa.prize} className="w-full md:w-1/3 h-auto object-cover rounded-lg"/>
+                             <div className="flex-1">
+                                <h3 className="text-lg font-bold text-gray-800 mb-2">Detalhes do Prêmio</h3>
+                                <p className="text-sm text-gray-600 mb-4">{rifa.description}</p>
+                                <div className="border-t pt-4">
+                                     <h4 className="text-sm font-semibold text-gray-500 mb-2">SORTEIO EM:</h4>
+                                     <Countdown targetDate={rifa.drawDate} />
+                                </div>
+                             </div>
+                         </div>
+                    </div>
+                     {/* Ticket Grid */}
+                    <div className="bg-white p-6 rounded-lg shadow-md">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4">Mapa de Bilhetes</h3>
+                        <div className="grid grid-cols-10 sm:grid-cols-15 md:grid-cols-20 gap-1 max-h-64 overflow-y-auto p-2 border rounded-md">
+                            {Array.from({ length: rifa.total }, (_, i) => i + 1).map(num => {
+                                const status = getTicketStatus(num);
+                                const color = {
+                                    sold: 'bg-teal-500 text-white',
+                                    pending: 'bg-yellow-400 text-white',
+                                    available: 'bg-gray-200 text-gray-600'
+                                }[status];
+                                return (
+                                    <div key={num} title={`Número ${num} - ${status}`} className={`flex items-center justify-center text-xs font-semibold h-6 w-full rounded-sm ${color}`}>
+                                        {num}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <div className="flex items-center space-x-4 mt-4 text-sm">
+                            <div className="flex items-center"><span className="w-3 h-3 bg-teal-500 rounded-full mr-2"></span>Pagos</div>
+                            <div className="flex items-center"><span className="w-3 h-3 bg-yellow-400 rounded-full mr-2"></span>Pendentes</div>
+                            <div className="flex items-center"><span className="w-3 h-3 bg-gray-200 rounded-full mr-2"></span>Disponíveis</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-6">
+                    <div className="bg-white p-6 rounded-lg shadow-md">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4">Progresso</h3>
+                        <div className="space-y-3">
+                            <div>
+                                <div className="flex justify-between text-sm font-medium text-gray-700 mb-1"><span>Bilhetes Vendidos</span><span>{rifa.sold} / {rifa.total}</span></div>
+                                <div className="w-full bg-gray-200 rounded-full h-2.5"><div className="bg-teal-500 h-2.5 rounded-full" style={{ width: `${(rifa.sold / rifa.total) * 100}%` }}></div></div>
+                            </div>
+                             <div>
+                                <div className="flex justify-between text-sm font-medium text-gray-700"><span>Arrecadação</span><span>R$ {(rifa.sold * rifa.price).toLocaleString()}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                     {rifa.status === 'Ativa' && !rifa.winner && (
+                        <div className="bg-white p-6 rounded-lg shadow-md text-center">
+                             <h3 className="text-lg font-bold text-gray-800 mb-2">Realizar Sorteio</h3>
+                             <p className="text-sm text-gray-600 mb-4">Isso encerrará a venda de bilhetes e selecionará um ganhador aleatoriamente entre os bilhetes pagos.</p>
+                             <button onClick={() => onDrawWinner(rifa.id)} className="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700 flex items-center justify-center gap-2"><Icon path={ICONS.trophy} className="w-5 h-5"/> Sortear Agora</button>
+                        </div>
+                     )}
+                     {rifa.winner && winner && (
+                         <div className="bg-green-50 border-2 border-dashed border-green-400 p-6 rounded-lg shadow-md text-center">
+                             <Icon path={ICONS.trophy} className="w-12 h-12 text-green-500 mx-auto mb-2" />
+                             <h3 className="text-lg font-bold text-green-800 mb-2">Ganhador Sorteado!</h3>
+                             <p className="text-lg font-semibold text-gray-800">{winner.name}</p>
+                             <p className="text-sm text-gray-600">Bilhete Premiado: <span className="font-bold bg-green-200 text-green-800 px-2 py-1 rounded">{rifa.winner.ticketNumber}</span></p>
+                             <button className="mt-4 w-full text-sm text-green-700 font-semibold hover:underline flex items-center justify-center gap-1">
+                                <Icon path={ICONS.documentText} className="w-4 h-4" /> Ver Certificado do Sorteio
+                             </button>
+                         </div>
+                     )}
+                    {rifa.status === 'Pendente' && (
+                        <div className="bg-white p-6 rounded-lg shadow-md text-center">
+                            <h3 className="text-lg font-bold text-gray-800 mb-2">Aprovar Rifa</h3>
+                            <p className="text-sm text-gray-600 mb-4">Aprove esta rifa para torná-la pública e começar as vendas.</p>
+                            <button onClick={() => onUpdateStatus(rifa.id, 'Ativa')} className="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 flex items-center justify-center gap-2"><Icon path={ICONS.checkCircle} className="w-5 h-5"/> Aprovar e Ativar</button>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Participants Table */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+                     <h3 className="text-lg font-bold text-gray-800">Participantes</h3>
+                     <input type="text" placeholder="Buscar participante ou número..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="p-2 border rounded-md text-sm w-full md:w-auto"/>
+                </div>
+                <div className="overflow-x-auto">
+                     <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bilhetes</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Pagamento</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th></tr></thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                           {filteredParticipants.map(p => (
+                               <tr key={p.id}>
+                                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.name}</td>
+                                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.tickets.join(', ')}</td>
+                                   <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${p.status === 'Pago' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{p.status}</span></td>
+                                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2"><button className="text-indigo-600 hover:text-indigo-900"><Icon path={ICONS.edit} className="w-5 h-5"/></button></td>
+                               </tr>
+                           ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const RifasPage = ({ rifas, onAddRifa, onViewRifa }: { rifas: Rifa[], onAddRifa: () => void, onViewRifa: (rifa: Rifa) => void }) => {
+    const getStatusClass = (status: Rifa['status']) => {
         if (status === 'Ativa') return 'bg-green-100 text-green-800';
         if (status === 'Pendente') return 'bg-yellow-100 text-yellow-800';
-        return 'bg-blue-100 text-blue-800'; // Sorteada
+        if (status === 'Sorteada') return 'bg-blue-100 text-blue-800';
+        return 'bg-gray-100 text-gray-800';
     };
 
     return (
         <div className="p-6 animate-fade-in">
             <div className="bg-white p-6 rounded-lg shadow-md">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
                     <h3 className="text-xl font-bold font-heading text-gray-800">Todas as Rifas</h3>
                     <div className="flex items-center gap-2">
                         <input type="text" placeholder="Buscar rifa..." className="p-2 border rounded-md text-sm"/>
@@ -495,10 +704,10 @@ const RifasPage = ({ onAddRifa }: { onAddRifa: () => void }) => {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">R$ {raised.toLocaleString()}</td>
                                     <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(r.status)}`}>{r.status}</span></td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{r.drawDate}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(r.drawDate).toLocaleDateString()}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                        <button className="text-gray-500 hover:text-indigo-600"><Icon path={ICONS.eye} className="w-5 h-5"/></button>
-                                        {r.status === 'Ativa' && <button className="text-teal-600 hover:text-teal-900"><Icon path={ICONS.trophy} className="w-5 h-5"/></button>}
+                                        <button onClick={() => onViewRifa(r)} className="text-gray-500 hover:text-indigo-600"><Icon path={ICONS.eye} className="w-5 h-5"/></button>
+                                        {r.status === 'Ativa' && <button onClick={() => alert('Sorteando...')} className="text-teal-600 hover:text-teal-900"><Icon path={ICONS.trophy} className="w-5 h-5"/></button>}
                                         <button className="text-indigo-600 hover:text-indigo-900"><Icon path={ICONS.edit} className="w-5 h-5"/></button>
                                     </td>
                                 </tr>
@@ -531,7 +740,7 @@ const FinancePage = () => {
                 <StatCard title="Saques Pendentes" value="R$ 12.300" iconPath={ICONS.users} colorClass="bg-red-500" />
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
                      <h3 className="text-xl font-bold font-heading text-gray-800">Histórico de Transações</h3>
                      <div className="flex items-center gap-2">
                         <input type="date" className="p-2 border rounded-md text-sm"/>
@@ -582,7 +791,7 @@ const SupportPage = ({ onViewTicket }: { onViewTicket: (ticket: any) => void }) 
                 <StatCard title="Primeira Resposta" value="~ 45 min" iconPath={ICONS.users} colorClass="bg-blue-500" />
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
-                 <div className="flex justify-between items-center mb-4">
+                 <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
                     <h3 className="text-xl font-bold font-heading text-gray-800">Fila de Atendimento</h3>
                     <div className="flex items-center gap-2">
                         <select className="p-2 border rounded-md text-sm"><option>Filtrar por Status</option></select>
@@ -1036,7 +1245,7 @@ const Sidebar = ({ activePage, onNavigate, onLogout }: { activePage: PageName, o
     ];
     
     return (
-        <aside className="w-64 bg-gray-900 text-gray-300 flex flex-col min-h-screen flex-shrink-0">
+        <aside className="w-64 bg-gray-900 text-gray-300 flex-col min-h-screen flex-shrink-0 hidden md:flex">
             <div className="h-16 flex items-center px-6 border-b border-gray-800">
                 <h1 className="text-xl font-bold font-heading text-white">Vakinha Fácil</h1>
             </div>
@@ -1081,7 +1290,7 @@ const Header = ({ title, description, onNavigate }: { title: string, description
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
             <div>
                 <h2 className="text-2xl font-bold font-heading text-gray-800">{title}</h2>
-                <p className="text-sm text-gray-500">{description}</p>
+                <p className="text-sm text-gray-500 hidden md:block">{description}</p>
             </div>
             <div className="relative">
                 <button onClick={() => setIsNotificationsOpen(prev => !prev)} className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700">
@@ -1786,15 +1995,47 @@ const AddVaquinhaForm = ({ onClose }: { onClose: () => void }) => (
     </form>
 );
 
-const AddRifaForm = ({ onClose }: { onClose: () => void }) => (
-    <form onSubmit={(e) => { e.preventDefault(); alert('Rifa adicionada!'); onClose(); }} className="space-y-4">
-        <FormField label="Descrição do Prêmio" id="rifaPrize" />
-        <FormField label="Valor por Número (R$)" id="rifaPrice" type="number" />
-        <FormField label="Quantidade de Números" id="rifaTotal" type="number" />
-        <FormField label="Data do Sorteio" id="rifaDate" type="date" />
-        <FormActions onCancel={onClose} onSaveLabel="Criar Rifa" />
-    </form>
-);
+const AddRifaForm = ({ onClose, onAdd }: { onClose: () => void, onAdd: (newRifa: Omit<Rifa, 'id' | 'sold' | 'participants' | 'winner' | 'status'>) => void }) => {
+    const [formData, setFormData] = useState({
+        prize: '',
+        description: '',
+        imageUrl: '',
+        price: '',
+        total: '',
+        drawDate: ''
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onAdd({
+            ...formData,
+            price: parseFloat(formData.price) || 0,
+            total: parseInt(formData.total, 10) || 0,
+        });
+        onClose();
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <FormField label="Nome/Prêmio da Rifa" id="prize" value={formData.prize} onChange={handleChange} placeholder="Ex: iPhone 15 Pro Max"/>
+            <FormField label="Descrição Detalhada do Prêmio" id="description">
+                <textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={3} className="p-2 border rounded-md w-full" placeholder="Descreva o prêmio, regras, etc."></textarea>
+            </FormField>
+            <FormField label="URL da Imagem do Prêmio" id="imageUrl" value={formData.imageUrl} onChange={handleChange} placeholder="https://exemplo.com/imagem.jpg"/>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField label="Valor por Bilhete (R$)" id="price" type="number" value={formData.price} onChange={handleChange} placeholder="25.00"/>
+                <FormField label="Qtd. Total de Bilhetes" id="total" type="number" value={formData.total} onChange={handleChange} placeholder="1000"/>
+            </div>
+            <FormField label="Data e Hora do Sorteio" id="drawDate" type="datetime-local" value={formData.drawDate} onChange={handleChange}/>
+            <FormActions onCancel={onClose} onSaveLabel="Criar Rifa" />
+        </form>
+    );
+};
 
 const AddClientForm = ({ onClose }: { onClose: () => void }) => (
     <form onSubmit={(e) => { e.preventDefault(); alert('Cliente adicionado!'); onClose(); }} className="space-y-4">
@@ -1853,15 +2094,69 @@ function App() {
   const [view, setView] = useState<'landing' | 'login' | 'register' | 'dashboard'>('landing');
   const [activePage, setActivePage] = useState<PageName>('dashboard');
   const [modalState, setModalState] = useState<ModalState>({ type: null, data: null });
+  const [viewingRifa, setViewingRifa] = useState<Rifa | null>(null);
+
+  const initialRifas: Rifa[] = [
+    { id: 1, prize: 'iPhone 15 Pro Max', description: 'Último modelo de iPhone com 256GB de armazenamento, na cor titânio natural. O smartphone mais poderoso e desejado do mercado.', imageUrl: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-1inch-naturaltitanium?wid=5120&hei=2880&fmt=p-jpg&qlt=80&.v=1692845699234', status: 'Ativa', sold: 880, total: 1000, price: 25, drawDate: '2024-08-30T20:00:00', participants: [{id: 1, name: "Carlos Pereira", tickets: [1, 5, 100], status: 'Pago'}, {id: 2, name: "Mariana Lima", tickets: [23, 45], status: 'Pendente'}], winner: null },
+    { id: 2, prize: 'Viagem para Cancún (casal)', description: 'Pacote de 7 dias com tudo incluso para duas pessoas no resort 5 estrelas Oasis Palm. Inclui passagens aéreas saindo de São Paulo.', imageUrl: 'https://media.static-allboat.com/2021/04/23114022/Cancun-FOTO-1.jpg', status: 'Ativa', sold: 450, total: 1500, price: 50, drawDate: '2024-09-15T20:00:00', participants: [], winner: null },
+    { id: 3, prize: 'Kit Gamer Completo', description: 'Setup gamer completo incluindo PC com RTX 4080, monitor 240Hz, teclado mecânico, mouse sem fio e headset 7.1.', imageUrl: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?q=80&w=2070&auto=format&fit=crop', status: 'Sorteada', sold: 500, total: 500, price: 20, drawDate: '2024-07-20T20:00:00', participants: [{id: 3, name: "Juliana Almeida", tickets: [499], status: 'Pago'}], winner: {participantId: 3, ticketNumber: 499, drawDate: '2024-07-20'} },
+    { id: 4, prize: 'Vale Compras de R$500', description: 'Um vale compras no valor de R$500 para ser utilizado em qualquer loja da rede Magazine Luiza.', imageUrl: 'https://images.unsplash.com/photo-1556740738-b6a63e2775df?q=80&w=2070&auto=format&fit=crop', status: 'Pendente', sold: 0, total: 200, price: 10, drawDate: '2024-08-25T20:00:00', participants: [], winner: null },
+];
+  const [rifas, setRifas] = useState<Rifa[]>(initialRifas);
   
   const handleLogin = () => setView('dashboard');
   const handleLogout = () => {
     setView('landing');
-    setActivePage('dashboard'); // Reset to default page on logout
+    setActivePage('dashboard');
+    setViewingRifa(null);
   };
 
   const openModal = (type: ModalType, data: any = null) => setModalState({ type, data });
   const closeModal = () => setModalState({ type: null, data: null });
+  
+  const handleAddRifa = (newRifaData: Omit<Rifa, 'id' | 'sold' | 'participants' | 'winner' | 'status'>) => {
+    const newRifa: Rifa = {
+        id: Math.max(...rifas.map(r => r.id), 0) + 1,
+        ...newRifaData,
+        sold: 0,
+        participants: [],
+        winner: null,
+        status: 'Pendente'
+    };
+    setRifas(prev => [newRifa, ...prev]);
+  };
+  
+  const handleDrawWinner = (rifaId: number) => {
+      const targetRifa = rifas.find(r => r.id === rifaId);
+      if (!targetRifa) return;
+
+      const paidTickets = targetRifa.participants
+          .filter(p => p.status === 'Pago')
+          .flatMap(p => p.tickets.map(ticket => ({ participantId: p.id, ticketNumber: ticket })));
+
+      if (paidTickets.length === 0) {
+          alert("Não há bilhetes pagos para sortear!");
+          return;
+      }
+
+      const winnerIndex = Math.floor(Math.random() * paidTickets.length);
+      const winningTicket = paidTickets[winnerIndex];
+      
+      const updatedRifas = rifas.map(r => 
+        r.id === rifaId 
+        ? { ...r, status: 'Sorteada' as Rifa['status'], winner: { ...winningTicket, drawDate: new Date().toISOString() } }
+        : r
+      );
+      setRifas(updatedRifas);
+      setViewingRifa(updatedRifas.find(r => r.id === rifaId) || null);
+  };
+
+  const handleUpdateRifaStatus = (rifaId: number, status: Rifa['status']) => {
+      const updatedRifas = rifas.map(r => r.id === rifaId ? { ...r, status } : r);
+      setRifas(updatedRifas);
+      setViewingRifa(updatedRifas.find(r => r.id === rifaId) || null);
+  };
+
 
   const PAGES: Record<PageName, { title: string, description: string, component: React.ReactElement }> = {
       dashboard: {
@@ -1886,7 +2181,9 @@ function App() {
       rifas: {
           title: "Gestão de Rifas",
           description: "Crie, monitore e sorteie rifas para arrecadar fundos.",
-          component: <RifasPage onAddRifa={() => openModal('addRifa')} />,
+          component: viewingRifa ? 
+              <RifaDetailsPage rifa={viewingRifa} onBack={() => setViewingRifa(null)} onDrawWinner={handleDrawWinner} onUpdateStatus={handleUpdateRifaStatus}/> : 
+              <RifasPage rifas={rifas} onAddRifa={() => openModal('addRifa')} onViewRifa={setViewingRifa} />,
       },
        whitelabel: {
           title: "Gestão White-Label",
@@ -1926,7 +2223,7 @@ function App() {
     switch (modalState.type) {
         case 'addUser': return <AddUserForm onClose={closeModal} />;
         case 'addVaquinha': return <AddVaquinhaForm onClose={closeModal} />;
-        case 'addRifa': return <AddRifaForm onClose={closeModal} />;
+        case 'addRifa': return <AddRifaForm onClose={closeModal} onAdd={handleAddRifa}/>;
         case 'addClient': return <AddClientForm onClose={closeModal} />;
         case 'addCampaign': return <AddCampaignForm onClose={closeModal} />;
         case 'addCoupon': return <AddCouponForm onClose={closeModal} />;
@@ -1962,10 +2259,12 @@ function App() {
 
   return (
       <div className="flex bg-gray-100 font-sans min-h-screen">
-          <Sidebar activePage={activePage} onNavigate={setActivePage} onLogout={handleLogout} />
-          <main className="flex-1">
+          <Sidebar activePage={activePage} onNavigate={(page) => { setActivePage(page); setViewingRifa(null); }} onLogout={handleLogout} />
+          <main className="flex-1 flex flex-col min-w-0">
               <Header title={currentPage.title} description={currentPage.description} onNavigate={setActivePage} />
-              {currentPage.component}
+              <div className="flex-1 overflow-y-auto">
+                  {currentPage.component}
+              </div>
           </main>
           <Modal
             isOpen={modalState.type !== null}
