@@ -1,4 +1,6 @@
+
 import React, { useState } from 'react';
+import { GoogleGenAI, Type } from "@google/genai";
 
 // Helper component for SVG Icons
 const Icon = ({ path, className = 'w-6 h-6' }) => (
@@ -8,15 +10,84 @@ const Icon = ({ path, className = 'w-6 h-6' }) => (
 );
 
 const ICONS = {
-  dashboard: "M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h-1.5m1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 1.085-1.085-1.085m1.085 1.085L5.25 16.5m2.25-11.25h1.5m2.25 11.25c0 .621.504 1.125 1.125 1.125H12a1.125 1.125 0 001.125-1.125m-3.375 0V1.5A2.25 2.25 0 009.75 0h-3.375c-.621 0-1.125.504-1.125 1.125V15M12 15V2.25a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 2.25V15m3.375 1.5h2.25",
+  dashboard: "M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5",
   users: "M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-4.598M12 14.25a5.25 5.25 0 100-10.5 5.25 5.25 0 000 10.5z",
-  vaquinhas: "M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414-.336.75-.75.75h-.75m0-1.5h.375c.621 0 1.125.504 1.125 1.125v.375m-18 0p_a_start_of_a_tag",
+  vaquinhas: "M2.25 18.75a6 6 0 006-6 6 6 0 00-6-6v12zM2.25 7.5a6 6 0 016 6 6 6 0 01-6-6zM3 13.5a5.25 5.25 0 015.25-5.25H18a5.25 5.25 0 010 10.5H8.25A5.25 5.25 0 013 13.5zM15 13.5a1.5 1.5 0 01-1.5 1.5H12a1.5 1.5 0 01-1.5-1.5V12a1.5 1.5 0 011.5-1.5h1.5a1.5 1.5 0 011.5 1.5v1.5z",
   finance: "M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.517l2.74-1.22m0 0l-3.94-3.94m3.94 3.94l-3.94 3.94",
   marketing: "M10.5 6a7.5 7.5 0 100 15 7.5 7.5 0 000-15zM21 21l-6-6",
   support: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z",
   settings: "M9.594 3.94c.09-.542.56-1.008 1.11-1.226.55-.218 1.19-.243 1.74-.102.55.14.99.553 1.226 1.11.236.55.26 1.19.102 1.74-.14.55-.553.99-1.11 1.226-.55.218-1.19.243-1.74.102a2.22 2.22 0 01-1.226-1.11zM12.03 13.94c.09-.542.56-1.008 1.11-1.226.55-.218 1.19-.243 1.74-.102.55.14.99.553 1.226 1.11.236.55.26 1.19.102 1.74-.14.55-.553.99-1.11 1.226-.55.218-1.19.243-1.74.102a2.22 2.22 0 01-1.226-1.11zM6.594 13.94c.09-.542.56-1.008 1.11-1.226.55-.218 1.19-.243 1.74-.102.55.14.99.553 1.226 1.11.236.55.26 1.19.102 1.74-.14.55-.553.99-1.11 1.226-.55.218-1.19.243-1.74.102a2.22 2.22 0 01-1.226-1.11z",
-  logout: "M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
+  logout: "M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75",
+  ai: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
 };
+
+const Spinner = () => (
+    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+);
+
+const AIContentModal = ({ isOpen, onClose, onGenerate, isGenerating, generatedContent, onUseContent, context }) => {
+    if (!isOpen) return null;
+
+    const [objective, setObjective] = useState('');
+
+    const handleGenerateClick = () => {
+      onGenerate(objective);
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4" onClick={onClose}>
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold font-heading text-gray-800">Assistente de Conteúdo IA</h3>
+                  <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+                    <Icon path="M6 18L18 6M6 6l12 12" className="w-6 h-6"/>
+                  </button>
+                </div>
+                <label htmlFor="objective" className="block text-sm font-medium text-gray-700 mb-2">Descreva o objetivo do conteúdo:</label>
+                <textarea
+                    id="objective"
+                    value={objective}
+                    onChange={(e) => setObjective(e.target.value)}
+                    placeholder={context.promptType === 'email' ? "Ex: Promover a campanha de Black Friday com taxa zero para novas vaquinhas." : "Ex: Anunciar um novo cupom de 10% de desconto."}
+                    className="p-2 border rounded-md w-full h-24 mb-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    aria-label="Objetivo do conteúdo"
+                />
+                <button
+                    onClick={handleGenerateClick}
+                    disabled={isGenerating || !objective}
+                    className="bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-indigo-700 w-full disabled:bg-indigo-400 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+                >
+                    {isGenerating ? <><Spinner/> Gerando...</> : <><Icon path={ICONS.ai} className="w-5 h-5 mr-2"/> Gerar Conteúdo</>}
+                </button>
+
+                {generatedContent && !generatedContent.error && (
+                    <div className="mt-6 border-t pt-4 space-y-4 animate-fade-in">
+                        <div>
+                            <h4 className="font-semibold text-gray-700">{context.promptType === 'email' ? 'Assunto Sugerido' : 'Título Sugerido'}</h4>
+                            <p className="text-sm text-gray-800 bg-gray-100 p-3 rounded-md mt-1 font-medium">{generatedContent.subject || generatedContent.title}</p>
+                        </div>
+                        <div>
+                            <h4 className="font-semibold text-gray-700">{context.promptType === 'email' ? 'Corpo do E-mail Sugerido' : 'Mensagem Sugerida'}</h4>
+                            <p className="text-sm text-gray-800 bg-gray-100 p-3 rounded-md mt-1 whitespace-pre-wrap h-48 overflow-y-auto">{generatedContent.body || generatedContent.message}</p>
+                        </div>
+                        <button onClick={onUseContent} className="bg-green-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-green-700 w-full transition-colors">
+                            Usar este conteúdo
+                        </button>
+                    </div>
+                )}
+                {generatedContent && generatedContent.error && (
+                    <div className="mt-6 border-t pt-4 text-red-600 bg-red-50 p-3 rounded-md">
+                        <p><span className="font-bold">Erro:</span> {generatedContent.error}</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
 
 const Sidebar = () => (
     <div className="w-64 bg-gray-900 text-gray-300 flex flex-col min-h-screen">
@@ -126,17 +197,25 @@ const Coupons = () => (
   </div>
 );
 
-const EmailMarketing = () => (
+const EmailMarketing = ({ subject, onSubjectChange, body, onBodyChange, onGenerate }) => (
     <div className="bg-white p-6 rounded-lg shadow-md">
         <h3 className="text-lg font-semibold text-gray-700 mb-4">E-mail Marketing</h3>
         <div className="border border-gray-200 rounded-lg p-4">
-            <h4 className="font-semibold text-gray-800">Criar Novo E-mail</h4>
+            <div className="flex justify-between items-center">
+              <h4 className="font-semibold text-gray-800">Criar Novo E-mail</h4>
+              <button onClick={() => onGenerate('email')} className="flex items-center text-sm text-indigo-600 font-semibold hover:text-indigo-800">
+                <Icon path={ICONS.ai} className="w-4 h-4 mr-1"/> Gerar com IA
+              </button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <input type="text" placeholder="Assunto do e-mail" className="p-2 border rounded-md w-full col-span-2" defaultValue="Novidades na Vakinha Fácil!"/>
-                <div className="col-span-2 h-40 border rounded-md p-2 bg-gray-50 text-gray-400">
-                    <p>Editor de texto rico (TinyMCE/Quill) apareceria aqui.</p>
-                    <p>Olá {'{nome}'},</p>
-                </div>
+                <input type="text" placeholder="Assunto do e-mail" className="p-2 border rounded-md w-full col-span-2" value={subject} onChange={onSubjectChange}/>
+                <textarea
+                    placeholder={`Olá {nome},\n\nEscreva sua mensagem aqui...`}
+                    rows={6}
+                    className="p-2 border rounded-md w-full col-span-2"
+                    value={body}
+                    onChange={onBodyChange}
+                ></textarea>
                 <select className="p-2 border rounded-md">
                     <option>Todos os Usuários</option>
                     <option>Doadores Recentes</option>
@@ -193,14 +272,19 @@ const ReferralProgram = () => (
     </div>
 );
 
-const PushNotifications = () => (
+const PushNotifications = ({ title, onTitleChange, message, onMessageChange, onGenerate }) => (
     <div className="bg-white p-6 rounded-lg shadow-md">
         <h3 className="text-lg font-semibold text-gray-700 mb-4">Notificações Push</h3>
         <div className="border border-gray-200 rounded-lg p-4">
-            <h4 className="font-semibold text-gray-800">Criar Nova Notificação</h4>
+            <div className="flex justify-between items-center">
+              <h4 className="font-semibold text-gray-800">Criar Nova Notificação</h4>
+              <button onClick={() => onGenerate('push')} className="flex items-center text-sm text-indigo-600 font-semibold hover:text-indigo-800">
+                  <Icon path={ICONS.ai} className="w-4 h-4 mr-1"/> Gerar com IA
+              </button>
+            </div>
             <div className="grid grid-cols-1 gap-4 mt-4">
-                <input type="text" placeholder="Título da notificação" className="p-2 border rounded-md w-full"/>
-                <textarea placeholder="Mensagem (até 200 caracteres)" rows={3} className="p-2 border rounded-md w-full"></textarea>
+                <input type="text" placeholder="Título da notificação" className="p-2 border rounded-md w-full" value={title} onChange={onTitleChange}/>
+                <textarea placeholder="Mensagem (até 200 caracteres)" rows={3} className="p-2 border rounded-md w-full" value={message} onChange={onMessageChange}></textarea>
                 <div className="flex items-center space-x-4">
                     <select className="p-2 border rounded-md flex-grow">
                         <option>Segmento: Todos</option>
@@ -244,13 +328,109 @@ const MarketingReports = () => (
 
 const MarketingPage = () => {
     const [activeTab, setActiveTab] = useState('campaigns');
+    
+    // State for AI Modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalContext, setModalContext] = useState({ promptType: '' });
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [generatedContent, setGeneratedContent] = useState(null);
+
+    // State for controlled components
+    const [emailSubject, setEmailSubject] = useState("");
+    const [emailBody, setEmailBody] = useState("");
+    const [pushTitle, setPushTitle] = useState("");
+    const [pushMessage, setPushMessage] = useState("");
+
+    const handleOpenAIModal = (promptType) => {
+        setModalContext({ promptType });
+        setGeneratedContent(null);
+        setIsModalOpen(true);
+    };
+    
+    const handleCloseModal = () => setIsModalOpen(false);
+    
+    const handleGenerateContent = async (objective) => {
+        setIsGenerating(true);
+        setGeneratedContent(null);
+
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+        let prompt;
+        let schema;
+
+        if (modalContext.promptType === 'email') {
+            prompt = `Você é um assistente de marketing da "Vakinha Fácil", uma plataforma de arrecadação de fundos em grupo. Crie um e-mail de marketing com base neste objetivo: "${objective}". O tom deve ser amigável, claro e encorajador. Retorne o resultado em formato JSON com as chaves "subject" e "body".`;
+            schema = {
+                type: Type.OBJECT,
+                properties: {
+                    subject: { type: Type.STRING, description: "Assunto do e-mail" },
+                    body: { type: Type.STRING, description: "Corpo do e-mail" }
+                },
+                required: ["subject", "body"]
+            };
+        } else if (modalContext.promptType === 'push') {
+            prompt = `Você é um assistente de marketing da "Vakinha Fácil", uma plataforma de arrecadação de fundos em grupo. Crie uma notificação push com base neste objetivo: "${objective}". O tom deve ser envolvente e direto. Retorne o resultado em formato JSON com as chaves "title" e "message" (a mensagem deve ter no máximo 200 caracteres).`;
+            schema = {
+                type: Type.OBJECT,
+                properties: {
+                    title: { type: Type.STRING, description: "Título da notificação" },
+                    message: { type: Type.STRING, description: "Mensagem da notificação" }
+                },
+                required: ["title", "message"]
+            };
+        }
+
+        try {
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+                config: {
+                    responseMimeType: 'application/json',
+                    responseSchema: schema
+                }
+            });
+            const parsedContent = JSON.parse(response.text);
+            setGeneratedContent(parsedContent);
+        } catch (error) {
+            console.error("Error generating content:", error);
+            const errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.';
+            setGeneratedContent({ error: `Falha ao gerar conteúdo: ${errorMessage}. Por favor, tente novamente.` });
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+    
+    const handleUseContent = () => {
+        if (!generatedContent || generatedContent.error) return;
+        if (modalContext.promptType === 'email') {
+            setEmailSubject(generatedContent.subject || emailSubject);
+            setEmailBody(generatedContent.body || emailBody);
+        } else if (modalContext.promptType === 'push') {
+            setPushTitle(generatedContent.title || pushTitle);
+            setPushMessage(generatedContent.message || pushMessage);
+        }
+        handleCloseModal();
+    };
+
 
     const TABS = {
         campaigns: <MarketingCampaigns />,
         coupons: <Coupons />,
-        email: <EmailMarketing />,
+        email: <EmailMarketing 
+                  subject={emailSubject}
+                  onSubjectChange={(e) => setEmailSubject(e.target.value)}
+                  body={emailBody}
+                  onBodyChange={(e) => setEmailBody(e.target.value)}
+                  onGenerate={handleOpenAIModal}
+               />,
         referrals: <ReferralProgram />,
-        push: <PushNotifications />,
+        push: <PushNotifications 
+                title={pushTitle}
+                onTitleChange={(e) => setPushTitle(e.target.value)}
+                message={pushMessage}
+                onMessageChange={(e) => setPushMessage(e.target.value)}
+                onGenerate={handleOpenAIModal}
+              />,
         reports: <MarketingReports />,
     };
 
@@ -265,13 +445,22 @@ const MarketingPage = () => {
 
     return (
         <div className="p-6">
+            <AIContentModal 
+              isOpen={isModalOpen}
+              onClose={handleCloseModal}
+              onGenerate={handleGenerateContent}
+              isGenerating={isGenerating}
+              generatedContent={generatedContent}
+              onUseContent={handleUseContent}
+              context={modalContext}
+            />
             <div className="mb-6 border-b border-gray-200">
                 <nav className="-mb-px flex space-x-6" aria-label="Tabs">
                     {Object.keys(TABS).map(tabKey => (
                         <button
                             key={tabKey}
                             onClick={() => setActiveTab(tabKey)}
-                            className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm ${
+                            className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                                 activeTab === tabKey
                                     ? 'border-indigo-500 text-indigo-600'
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
