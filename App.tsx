@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 
@@ -53,7 +51,7 @@ interface PushNotificationsProps {
     onGenerate: (type: 'push') => void;
 }
 
-type PageName = 'dashboard' | 'users' | 'vaquinhas' | 'finance' | 'marketing' | 'support' | 'settings';
+type PageName = 'dashboard' | 'users' | 'vaquinhas' | 'rifas' | 'finance' | 'marketing' | 'support' | 'settings' | 'notifications' | 'whitelabel';
 
 
 // --- COMPONENTS ---
@@ -69,6 +67,7 @@ const ICONS = {
   dashboard: "M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5",
   users: "M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-4.598M12 14.25a5.25 5.25 0 100-10.5 5.25 5.25 0 000 10.5z",
   vaquinhas: "M2.25 18.75a6 6 0 006-6 6 6 0 00-6-6v12zM2.25 7.5a6 6 0 016 6 6 6 0 01-6-6zM3 13.5a5.25 5.25 0 015.25-5.25H18a5.25 5.25 0 010 10.5H8.25A5.25 5.25 0 013 13.5zM15 13.5a1.5 1.5 0 01-1.5 1.5H12a1.5 1.5 0 01-1.5-1.5V12a1.5 1.5 0 011.5-1.5h1.5a1.5 1.5 0 011.5 1.5v1.5z",
+  rifas: "M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-1.5h5.25m-5.25 0h5.25m-5.25 0h5.25m-5.25 0h5.25M3 4.5h15A2.25 2.25 0 0120.25 6.75v10.5A2.25 2.25 0 0118 19.5H3A2.25 2.25 0 01.75 17.25V6.75A2.25 2.25 0 013 4.5z",
   finance: "M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.517l2.74-1.22m0 0l-3.94-3.94m3.94 3.94l-3.94 3.94",
   marketing: "M10.5 6a7.5 7.5 0 100 15 7.5 7.5 0 000-15zM21 21l-6-6",
   support: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z",
@@ -87,6 +86,9 @@ const ICONS = {
   link: "M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244",
   lock: "M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z",
   camera: "M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.776 48.776 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316zM12 15a3 3 0 100-6 3 3 0 000 6z",
+  trophy: "M16.5 18.75h-9a9.383 9.383 0 01-3.566-6.892 2.25 2.25 0 01-.013-.393 9.384 9.384 0 013.579-6.892 2.25 2.25 0 011.693-1.082 9.384 9.384 0 017.38 0 2.25 2.25 0 011.693 1.082 9.384 9.384 0 013.579 6.892 2.25 2.25 0 01-.013.393A9.383 9.383 0 0116.5 18.75zM12 2.25a.75.75 0 01.75.75v3a.75.75 0 01-1.5 0v-3a.75.75 0 01.75-.75zM12 21a.75.75 0 01.75.75v.008a.75.75 0 01-1.5 0V21.75a.75.75 0 01.75-.75z",
+  notifications: "M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0",
+  whitelabel: "M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6M9 11.25h6m-6 4.5h6M6.75 21v-2.25a2.25 2.25 0 012.25-2.25h6a2.25 2.25 0 012.25 2.25V21m-12-2.25v-2.25a2.25 2.25 0 00-2.25-2.25H3.75m16.5 4.5V16.5a2.25 2.25 0 00-2.25-2.25h-1.5"
 };
 
 const Spinner = () => (
@@ -131,8 +133,8 @@ const DashboardPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatCard title="Arrecadação Total" value="R$ 1.250.340" iconPath={ICONS.finance} colorClass="bg-blue-500" />
             <StatCard title="Vaquinhas Ativas" value="89" iconPath={ICONS.vaquinhas} colorClass="bg-green-500" />
-            <StatCard title="Usuários Ativos" value="12.450" iconPath={ICONS.users} colorClass="bg-yellow-500" />
-            <StatCard title="Novos Cadastros (Mês)" value="432" iconPath={ICONS.users} colorClass="bg-purple-500" />
+            <StatCard title="Rifas Ativas" value="23" iconPath={ICONS.rifas} colorClass="bg-teal-500" />
+            <StatCard title="Usuários Ativos" value="12.450" iconPath={ICONS.users} colorClass="bg-purple-500" />
         </div>
 
         {/* Section 2: Quick Actions & User Growth */}
@@ -141,9 +143,9 @@ const DashboardPage = () => {
                 <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Ações Rápidas</h3>
                 <div className="grid grid-cols-2 gap-4">
                     <QuickActionButton label="Nova Vaquinha" iconPath={ICONS.plusCircle} onClick={() => alert('Abrir formulário de nova vaquinha...')} />
+                    <QuickActionButton label="Nova Rifa" iconPath={ICONS.rifas} onClick={() => alert('Abrir formulário de nova rifa...')} />
                     <QuickActionButton label="Gerar Relatório" iconPath={ICONS.chartBar} onClick={() => alert('Abrir painel de relatórios...')} />
                     <QuickActionButton label="Ver Tickets" iconPath={ICONS.support} onClick={() => alert('Ir para a página de suporte...')} />
-                    <QuickActionButton label="Convidar Admin" iconPath={ICONS.users} onClick={() => alert('Abrir modal para convidar administrador...')} />
                 </div>
             </div>
             <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
@@ -159,21 +161,25 @@ const DashboardPage = () => {
             </div>
         </div>
         
-        {/* Section 3: Recent Activity & Vaquinhas nearing goal */}
+        {/* Section 3: Recent Activity & Featured Projects */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Atividade Recente</h3>
                  <ul className="space-y-4">
                     <li className="flex items-center space-x-3"><div className="p-2 bg-green-100 rounded-full"><Icon path={ICONS.vaquinhas} className="w-4 h-4 text-green-600" /></div><p className="text-sm text-gray-600">Nova vaquinha <span className="font-semibold text-gray-800">"Formatura de Medicina"</span> foi criada.</p><span className="text-xs text-gray-400 ml-auto flex-shrink-0">agora</span></li>
                     <li className="flex items-center space-x-3"><div className="p-2 bg-blue-100 rounded-full"><Icon path={ICONS.users} className="w-4 h-4 text-blue-600" /></div><p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">Carlos Souza</span> acabou de se cadastrar.</p><span className="text-xs text-gray-400 ml-auto flex-shrink-0">2 min</span></li>
+                    <li className="flex items-center space-x-3"><div className="p-2 bg-teal-100 rounded-full"><Icon path={ICONS.rifas} className="w-4 h-4 text-teal-600" /></div><p className="text-sm text-gray-600">5 números comprados para <span className="font-semibold text-gray-800">"Rifa do iPhone 15"</span>.</p><span className="text-xs text-gray-400 ml-auto flex-shrink-0">5 min</span></li>
                     <li className="flex items-center space-x-3"><div className="p-2 bg-yellow-100 rounded-full"><Icon path={ICONS.finance} className="w-4 h-4 text-yellow-600" /></div><p className="text-sm text-gray-600">Doação de <span className="font-semibold text-gray-800">R$ 150,00</span> recebida para <span className="font-semibold text-gray-800">"Ajude o Lar São José"</span>.</p><span className="text-xs text-gray-400 ml-auto flex-shrink-0">10 min</span></li>
-                    <li className="flex items-center space-x-3"><div className="p-2 bg-red-100 rounded-full"><Icon path={ICONS.support} className="w-4 h-4 text-red-600" /></div><p className="text-sm text-gray-600">Novo ticket de suporte <span className="font-semibold text-gray-800">#81245</span> foi aberto.</p><span className="text-xs text-gray-400 ml-auto flex-shrink-0">1 hora</span></li>
                 </ul>
             </div>
             <div className="lg:col-span-3 bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Vaquinhas Próximas da Meta</h3>
+                <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Projetos em Destaque</h3>
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200"><thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campanha</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progresso</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Arrecadado / Meta</th></tr></thead><tbody className="bg-white divide-y divide-gray-200"><tr><td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Viagem para a Disney</td><td className="px-6 py-4 whitespace-nowrap"><div className="w-full bg-gray-200 rounded-full h-2.5"><div className="bg-green-600 h-2.5 rounded-full" style={{ width: '95%' }}></div></div></td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 9.500 / R$ 10.000</td></tr><tr><td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Presente Casamento Joana e Pedro</td><td className="px-6 py-4 whitespace-nowrap"><div className="w-full bg-gray-200 rounded-full h-2.5"><div className="bg-green-600 h-2.5 rounded-full" style={{ width: '82%' }}></div></div></td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 4.100 / R$ 5.000</td></tr><tr><td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Reforma da Sede do Grupo</td><td className="px-6 py-4 whitespace-nowrap"><div className="w-full bg-gray-200 rounded-full h-2.5"><div className="bg-yellow-500 h-2.5 rounded-full" style={{ width: '75%' }}></div></div></td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 15.000 / R$ 20.000</td></tr></tbody></table>
+                  <table className="min-w-full divide-y divide-gray-200"><thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Projeto</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progresso</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th></tr></thead><tbody className="bg-white divide-y divide-gray-200">
+                    <tr><td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Viagem para a Disney</td><td className="px-6 py-4 whitespace-nowrap"><span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Vaquinha</span></td><td className="px-6 py-4 whitespace-nowrap"><div className="w-full bg-gray-200 rounded-full h-2.5"><div className="bg-green-600 h-2.5 rounded-full" style={{ width: '95%' }}></div></div></td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 9.500 / R$ 10.000</td></tr>
+                    <tr><td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Rifa de uma Moto 0km</td><td className="px-6 py-4 whitespace-nowrap"><span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-teal-100 text-teal-800">Rifa</span></td><td className="px-6 py-4 whitespace-nowrap"><div className="w-full bg-gray-200 rounded-full h-2.5"><div className="bg-teal-500 h-2.5 rounded-full" style={{ width: '88%' }}></div></div></td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">880 / 1000 números</td></tr>
+                    <tr><td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Presente Casamento Joana e Pedro</td><td className="px-6 py-4 whitespace-nowrap"><span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Vaquinha</span></td><td className="px-6 py-4 whitespace-nowrap"><div className="w-full bg-gray-200 rounded-full h-2.5"><div className="bg-green-600 h-2.5 rounded-full" style={{ width: '82%' }}></div></div></td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 4.100 / R$ 5.000</td></tr>
+                  </tbody></table>
                 </div>
             </div>
         </div>
@@ -246,6 +252,7 @@ const VaquinhasPage = () => {
                     <div className="flex items-center gap-2">
                         <input type="text" placeholder="Buscar vaquinha..." className="p-2 border rounded-md text-sm"/>
                         <select className="p-2 border rounded-md text-sm"><option>Filtrar por Status</option><option>Ativa</option><option>Pendente</option><option>Encerrada</option></select>
+                         <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2"><Icon path={ICONS.plusCircle} className="w-5 h-5"/> Nova Vaquinha</button>
                     </div>
                 </div>
                 <div className="overflow-x-auto">
@@ -278,10 +285,70 @@ const VaquinhasPage = () => {
     );
 };
 
+const RifasPage = () => {
+    const rifas = [
+        { id: 1, prize: 'iPhone 15 Pro Max', status: 'Ativa', sold: 880, total: 1000, price: 25, drawDate: '2024-08-30' },
+        { id: 2, prize: 'Viagem para Cancún (casal)', status: 'Ativa', sold: 450, total: 1500, price: 50, drawDate: '2024-09-15' },
+        { id: 3, prize: 'Kit Gamer Completo', status: 'Sorteada', sold: 500, total: 500, price: 20, drawDate: '2024-07-20' },
+        { id: 4, prize: 'Vale Compras de R$500', status: 'Pendente', sold: 0, total: 200, price: 10, drawDate: '2024-08-25' },
+    ];
+
+    const getStatusClass = (status: string) => {
+        if (status === 'Ativa') return 'bg-green-100 text-green-800';
+        if (status === 'Pendente') return 'bg-yellow-100 text-yellow-800';
+        return 'bg-blue-100 text-blue-800'; // Sorteada
+    };
+
+    return (
+        <div className="p-6 animate-fade-in">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold font-heading text-gray-800">Todas as Rifas</h3>
+                    <div className="flex items-center gap-2">
+                        <input type="text" placeholder="Buscar rifa..." className="p-2 border rounded-md text-sm"/>
+                        <select className="p-2 border rounded-md text-sm"><option>Filtrar por Status</option><option>Ativa</option><option>Sorteada</option><option>Pendente</option></select>
+                        <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2"><Icon path={ICONS.plusCircle} className="w-5 h-5"/> Nova Rifa</button>
+                    </div>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prêmio</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Números Vendidos</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Arrecadado</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data do Sorteio</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th></tr></thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {rifas.map(r => {
+                                const progress = (r.sold / r.total) * 100;
+                                const raised = r.sold * r.price;
+                                return (
+                                <tr key={r.id}>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{r.prize}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="text-sm text-gray-900">{r.sold} / {r.total}</div>
+                                        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1"><div className="bg-teal-500 h-1.5 rounded-full" style={{ width: `${progress}%` }}></div></div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">R$ {raised.toLocaleString()}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(r.status)}`}>{r.status}</span></td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{r.drawDate}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                        <button className="text-gray-500 hover:text-indigo-600"><Icon path={ICONS.eye} className="w-5 h-5"/></button>
+                                        {r.status === 'Ativa' && <button className="text-teal-600 hover:text-teal-900"><Icon path={ICONS.trophy} className="w-5 h-5"/></button>}
+                                        <button className="text-indigo-600 hover:text-indigo-900"><Icon path={ICONS.edit} className="w-5 h-5"/></button>
+                                    </td>
+                                </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="flex justify-between items-center mt-4 text-sm text-gray-600"><p>Mostrando 1 a 4 de 23 rifas</p><div className="flex gap-1"><button className="px-3 py-1 border rounded-md hover:bg-gray-100">Anterior</button><button className="px-3 py-1 border rounded-md hover:bg-gray-100">Próximo</button></div></div>
+            </div>
+        </div>
+    );
+};
+
 const FinancePage = () => {
     const transactions = [
         { id: 'TXN123', date: '2024-07-28', type: 'Doação', amount: 50.00, status: 'Concluída' },
         { id: 'TXN124', date: '2024-07-28', type: 'Taxa', amount: -1.50, status: 'Concluída' },
+        { id: 'TXN127', date: '2024-07-28', type: 'Rifa - Venda de Número', amount: 25.00, status: 'Concluída' },
         { id: 'TXN125', date: '2024-07-27', type: 'Saque', amount: -850.00, status: 'Pendente' },
         { id: 'TXN126', date: '2024-07-26', type: 'Doação', amount: 200.00, status: 'Concluída' },
     ];
@@ -374,6 +441,142 @@ const SupportPage = () => {
     );
 };
 
+const NotificationsPage = () => {
+    const [activeTab, setActiveTab] = useState('all');
+
+    const allNotifications = [
+        { id: 1, type: 'donation', title: 'Nova Doação Recebida', message: 'Você recebeu uma doação de R$ 50,00 para a vaquinha "Ajude o Lar São José".', time: '5 min atrás', read: false },
+        { id: 2, type: 'rifa', title: 'Número de Rifa Comprado', message: 'Carlos Souza comprou 3 números para a "Rifa do iPhone 15".', time: '25 min atrás', read: false },
+        { id: 3, type: 'system', title: 'Atualização de Segurança', message: 'A autenticação de dois fatores foi ativada para sua conta.', time: '1h atrás', read: false },
+        { id: 4, type: 'donation', title: 'Meta Atingida!', message: 'Parabéns! A vaquinha "Presente Casamento Joana e Pedro" atingiu a meta.', time: '3h atrás', read: true },
+        { id: 5, type: 'rifa', title: 'Sorteio Realizado', message: 'A "Rifa do Kit Gamer" foi sorteada. O vencedor foi notificado.', time: '1 dia atrás', read: true },
+        { id: 6, type: 'system', title: 'Manutenção Programada', message: 'A plataforma entrará em manutenção amanhã às 02:00.', time: '2 dias atrás', read: true },
+    ];
+    
+    const filteredNotifications = allNotifications.filter(n => {
+        if (activeTab === 'all') return true;
+        if (activeTab === 'unread') return !n.read;
+        return n.type === activeTab;
+    });
+
+    const getIconForType = (type: string) => {
+        switch (type) {
+            case 'donation': return { path: ICONS.vaquinhas, color: 'text-green-500', bg: 'bg-green-100' };
+            case 'rifa': return { path: ICONS.rifas, color: 'text-teal-500', bg: 'bg-teal-100' };
+            case 'system': return { path: ICONS.settings, color: 'text-blue-500', bg: 'bg-blue-100' };
+            default: return { path: ICONS.notifications, color: 'text-gray-500', bg: 'bg-gray-100' };
+        }
+    };
+    
+    const tabNames: { [key: string]: string } = {
+        all: "Todas",
+        unread: "Não Lidas",
+        donation: "Doações",
+        rifa: "Rifas",
+        system: "Sistema",
+    };
+
+    return (
+        <div className="p-6 animate-fade-in">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                 <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                     <h3 className="text-xl font-bold font-heading text-gray-800">Central de Notificações</h3>
+                     <div className="flex items-center gap-2">
+                         <button className="text-sm text-indigo-600 font-semibold hover:underline">Marcar todas como lidas</button>
+                         <button className="text-sm text-red-600 font-semibold hover:underline">Limpar notificações</button>
+                     </div>
+                 </div>
+
+                 <div className="mb-4 border-b border-gray-200">
+                    <nav className="-mb-px flex space-x-6 overflow-x-auto" aria-label="Filtros de Notificação">
+                        {Object.keys(tabNames).map(tabKey => (
+                            <button key={tabKey} onClick={() => setActiveTab(tabKey)} className={`whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none ${activeTab === tabKey ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                                {tabNames[tabKey]}
+                            </button>
+                        ))}
+                    </nav>
+                </div>
+                
+                <ul className="space-y-4">
+                    {filteredNotifications.map(n => {
+                        const iconInfo = getIconForType(n.type);
+                        return (
+                        <li key={n.id} className={`flex items-start space-x-4 p-4 rounded-lg transition-colors ${!n.read ? 'bg-indigo-50' : 'hover:bg-gray-50'}`}>
+                            {!n.read && <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full mt-1.5 flex-shrink-0"></div>}
+                            <div className={`p-2 rounded-full flex-shrink-0 ${iconInfo.bg}`}>
+                                <Icon path={iconInfo.path} className={`w-5 h-5 ${iconInfo.color}`} />
+                            </div>
+                            <div className="flex-grow">
+                                <p className="font-semibold text-gray-800">{n.title}</p>
+                                <p className="text-sm text-gray-600">{n.message}</p>
+                            </div>
+                            <p className="text-xs text-gray-400 flex-shrink-0">{n.time}</p>
+                        </li>
+                        );
+                    })}
+                </ul>
+                {filteredNotifications.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                        <Icon path={ICONS.checkCircle} className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                        <p>Nenhuma notificação encontrada.</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const WhiteLabelPage = () => {
+    const clients = [
+        { id: 1, name: 'Banco Digital X', domain: 'app.bancox.com.br', plan: 'Premium', status: 'Ativo', startDate: '2024-01-15' },
+        { id: 2, name: 'Eventos Criativos SA', domain: 'eventos.criativos.com', plan: 'Básico', status: 'Ativo', startDate: '2024-03-22' },
+        { id: 3, name: 'ONG Coração Aberto', domain: 'doar.coracaoaberto.org', plan: 'Premium', status: 'Pendente', startDate: '2024-07-28' },
+        { id: 4, name: 'Formaturas & Cia', domain: 'formatura.cia.com.br', plan: 'Básico', status: 'Inativo', startDate: '2023-11-10' },
+    ];
+
+    const getStatusClass = (status: string) => {
+        if (status === 'Ativo') return 'bg-green-100 text-green-800';
+        if (status === 'Pendente') return 'bg-yellow-100 text-yellow-800';
+        return 'bg-gray-100 text-gray-800'; // Inativo
+    };
+    
+    return (
+        <div className="p-6 animate-fade-in space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard title="Clientes Ativos" value="12" iconPath={ICONS.whitelabel} colorClass="bg-blue-500" />
+                <StatCard title="Receita Mensal (WL)" value="R$ 6.800" iconPath={ICONS.finance} colorClass="bg-green-500" />
+                <StatCard title="Plataformas Pendentes" value="3" iconPath={ICONS.users} colorClass="bg-yellow-500" />
+                <StatCard title="Taxa de Churn" value="1.5%" iconPath={ICONS.chartBar} colorClass="bg-red-500" />
+            </div>
+             <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+                    <h3 className="text-xl font-bold font-heading text-gray-800">Clientes White-Label</h3>
+                    <div className="flex items-center gap-2">
+                        <input type="text" placeholder="Buscar cliente..." className="p-2 border rounded-md text-sm"/>
+                        <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2"><Icon path={ICONS.plusCircle} className="w-5 h-5"/> Adicionar Cliente</button>
+                    </div>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plano</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Início</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th></tr></thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {clients.map(client => (
+                                <tr key={client.id}>
+                                    <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900">{client.name}</div><div className="text-sm text-gray-500">{client.domain}</div></td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{client.plan}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(client.status)}`}>{client.status}</span></td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{client.startDate}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2"><button className="text-indigo-600 hover:text-indigo-900"><Icon path={ICONS.edit} className="w-5 h-5"/></button><button className="text-red-600 hover:text-red-900"><Icon path={ICONS.trash} className="w-5 h-5"/></button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // --- Settings Page Components ---
 
 interface SettingsCardProps {
@@ -389,12 +592,19 @@ const SettingsCard = ({ title, description, children }: SettingsCardProps) => (
     </div>
 );
 
-const GeneralSettings = () => (
+const GeneralSettings = () => {
+    const [isMaintenance, setIsMaintenance] = useState(false);
+    return(
     <SettingsCard title="Geral" description="Configurações globais da plataforma.">
         <div><label className="block text-sm font-medium text-gray-700 mb-1">Nome da Plataforma</label><input type="text" defaultValue="Vakinha Fácil" className="p-2 border rounded-md w-full md:w-1/2"/></div>
         <div><label className="block text-sm font-medium text-gray-700 mb-1">E-mail de Contato Principal</label><input type="email" defaultValue="contato@vakinhafacil.com" className="p-2 border rounded-md w-full md:w-1/2"/></div>
+        <div className="flex items-center justify-between border-t pt-4"><p className="text-sm font-medium text-gray-900">Modo Manutenção</p><label className="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked={isMaintenance} onChange={() => setIsMaintenance(!isMaintenance)} className="sr-only peer" /><div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div></label></div>
+        {isMaintenance && (
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Mensagem de Manutenção</label><textarea placeholder="Ex: Estamos realizando melhorias e voltamos em breve." className="p-2 border rounded-md w-full" rows={3}></textarea></div>
+        )}
     </SettingsCard>
-);
+    );
+};
 
 const SecuritySettings = () => (
     <SettingsCard title="Segurança" description="Gerencie as configurações de segurança da conta e da plataforma.">
@@ -428,7 +638,27 @@ const GatewaySettings = () => (
     </div>
 );
 
+const FeeSettings = () => (
+    <SettingsCard title="Taxas e Comissões" description="Defina as taxas de serviço cobradas pela plataforma.">
+        <div className="flex items-center">
+            <label htmlFor="vaquinha_fee" className="w-1/3 text-sm font-medium text-gray-700">Taxa Padrão (Vaquinhas)</label>
+            <div className="relative w-2/3 md:w-1/3 rounded-md shadow-sm">
+                <input type="number" id="vaquinha_fee" defaultValue="5.00" className="p-2 border rounded-md w-full pr-12"/>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"><span className="text-gray-500 sm:text-sm">%</span></div>
+            </div>
+        </div>
+        <div className="flex items-center">
+            <label htmlFor="rifa_fee" className="w-1/3 text-sm font-medium text-gray-700">Taxa Padrão (Rifas)</label>
+            <div className="relative w-2/3 md:w-1/3 rounded-md shadow-sm">
+                 <input type="number" id="rifa_fee" defaultValue="10.00" className="p-2 border rounded-md w-full pr-12"/>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"><span className="text-gray-500 sm:text-sm">%</span></div>
+            </div>
+        </div>
+    </SettingsCard>
+);
+
 const LayoutSettings = () => {
+    const [primaryColor, setPrimaryColor] = useState('#4F46E5');
     const affiliates = [
         { id: 1, name: 'Blog do Investidor', code: 'INVESTIDOR10', commission: '5%', earnings: 'R$ 1,250.00' },
         { id: 2, name: 'Canal Tech Reviews', code: 'TECHVAKA', commission: '7%', earnings: 'R$ 3,420.50' },
@@ -436,20 +666,21 @@ const LayoutSettings = () => {
     ];
     return (
         <div className="space-y-8">
+            <SettingsCard title="Aparência Global" description="Personalize a aparência do seu site para refletir sua marca.">
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">URL do Logo</label><input type="text" placeholder="https://example.com/logo.svg" className="p-2 border rounded-md w-full"/></div>
+                <div className="flex items-center">
+                    <label htmlFor="primary_color_text" className="w-1/3 text-sm font-medium text-gray-700">Cor Primária</label>
+                    <div className="relative w-2/3 md:w-1/3 rounded-md shadow-sm flex items-center">
+                         <input type="text" id="primary_color_text" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="p-2 border rounded-l-md w-full"/>
+                         <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="h-10 w-12 p-1 border border-l-0 rounded-r-md cursor-pointer"/>
+                    </div>
+                </div>
+            </SettingsCard>
+
             <SettingsCard title="Banner Principal" description="Personalize o banner que aparece na página inicial do seu site.">
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Imagem do Banner (URL)</label><input type="text" placeholder="https://example.com/banner.jpg" className="p-2 border rounded-md w-full"/></div>
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Título</label><input type="text" placeholder="Arrecade fundos para seus sonhos" className="p-2 border rounded-md w-full"/></div>
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Subtítulo</label><input type="text" placeholder="Crie sua vaquinha online de forma fácil e segura." className="p-2 border rounded-md w-full"/></div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Texto do Botão</label><input type="text" placeholder="Criar Vaquinha Grátis" className="p-2 border rounded-md w-full"/></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Link do Botão</label><input type="text" placeholder="/criar-vaquinha" className="p-2 border rounded-md w-full"/></div>
-                </div>
-            </SettingsCard>
-
-            <SettingsCard title="Cabeçalho e Rodapé" description="Configure o logo e os links de navegação.">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">URL do Logo</label><input type="text" placeholder="https://example.com/logo.svg" className="p-2 border rounded-md w-full"/></div>
-                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Links do Cabeçalho (separados por vírgula)</label><input type="text" defaultValue="Como Funciona, Preços, Contato" className="p-2 border rounded-md w-full"/></div>
-                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Links do Rodapé (separados por vírgula)</label><input type="text" defaultValue="Termos de Uso, Política de Privacidade, Sobre Nós" className="p-2 border rounded-md w-full"/></div>
             </SettingsCard>
             
             <div className="bg-white p-6 rounded-lg shadow-md">
@@ -478,23 +709,24 @@ const LayoutSettings = () => {
     );
 };
 
-
 const SettingsPage = () => {
     const [activeTab, setActiveTab] = useState('general');
 
     const tabNames: { [key: string]: string } = {
         general: "Geral",
-        security: "Segurança",
-        gateways: "Gateways de Pagamento",
         layout: "Layout e Aparência",
+        gateways: "Gateways de Pagamento",
+        fees: "Taxas e Comissões",
+        security: "Segurança",
     };
 
     const renderActiveTabContent = () => {
         switch (activeTab) {
             case 'general': return <GeneralSettings />;
-            case 'security': return <SecuritySettings />;
-            case 'gateways': return <GatewaySettings />;
             case 'layout': return <LayoutSettings />;
+            case 'gateways': return <GatewaySettings />;
+            case 'fees': return <FeeSettings />;
+            case 'security': return <SecuritySettings />;
             default: return null;
         }
     };
@@ -613,8 +845,11 @@ const Sidebar = ({ activePage, onNavigate, onLogout }: { activePage: PageName, o
         { id: 'dashboard', label: 'Dashboard', icon: ICONS.dashboard },
         { id: 'users', label: 'Usuários', icon: ICONS.users },
         { id: 'vaquinhas', label: 'Vaquinhas', icon: ICONS.vaquinhas },
+        { id: 'rifas', label: 'Rifas', icon: ICONS.rifas },
         { id: 'finance', label: 'Financeiro', icon: ICONS.finance },
+        { id: 'whitelabel', label: 'White-Label', icon: ICONS.whitelabel },
         { id: 'marketing', label: 'Marketing', icon: ICONS.marketing },
+        { id: 'notifications', label: 'Notificações', icon: ICONS.notifications },
         { id: 'support', label: 'Suporte', icon: ICONS.support },
     ];
 
@@ -647,17 +882,66 @@ const Sidebar = ({ activePage, onNavigate, onLogout }: { activePage: PageName, o
     );
 };
 
-const Header = ({ title, description }: { title: string, description: string }) => (
-  <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
-    <div>
-        <h2 className="text-2xl font-bold font-heading text-gray-800">{title}</h2>
-        <p className="text-sm text-gray-500">{description}</p>
-    </div>
-    <div className="flex items-center">
-      {/* Search and Profile can be added here */}
-    </div>
-  </header>
-);
+const Header = ({ title, description, onNavigate }: { title: string, description: string, onNavigate: (page: PageName) => void }) => {
+    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+    const unreadCount = 3;
+    const recentNotifications = [
+        { id: 1, type: 'donation', title: 'Nova Doação Recebida', message: 'R$ 50,00 para "Ajude o Lar São José".', time: '5 min' },
+        { id: 2, type: 'rifa', title: 'Número de Rifa Comprado', message: 'Carlos Souza comprou 3 números.', time: '25 min' },
+        { id: 3, type: 'system', title: 'Atualização de Segurança', message: '2FA ativado para sua conta.', time: '1h' },
+    ];
+    const getIconForType = (type: string) => {
+        switch (type) {
+            case 'donation': return { path: ICONS.vaquinhas, color: 'text-green-500', bg: 'bg-green-100' };
+            case 'rifa': return { path: ICONS.rifas, color: 'text-teal-500', bg: 'bg-teal-100' };
+            case 'system': return { path: ICONS.settings, color: 'text-blue-500', bg: 'bg-blue-100' };
+            default: return { path: ICONS.notifications, color: 'text-gray-500', bg: 'bg-gray-100' };
+        }
+    };
+
+    return (
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+            <div>
+                <h2 className="text-2xl font-bold font-heading text-gray-800">{title}</h2>
+                <p className="text-sm text-gray-500">{description}</p>
+            </div>
+            <div className="relative">
+                <button onClick={() => setIsNotificationsOpen(prev => !prev)} className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700">
+                    <Icon path={ICONS.notifications} className="w-6 h-6" />
+                    {unreadCount > 0 && <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white"></span>}
+                </button>
+                {isNotificationsOpen && (
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border z-20 animate-fade-in">
+                        <div className="p-3 border-b flex justify-between items-center">
+                            <h4 className="font-semibold text-gray-700">Notificações</h4>
+                            <span className="text-xs font-semibold text-white bg-red-500 rounded-full px-2 py-0.5">{unreadCount} Novas</span>
+                        </div>
+                        <ul className="py-1 max-h-80 overflow-y-auto">
+                            {recentNotifications.map(n => {
+                                const iconInfo = getIconForType(n.type);
+                                return (
+                                <li key={n.id} className="flex items-start space-x-3 px-3 py-2 hover:bg-gray-50">
+                                    <div className={`p-1.5 rounded-full flex-shrink-0 ${iconInfo.bg}`}>
+                                        <Icon path={iconInfo.path} className={`w-4 h-4 ${iconInfo.color}`} />
+                                    </div>
+                                    <div className="flex-grow">
+                                        <p className="text-sm font-semibold text-gray-800">{n.title}</p>
+                                        <p className="text-xs text-gray-500">{n.message}</p>
+                                    </div>
+                                    <p className="text-xs text-gray-400 flex-shrink-0">{n.time}</p>
+                                </li>
+                                )
+                            })}
+                        </ul>
+                         <div className="p-2 border-t text-center">
+                            <button onClick={() => { onNavigate('notifications'); setIsNotificationsOpen(false); }} className="text-sm font-semibold text-indigo-600 hover:underline">Ver todas as notificações</button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </header>
+    );
+};
 
 const MarketingCampaigns = () => (
   <div className="bg-white p-6 rounded-lg shadow-md">
@@ -942,6 +1226,7 @@ const MarketingPage = () => {
                 throw new Error("A API retornou uma resposta vazia.");
             }
             
+            // Clean the response from markdown code blocks
             const jsonMatch = textResponse.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
             if (jsonMatch && jsonMatch[1]) {
                 textResponse = jsonMatch[1];
@@ -1085,41 +1370,90 @@ const MarketingPage = () => {
 };
 
 const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
-    const [activeTab, setActiveTab] = useState('user');
+    const [activeTab, setActiveTab] = useState('admin');
+    const [identifier, setIdentifier] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+
+    const handleTabChange = (tab: 'user' | 'admin') => {
+        setActiveTab(tab);
+        setIdentifier('');
+        setPassword('');
+        setError('');
+    };
 
     const handleLoginSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // In a real app, you would have validation and an API call here.
-        onLogin();
-    }
+        setError(''); // Clear previous errors
+
+        if (activeTab === 'admin') {
+            if (identifier === 'admin1' && password === 'a123') {
+                onLogin();
+            } else {
+                setError('Credenciais de administrador inválidas.');
+            }
+        } else { // user tab
+            // For demonstration, any non-empty user/pass will work for the user tab.
+            if (identifier && password) {
+                 onLogin();
+            } else {
+                setError('Por favor, preencha todos os campos.');
+            }
+        }
+    };
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 font-sans">
-            <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md animate-fade-in">
+            <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-xl animate-fade-in">
                 <div className="text-center">
                     <h1 className="text-3xl font-bold font-heading text-gray-900">Vakinha Fácil</h1>
                     <p className="mt-2 text-sm text-gray-600">Acesse sua conta para continuar</p>
                 </div>
 
                 <div className="flex border-b border-gray-200">
-                    <button onClick={() => setActiveTab('user')} className={`flex-1 py-2 text-sm font-semibold text-center transition-colors ${activeTab === 'user' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                    <button onClick={() => handleTabChange('user')} className={`flex-1 py-2 text-sm font-semibold text-center transition-colors ${activeTab === 'user' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
                         Acesso Usuário
                     </button>
-                     <button onClick={() => setActiveTab('admin')} className={`flex-1 py-2 text-sm font-semibold text-center transition-colors ${activeTab === 'admin' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                     <button onClick={() => handleTabChange('admin')} className={`flex-1 py-2 text-sm font-semibold text-center transition-colors ${activeTab === 'admin' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
                         Acesso Admin
                     </button>
                 </div>
 
-                <form className="space-y-6" onSubmit={handleLoginSubmit}>
+                <form className="space-y-4" onSubmit={handleLoginSubmit}>
                     <div>
-                        <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
-                        <input id="email" name="email" type="email" required className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="voce@example.com" />
+                        <label htmlFor="identifier" className="text-sm font-medium text-gray-700">Email ou Nome de Usuário</label>
+                        <input 
+                            id="identifier" 
+                            name="identifier" 
+                            type="text" 
+                            autoComplete="username"
+                            required 
+                            className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
+                            placeholder={activeTab === 'admin' ? "admin1" : "seu-email@example.com"}
+                            value={identifier}
+                            onChange={(e) => setIdentifier(e.target.value)}
+                        />
                     </div>
                     <div>
                         <label htmlFor="password"className="text-sm font-medium text-gray-700">Senha</label>
-                        <input id="password" name="password" type="password" required className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="Sua senha" />
+                        <input 
+                            id="password" 
+                            name="password" 
+                            type="password" 
+                            autoComplete="current-password"
+                            required 
+                            className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
+                            placeholder="Sua senha" 
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
                     </div>
-                    <div className="flex items-center justify-between">
+
+                    {error && (
+                        <p className="text-xs text-center text-red-600 bg-red-50 p-3 rounded-md border border-red-200">{error}</p>
+                    )}
+                    
+                    <div className="flex items-center justify-between pt-2">
                         <div className="flex items-center">
                             <input id="remember-me" name="remember-me" type="checkbox" className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"/>
                             <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">Lembrar-me</label>
@@ -1128,7 +1462,8 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
                             <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">Esqueceu a senha?</a>
                         </div>
                     </div>
-                    <div>
+                    
+                    <div className="pt-2">
                         <button type="submit" className="w-full px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             Entrar
                         </button>
@@ -1145,7 +1480,10 @@ function App() {
   const [activePage, setActivePage] = useState<PageName>('dashboard');
 
   const handleLogin = () => setIsAuthenticated(true);
-  const handleLogout = () => setIsAuthenticated(false);
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setActivePage('dashboard'); // Reset to default page on logout
+  };
 
   const PAGES: Record<PageName, { title: string, description: string, component: React.ReactElement }> = {
       dashboard: {
@@ -1163,6 +1501,16 @@ function App() {
           description: "Monitore, approve e gerencie todas as vaquinhas ativas e encerradas.",
           component: <VaquinhasPage />,
       },
+      rifas: {
+          title: "Gestão de Rifas",
+          description: "Crie, monitore e sorteie rifas para arrecadar fundos.",
+          component: <RifasPage />,
+      },
+       whitelabel: {
+          title: "Gestão White-Label",
+          description: "Gerencie clientes e personalize plataformas licenciadas.",
+          component: <WhiteLabelPage />,
+      },
       finance: {
           title: "Financeiro",
           description: "Acompanhe transações, gerencie saques e configure taxas.",
@@ -1172,6 +1520,11 @@ function App() {
           title: "Marketing & Engajamento",
           description: "Gerencie campanhas, cupons e notificações para impulsionar o crescimento.",
           component: <MarketingPage />,
+      },
+      notifications: {
+          title: "Notificações",
+          description: "Visualize e gerencie todas as notificações da plataforma.",
+          component: <NotificationsPage />,
       },
       support: {
           title: "Suporte e Atendimento",
@@ -1195,7 +1548,7 @@ function App() {
       <div className="flex bg-gray-100 font-sans min-h-screen">
           <Sidebar activePage={activePage} onNavigate={setActivePage} onLogout={handleLogout} />
           <main className="flex-1">
-              <Header title={currentPage.title} description={currentPage.description} />
+              <Header title={currentPage.title} description={currentPage.description} onNavigate={setActivePage} />
               {currentPage.component}
           </main>
       </div>
