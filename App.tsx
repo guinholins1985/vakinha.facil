@@ -599,7 +599,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer 
             <div className="bg-white rounded-lg shadow-xl w-full max-w-lg animate-modal-in" onClick={e => e.stopPropagation()}>
                 <div className="p-6 border-b border-gray-200 flex justify-between items-center">
                     <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600">&times;</button>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
                 </div>
                 <div className="p-6">{children}</div>
                 <div className="p-6 bg-gray-50 rounded-b-lg flex justify-end space-x-3">
@@ -703,7 +703,8 @@ const Dropdown: React.FC<DropdownProps> = ({ button, children }) => {
                     <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                         {React.Children.map(children, child => {
                             if (React.isValidElement(child)) {
-                                return React.cloneElement(child, { onClick: () => { child.props.onClick(); handleItemClick(); } } as any);
+                                const originalOnClick = child.props.onClick || (() => {});
+                                return React.cloneElement(child, { onClick: () => { originalOnClick(); handleItemClick(); } } as any);
                             }
                             return child;
                         })}
@@ -873,6 +874,8 @@ type User = {
     name: string;
     email: string;
     plan: 'Pro' | 'Flexível' | 'White-Label';
+    role: 'Admin' | 'Moderador' | 'Comum';
+    verificationStatus: 'Verificado' | 'Pendente' | 'Rejeitado';
     status: 'Ativo' | 'Suspenso';
     vaquinhas: number;
     lastLogin: string;
@@ -880,11 +883,12 @@ type User = {
 };
 
 const UserEditModal = ({ isOpen, onClose, onSave, user }: { isOpen: boolean, onClose: () => void, onSave: (user: User) => void, user: User | null }) => {
-    const [formData, setFormData] = useState<Omit<User, 'id' | 'vaquinhas' | 'lastLogin' | 'joinDate'>>({
+    const [formData, setFormData] = useState<Omit<User, 'id' | 'vaquinhas' | 'lastLogin' | 'joinDate' | 'verificationStatus'>>({
         name: '',
         email: '',
         plan: 'Flexível',
         status: 'Ativo',
+        role: 'Comum'
     });
 
     useEffect(() => {
@@ -894,10 +898,11 @@ const UserEditModal = ({ isOpen, onClose, onSave, user }: { isOpen: boolean, onC
                 email: user.email,
                 plan: user.plan,
                 status: user.status,
+                role: user.role,
             });
         } else {
             // Reset for new user
-            setFormData({ name: '', email: '', plan: 'Flexível', status: 'Ativo' });
+            setFormData({ name: '', email: '', plan: 'Flexível', status: 'Ativo', role: 'Comum' });
         }
     }, [user, isOpen]);
 
@@ -908,12 +913,11 @@ const UserEditModal = ({ isOpen, onClose, onSave, user }: { isOpen: boolean, onC
 
     const handleSubmit = () => {
         if (!formData.name || !formData.email) {
-            // Basic validation, in a real app this would be more robust
             return;
         }
         
         const userToSave: User = {
-            ...(user || { id: Date.now(), vaquinhas: 0, lastLogin: new Date().toISOString().split('T')[0], joinDate: new Date().toISOString().split('T')[0] }),
+            ...(user || { id: Date.now(), vaquinhas: 0, lastLogin: new Date().toISOString().split('T')[0], joinDate: new Date().toISOString().split('T')[0], verificationStatus: 'Pendente' }),
             ...formData,
         };
         onSave(userToSave);
@@ -940,13 +944,23 @@ const UserEditModal = ({ isOpen, onClose, onSave, user }: { isOpen: boolean, onC
                     <Label htmlFor="email">E-mail</Label>
                     <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
                 </div>
-                <div>
-                    <Label htmlFor="plan">Plano</Label>
-                    <Select id="plan" name="plan" value={formData.plan} onChange={handleChange}>
-                        <option value="Flexível">Flexível</option>
-                        <option value="Pro">Pro</option>
-                        <option value="White-Label">White-Label</option>
-                    </Select>
+                 <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <Label htmlFor="plan">Plano</Label>
+                        <Select id="plan" name="plan" value={formData.plan} onChange={handleChange}>
+                            <option value="Flexível">Flexível</option>
+                            <option value="Pro">Pro</option>
+                            <option value="White-Label">White-Label</option>
+                        </Select>
+                    </div>
+                    <div>
+                        <Label htmlFor="role">Cargo</Label>
+                        <Select id="role" name="role" value={formData.role} onChange={handleChange}>
+                            <option value="Comum">Comum</option>
+                            <option value="Moderador">Moderador</option>
+                            <option value="Admin">Admin</option>
+                        </Select>
+                    </div>
                 </div>
                 <div>
                     <Label htmlFor="status">Status</Label>
@@ -955,6 +969,65 @@ const UserEditModal = ({ isOpen, onClose, onSave, user }: { isOpen: boolean, onC
                         <option value="Suspenso">Suspenso</option>
                     </Select>
                 </div>
+            </div>
+        </Modal>
+    );
+};
+
+const VerificationModal = ({ isOpen, onClose, onVerify, user }: { isOpen: boolean, onClose: () => void, onVerify: (userId: number, status: 'Verificado' | 'Rejeitado') => void, user: User | null }) => {
+    if (!user) return null;
+    return (
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={`Verificação de Conta: ${user.name}`}
+            footer={
+                <>
+                    <Button variant="danger" onClick={() => onVerify(user.id, 'Rejeitado')}>Rejeitar</Button>
+                    <Button variant="primary" onClick={() => onVerify(user.id, 'Verificado')}>Aprovar</Button>
+                </>
+            }
+        >
+            <div className="space-y-4">
+                <p className="text-sm text-gray-600">Analise o documento abaixo para confirmar a identidade do usuário.</p>
+                <div>
+                    <img src="https://i.imgur.com/gTf7F4j.png" alt="Documento de exemplo" className="rounded-lg border w-full"/>
+                </div>
+                <div className="text-xs bg-gray-100 p-2 rounded">
+                    <p><strong>Nome:</strong> {user.name}</p>
+                    <p><strong>E-mail:</strong> {user.email}</p>
+                </div>
+            </div>
+        </Modal>
+    );
+};
+
+const ActivityLogModal = ({ isOpen, onClose, user }: { isOpen: boolean, onClose: () => void, user: User | null }) => {
+    if (!user) return null;
+    const activities = [
+        { icon: '💸', text: `Contribuiu com R$ 50,00 na vaquinha "Viagem para a Praia 2024"`, date: '2024-07-20 14:30' },
+        { icon: '🎉', text: `Criou a vaquinha "Aniversário da Carla"`, date: '2024-07-18 10:15' },
+        { icon: '✉️', text: `Convidou 3 novos participantes para "Aniversário da Carla"`, date: '2024-07-18 10:20' },
+        { icon: '💳', text: `Atualizou o método de pagamento`, date: '2024-07-15 09:00' },
+        { icon: '🔒', text: `Realizou login no sistema`, date: '2024-07-21 11:00' },
+    ];
+    return (
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={`Histórico de Atividades: ${user.name}`}
+            footer={<Button variant="secondary" onClick={onClose}>Fechar</Button>}
+        >
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+                {activities.map((activity, index) => (
+                    <div key={index} className="flex items-start space-x-3 p-2 bg-slate-50 rounded-md">
+                        <span className="text-xl">{activity.icon}</span>
+                        <div>
+                            <p className="text-sm text-gray-800">{activity.text}</p>
+                            <p className="text-xs text-gray-500">{activity.date}</p>
+                        </div>
+                    </div>
+                ))}
             </div>
         </Modal>
     );
@@ -1108,14 +1181,14 @@ const SystemResumoView = ({ setActiveTab }: { setActiveTab: (tab: SystemAdminTab
 // --- Usuarios View ---
 const SystemUsuariosView = () => {
     const initialUsers: User[] = useMemo(() => [
-        { id: 1, name: 'Ana Silva', email: 'ana.silva@example.com', plan: 'Pro', status: 'Ativo', vaquinhas: 5, lastLogin: '2024-07-21', joinDate: '2023-01-15' },
-        { id: 2, name: 'Bruno Costa', email: 'bruno.costa@example.com', plan: 'Flexível', status: 'Ativo', vaquinhas: 1, lastLogin: '2024-07-20', joinDate: '2023-02-20' },
-        { id: 3, name: 'Carla Dias', email: 'carla.dias@example.com', plan: 'Pro', status: 'Suspenso', vaquinhas: 12, lastLogin: '2024-05-10', joinDate: '2023-03-10' },
-        { id: 4, name: 'Daniel Alves', email: 'daniel.alves@example.com', plan: 'White-Label', status: 'Ativo', vaquinhas: 3, lastLogin: '2024-07-21', joinDate: '2023-04-05' },
-        { id: 5, name: 'Eduarda Lima', email: 'eduarda.lima@example.com', plan: 'Pro', status: 'Ativo', vaquinhas: 8, lastLogin: '2024-07-19', joinDate: '2023-05-12' },
-        { id: 6, name: 'Felipe Mendes', email: 'felipe.mendes@example.com', plan: 'Flexível', status: 'Suspenso', vaquinhas: 2, lastLogin: '2024-06-01', joinDate: '2023-06-18' },
-        { id: 7, name: 'Gabriela Souza', email: 'gabriela.souza@example.com', plan: 'Pro', status: 'Ativo', vaquinhas: 20, lastLogin: '2024-07-22', joinDate: '2023-07-25' },
-        { id: 8, name: 'Heitor Oliveira', email: 'heitor.oliveira@example.com', plan: 'White-Label', status: 'Ativo', vaquinhas: 6, lastLogin: '2024-07-20', joinDate: '2023-08-30' },
+        { id: 1, name: 'Ana Silva', email: 'ana.silva@example.com', plan: 'Pro', role: 'Admin', verificationStatus: 'Verificado', status: 'Ativo', vaquinhas: 5, lastLogin: '2024-07-21', joinDate: '2023-01-15' },
+        { id: 2, name: 'Bruno Costa', email: 'bruno.costa@example.com', plan: 'Flexível', role: 'Comum', verificationStatus: 'Pendente', status: 'Ativo', vaquinhas: 1, lastLogin: '2024-07-20', joinDate: '2023-02-20' },
+        { id: 3, name: 'Carla Dias', email: 'carla.dias@example.com', plan: 'Pro', role: 'Comum', verificationStatus: 'Verificado', status: 'Suspenso', vaquinhas: 12, lastLogin: '2024-05-10', joinDate: '2023-03-10' },
+        { id: 4, name: 'Daniel Alves', email: 'daniel.alves@example.com', plan: 'White-Label', role: 'Admin', verificationStatus: 'Verificado', status: 'Ativo', vaquinhas: 3, lastLogin: '2024-07-21', joinDate: '2023-04-05' },
+        { id: 5, name: 'Eduarda Lima', email: 'eduarda.lima@example.com', plan: 'Pro', role: 'Moderador', verificationStatus: 'Verificado', status: 'Ativo', vaquinhas: 8, lastLogin: '2024-07-19', joinDate: '2023-05-12' },
+        { id: 6, name: 'Felipe Mendes', email: 'felipe.mendes@example.com', plan: 'Flexível', role: 'Comum', verificationStatus: 'Rejeitado', status: 'Suspenso', vaquinhas: 2, lastLogin: '2024-06-01', joinDate: '2023-06-18' },
+        { id: 7, name: 'Gabriela Souza', email: 'gabriela.souza@example.com', plan: 'Pro', role: 'Comum', verificationStatus: 'Pendente', status: 'Ativo', vaquinhas: 20, lastLogin: '2024-07-22', joinDate: '2023-07-25' },
+        { id: 8, name: 'Heitor Oliveira', email: 'heitor.oliveira@example.com', plan: 'White-Label', role: 'Admin', verificationStatus: 'Verificado', status: 'Ativo', vaquinhas: 6, lastLogin: '2024-07-20', joinDate: '2023-08-30' },
     ], []);
 
     const { addToast } = useToast();
@@ -1123,9 +1196,14 @@ const SystemUsuariosView = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('Todos');
     const [planFilter, setPlanFilter] = useState('Todos');
+    const [roleFilter, setRoleFilter] = useState('Todos');
     const [currentPage, setCurrentPage] = useState(1);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingUser, setEditingUser] = useState<User | null>(null);
+
+    const [isEditModalOpen, setEditModalOpen] = useState(false);
+    const [isVerificationModalOpen, setVerificationModalOpen] = useState(false);
+    const [isActivityModalOpen, setActivityModalOpen] = useState(false);
+    
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     const ITEMS_PER_PAGE = 5;
 
@@ -1133,9 +1211,10 @@ const SystemUsuariosView = () => {
         return users.filter(user =>
             (user.name.toLowerCase().includes(searchTerm.toLowerCase()) || user.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
             (statusFilter === 'Todos' || user.status === statusFilter) &&
-            (planFilter === 'Todos' || user.plan === planFilter)
+            (planFilter === 'Todos' || user.plan === planFilter) &&
+            (roleFilter === 'Todos' || user.role === roleFilter)
         );
-    }, [users, searchTerm, statusFilter, planFilter]);
+    }, [users, searchTerm, statusFilter, planFilter, roleFilter]);
 
     const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
 
@@ -1144,21 +1223,34 @@ const SystemUsuariosView = () => {
         return filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
     }, [filteredUsers, currentPage, ITEMS_PER_PAGE]);
 
-    const handleOpenModal = (user: User | null) => {
-        setEditingUser(user);
-        setIsModalOpen(true);
+    const handleOpenModal = (modal: 'edit' | 'verify' | 'activity', user: User | null) => {
+        setSelectedUser(user);
+        if (modal === 'edit') setEditModalOpen(true);
+        if (modal === 'verify') setVerificationModalOpen(true);
+        if (modal === 'activity') setActivityModalOpen(true);
     };
 
     const handleSaveUser = (userToSave: User) => {
-        if (editingUser) {
+        if (selectedUser) {
             setUsers(users.map(u => u.id === userToSave.id ? userToSave : u));
             addToast('Usuário atualizado com sucesso!', 'success');
         } else {
             setUsers([userToSave, ...users]);
             addToast('Usuário adicionado com sucesso!', 'success');
         }
-        setIsModalOpen(false);
-        setEditingUser(null);
+        setEditModalOpen(false);
+        setSelectedUser(null);
+    };
+
+    const handleVerifyUser = (userId: number, verificationStatus: 'Verificado' | 'Rejeitado') => {
+        setUsers(users.map(u => {
+            if (u.id === userId) {
+                addToast(`Conta de ${u.name} foi ${verificationStatus.toLowerCase()}.`, 'info');
+                return { ...u, verificationStatus };
+            }
+            return u;
+        }));
+        setVerificationModalOpen(false);
     };
 
     const handleToggleStatus = (userId: number) => {
@@ -1183,44 +1275,52 @@ const SystemUsuariosView = () => {
         setSearchTerm('');
         setStatusFilter('Todos');
         setPlanFilter('Todos');
+        setRoleFilter('Todos');
         setCurrentPage(1);
     }
+    
+    const verificationBadges: { [key in User['verificationStatus']]: string } = {
+        Verificado: 'bg-emerald-100 text-emerald-800',
+        Pendente: 'bg-yellow-100 text-yellow-800',
+        Rejeitado: 'bg-red-100 text-red-800',
+    };
 
     return (
         <div>
-            <PageTitle actions={<Button variant="primary" onClick={() => handleOpenModal(null)}>+ Novo Usuário</Button>}>
+            <PageTitle actions={<Button variant="primary" onClick={() => handleOpenModal('edit', null)}>+ Novo Usuário</Button>}>
                 Gerenciamento de Usuários
             </PageTitle>
 
             <div className="bg-white p-6 rounded-lg shadow">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <Input
                         placeholder="Buscar por nome ou e-mail..."
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
-                        className="md:col-span-2"
+                        className="sm:col-span-2"
                     />
-                    <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-                        <option value="Todos">Todos os Status</option>
-                        <option value="Ativo">Ativo</option>
-                        <option value="Suspenso">Suspenso</option>
-                    </Select>
                      <Select value={planFilter} onChange={e => setPlanFilter(e.target.value as any)}>
                         <option value="Todos">Todos os Planos</option>
                         <option value="Flexível">Flexível</option>
                         <option value="Pro">Pro</option>
                         <option value="White-Label">White-Label</option>
                     </Select>
+                     <Select value={roleFilter} onChange={e => setRoleFilter(e.target.value as any)}>
+                        <option value="Todos">Todos os Cargos</option>
+                        <option value="Comum">Comum</option>
+                        <option value="Moderador">Moderador</option>
+                        <option value="Admin">Admin</option>
+                    </Select>
                 </div>
                 
                  <div className="overflow-x-auto">
-                    <table className="w-full text-left min-w-[720px]">
+                    <table className="w-full text-left min-w-[800px]">
                         <thead>
                             <tr className="bg-slate-50 border-b">
-                                <th className="p-4 font-semibold text-gray-600">Nome</th>
-                                <th className="p-4 font-semibold text-gray-600">Plano</th>
+                                <th className="p-4 font-semibold text-gray-600">Usuário</th>
+                                <th className="p-4 font-semibold text-gray-600">Cargo</th>
                                 <th className="p-4 font-semibold text-gray-600">Status</th>
-                                <th className="p-4 font-semibold text-gray-600 text-center">Nº Vaquinhas</th>
+                                <th className="p-4 font-semibold text-gray-600">Verificação</th>
                                 <th className="p-4 font-semibold text-gray-600">Último Login</th>
                                 <th className="p-4 font-semibold text-gray-600"></th>
                             </tr>
@@ -1232,13 +1332,17 @@ const SystemUsuariosView = () => {
                                         <p className="font-medium text-gray-800">{user.name}</p>
                                         <p className="text-sm text-gray-500">{user.email}</p>
                                     </td>
-                                    <td className="p-4">{user.plan}</td>
+                                    <td className="p-4">{user.role}</td>
                                     <td className="p-4">
                                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${user.status === 'Ativo' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
                                             {user.status}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-center">{user.vaquinhas}</td>
+                                    <td className="p-4">
+                                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${verificationBadges[user.verificationStatus]}`}>
+                                            {user.verificationStatus}
+                                        </span>
+                                    </td>
                                     <td className="p-4">{new Date(user.lastLogin).toLocaleDateString('pt-BR')}</td>
                                     <td className="p-4 text-right">
                                         <Dropdown
@@ -1248,7 +1352,9 @@ const SystemUsuariosView = () => {
                                                 </button>
                                             }
                                         >
-                                            <DropdownItem onClick={() => handleOpenModal(user)}>Editar</DropdownItem>
+                                            <DropdownItem onClick={() => handleOpenModal('edit', user)}>Editar</DropdownItem>
+                                            <DropdownItem onClick={() => handleOpenModal('activity', user)}>Ver Histórico</DropdownItem>
+                                            {user.verificationStatus === 'Pendente' && <DropdownItem onClick={() => handleOpenModal('verify', user)}>Verificar Conta</DropdownItem>}
                                             <DropdownItem onClick={() => handleToggleStatus(user.id)}>{user.status === 'Ativo' ? 'Suspender' : 'Ativar'}</DropdownItem>
                                             <DropdownItem onClick={() => handleDeleteUser(user.id, user.name)}>Deletar</DropdownItem>
                                         </Dropdown>
@@ -1270,7 +1376,10 @@ const SystemUsuariosView = () => {
                 )}
             </div>
 
-            <UserEditModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSaveUser} user={editingUser} />
+            <UserEditModal isOpen={isEditModalOpen} onClose={() => setEditModalOpen(false)} onSave={handleSaveUser} user={selectedUser} />
+            <VerificationModal isOpen={isVerificationModalOpen} onClose={() => setVerificationModalOpen(false)} onVerify={handleVerifyUser} user={selectedUser} />
+            <ActivityLogModal isOpen={isActivityModalOpen} onClose={() => setActivityModalOpen(false)} user={selectedUser} />
+
         </div>
     );
 };
@@ -2283,8 +2392,8 @@ const SystemConfiguracoesView = ({ setActiveTab }: { setActiveTab: (tab: SystemA
     const [isFeeModalOpen, setFeeModalOpen] = useState(false);
     const [isPlanModalOpen, setPlanModalOpen] = useState(false);
     const [isTemplateModalOpen, setTemplateModalOpen] = useState(false);
-    const [editingPlan, setEditingPlan] = useState(null);
-    const [editingTemplate, setEditingTemplate] = useState(null);
+    const [editingPlan, setEditingPlan] = useState<any>(null);
+    const [editingTemplate, setEditingTemplate] = useState<any>(null);
 
     const handleSave = (section: string) => {
         addToast(`${section} salvas com sucesso!`, 'success');

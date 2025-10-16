@@ -261,3 +261,14 @@ Crie um plano de manutenção contínua para o "Vakinha Fácil" com as seguintes
   - Indicadores de performance (taxa de conversão, ticket médio, crescimento mensal).
   - Alertas em tempo real para vaquinhas prestes a vencer ou pagamentos pendentes.
   - Atalhos rápidos para criar vaquinha, gerar relatório e verificar suporte.
+
+---
+
+## MÓDULO 2: GESTÃO DE USUÁRIOS
+
+- **Ação**: Implementar e ativar:
+  - Lista de usuários com filtros avançados (nome, e-mail, status, data de cadastro).
+  - Sistema de perfis e permissões (admin, moderador, usuário comum).
+  - Verificação de contas (upload e aprovação de documentos).
+  - Histórico de atividades (log de ações: criações, doações, saques).
+  - Opção para bloquear/desbloquear usuários.
