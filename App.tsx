@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useContext, createContext, useMemo } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
@@ -621,6 +622,10 @@ const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
     <input {...props} className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 ${props.className}`} />
 );
 
+const Textarea = (props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
+    <textarea {...props} className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 ${props.className}`} />
+);
+
 const Select = (props: React.SelectHTMLAttributes<HTMLSelectElement>) => (
     <select {...props} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white" />
 );
@@ -811,47 +816,49 @@ const GroupAdminDashboard = () => (
                         + Nova Vaquinha
                     </Button>
                 </div>
-                 <table className="w-full text-left">
-                    <thead>
-                        <tr className="bg-slate-50 border-b">
-                            <th className="p-4 font-semibold text-gray-600">Nome</th>
-                            <th className="p-4 font-semibold text-gray-600">Status</th>
-                            <th className="p-4 font-semibold text-gray-600">Arrecadado</th>
-                            <th className="p-4 font-semibold text-gray-600">Participantes</th>
-                            <th className="p-4 font-semibold text-gray-600"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {[
-                           { name: 'Viagem para a Praia', status: 'Ativa', collected: 560, total: 1000, participants: 8 },
-                           { name: 'Presente para o Chefe', status: 'Concluída', collected: 300, total: 300, participants: 15 },
-                           { name: 'Churrasco de Fim de Ano', status: 'Planejando', collected: 0, total: 800, participants: 0 },
-                        ].map(item => (
-                            <tr key={item.name} className="border-b hover:bg-slate-50">
-                                <td className="p-4">{item.name}</td>
-                                <td className="p-4">
-                                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                                         item.status === 'Ativa' ? 'bg-emerald-100 text-emerald-800' :
-                                         item.status === 'Concluída' ? 'bg-sky-100 text-sky-800' :
-                                         'bg-gray-100 text-gray-800'
-                                     }`}>{item.status}</span>
-                                </td>
-                                <td className="p-4">
-                                    <div className="flex flex-col">
-                                        <span>R$ {item.collected.toFixed(2)} / R$ {item.total.toFixed(2)}</span>
-                                        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                                            <div className="bg-emerald-500 h-1.5 rounded-full" style={{width: `${(item.collected/item.total)*100}%`}}></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="p-4">{item.participants}</td>
-                                <td className="p-4 text-right">
-                                    <button className="text-emerald-600 hover:underline font-semibold">Gerenciar</button>
-                                </td>
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[640px]">
+                        <thead>
+                            <tr className="bg-slate-50 border-b">
+                                <th className="p-4 font-semibold text-gray-600">Nome</th>
+                                <th className="p-4 font-semibold text-gray-600">Status</th>
+                                <th className="p-4 font-semibold text-gray-600">Arrecadado</th>
+                                <th className="p-4 font-semibold text-gray-600">Participantes</th>
+                                <th className="p-4 font-semibold text-gray-600"></th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {[
+                               { name: 'Viagem para a Praia', status: 'Ativa', collected: 560, total: 1000, participants: 8 },
+                               { name: 'Presente para o Chefe', status: 'Concluída', collected: 300, total: 300, participants: 15 },
+                               { name: 'Churrasco de Fim de Ano', status: 'Planejando', collected: 0, total: 800, participants: 0 },
+                            ].map(item => (
+                                <tr key={item.name} className="border-b hover:bg-slate-50">
+                                    <td className="p-4">{item.name}</td>
+                                    <td className="p-4">
+                                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                                             item.status === 'Ativa' ? 'bg-emerald-100 text-emerald-800' :
+                                             item.status === 'Concluída' ? 'bg-sky-100 text-sky-800' :
+                                             'bg-gray-100 text-gray-800'
+                                         }`}>{item.status}</span>
+                                    </td>
+                                    <td className="p-4">
+                                        <div className="flex flex-col">
+                                            <span>R$ {item.collected.toFixed(2)} / R$ {item.total.toFixed(2)}</span>
+                                            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                                <div className="bg-emerald-500 h-1.5 rounded-full" style={{width: `${(item.collected/item.total)*100}%`}}></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="p-4">{item.participants}</td>
+                                    <td className="p-4 text-right">
+                                        <button className="text-emerald-600 hover:underline font-semibold">Gerenciar</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                 </div>
             </div>
         </div>
     </div>
@@ -1152,7 +1159,7 @@ const SystemUsuariosView = () => {
                 </div>
                 
                  <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                    <table className="w-full text-left min-w-[720px]">
                         <thead>
                             <tr className="bg-slate-50 border-b">
                                 <th className="p-4 font-semibold text-gray-600">Nome</th>
@@ -1226,17 +1233,20 @@ type Vaquinha = {
     creationDate: string;
 };
 
+// FIX: Define mock vaquinhas data in a shared constant to be used by multiple components.
+const initialVaquinhasData: Vaquinha[] = [
+    { id: 101, name: 'Viagem para a Praia 2024', creator: 'Ana Silva', goal: 5000, collected: 3750, status: 'Ativa', participants: 15, creationDate: '2024-06-01' },
+    { id: 102, name: 'Presente Surpresa do Chefe', creator: 'Bruno Costa', goal: 800, collected: 800, status: 'Concluída', participants: 22, creationDate: '2024-05-15' },
+    { id: 103, name: 'Fundo de Formatura 2025', creator: 'Gabriela Souza', goal: 25000, collected: 12500, status: 'Ativa', participants: 45, creationDate: '2024-03-10' },
+    { id: 104, name: 'Compra de Equipamento Fotográfico', creator: 'Daniel Alves', goal: 3500, collected: 1200, status: 'Cancelada', participants: 8, creationDate: '2024-04-20' },
+    { id: 105, name: 'Churrasco de Fim de Ano da Empresa', creator: 'Eduarda Lima', goal: 1500, collected: 0, status: 'Planejando', participants: 0, creationDate: '2024-07-20' },
+    { id: 106, name: 'Ajuda Custo - Maratona de SP', creator: 'Felipe Mendes', goal: 2000, collected: 2000, status: 'Concluída', participants: 30, creationDate: '2024-02-01' },
+    { id: 107, name: 'Rateio Aluguel Casa de Campo', creator: 'Ana Silva', goal: 2400, collected: 1800, status: 'Ativa', participants: 6, creationDate: '2024-07-05' },
+    { id: 108, name: 'Projeto Social - Cestas Básicas', creator: 'Heitor Oliveira', goal: 10000, collected: 9500, status: 'Ativa', participants: 120, creationDate: '2024-06-15' },
+];
+
 const SystemVaquinhasView = () => {
-    const initialVaquinhas: Vaquinha[] = useMemo(() => [
-        { id: 101, name: 'Viagem para a Praia 2024', creator: 'Ana Silva', goal: 5000, collected: 3750, status: 'Ativa', participants: 15, creationDate: '2024-06-01' },
-        { id: 102, name: 'Presente Surpresa do Chefe', creator: 'Bruno Costa', goal: 800, collected: 800, status: 'Concluída', participants: 22, creationDate: '2024-05-15' },
-        { id: 103, name: 'Fundo de Formatura 2025', creator: 'Gabriela Souza', goal: 25000, collected: 12500, status: 'Ativa', participants: 45, creationDate: '2024-03-10' },
-        { id: 104, name: 'Compra de Equipamento Fotográfico', creator: 'Daniel Alves', goal: 3500, collected: 1200, status: 'Cancelada', participants: 8, creationDate: '2024-04-20' },
-        { id: 105, name: 'Churrasco de Fim de Ano da Empresa', creator: 'Eduarda Lima', goal: 1500, collected: 0, status: 'Planejando', participants: 0, creationDate: '2024-07-20' },
-        { id: 106, name: 'Ajuda Custo - Maratona de SP', creator: 'Felipe Mendes', goal: 2000, collected: 2000, status: 'Concluída', participants: 30, creationDate: '2024-02-01' },
-        { id: 107, name: 'Rateio Aluguel Casa de Campo', creator: 'Ana Silva', goal: 2400, collected: 1800, status: 'Ativa', participants: 6, creationDate: '2024-07-05' },
-        { id: 108, name: 'Projeto Social - Cestas Básicas', creator: 'Heitor Oliveira', goal: 10000, collected: 9500, status: 'Ativa', participants: 120, creationDate: '2024-06-15' },
-    ], []);
+    const initialVaquinhas: Vaquinha[] = useMemo(() => initialVaquinhasData, []);
 
     const { addToast } = useToast();
     const [vaquinhas, setVaquinhas] = useState<Vaquinha[]>(initialVaquinhas);
@@ -1316,7 +1326,7 @@ const SystemVaquinhasView = () => {
                 </div>
                 
                  <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                    <table className="w-full text-left min-w-[720px]">
                         <thead>
                             <tr className="bg-slate-50 border-b">
                                 <th className="p-4 font-semibold text-gray-600">Vaquinha</th>
@@ -1389,13 +1399,209 @@ const SystemVaquinhasView = () => {
 
 
 // --- Financeiro View ---
+type Transaction = {
+    id: string;
+    date: string;
+    vaquinhaName: string;
+    type: 'Contribuição' | 'Saque' | 'Taxa';
+    status: 'Concluído' | 'Pendente' | 'Falhou';
+    amount: number;
+};
+
+const RevenueChart = ({ data }: { data: { date: string, revenue: number }[] }) => {
+    const maxValue = Math.max(...data.map(d => d.revenue));
+    const chartHeight = 200;
+
+    return (
+        <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Receita (Últimos 30 dias)</h3>
+            <div className="flex justify-between items-end h-full" style={{ height: `${chartHeight}px` }}>
+                {data.map((item, index) => (
+                    <div key={index} className="flex-1 flex flex-col justify-end items-center group relative px-1">
+                        <div 
+                            className="w-full bg-emerald-300 hover:bg-emerald-500 rounded-t-md transition-colors"
+                            style={{ height: `${(item.revenue / maxValue) * 100}%` }}
+                        />
+                        <span className="text-xs text-gray-500 mt-2">{new Date(item.date).getDate()}</span>
+                        <div className="absolute bottom-full mb-2 w-max px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                            {new Date(item.date).toLocaleDateString('pt-BR')}: {`R$ ${item.revenue.toFixed(2)}`}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+
 const SystemFinanceiroView = () => {
-    // Mock data
+    const { addToast } = useToast();
+    const [searchTerm, setSearchTerm] = useState('');
+    const [typeFilter, setTypeFilter] = useState('Todos');
+    const [statusFilter, setStatusFilter] = useState('Todos');
+    const [currentPage, setCurrentPage] = useState(1);
+    
+    const ITEMS_PER_PAGE = 10;
+
+    const initialTransactions: Transaction[] = useMemo(() => {
+        const transactions: Transaction[] = [];
+        const vaquinhaNames = ['Viagem Praia', 'Formatura 2025', 'Projeto Social', 'Presente do Chefe', 'Aluguel Casa Campo'];
+        const types: Transaction['type'][] = ['Contribuição', 'Saque', 'Taxa'];
+        const statuses: Transaction['status'][] = ['Concluído', 'Pendente', 'Falhou'];
+        
+        for (let i = 0; i < 50; i++) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const type = types[Math.floor(Math.random() * 2)]; // Bias towards contributions
+            let amount;
+            if (type === 'Contribuição') amount = Math.random() * 200 + 20;
+            else if (type === 'Saque') amount = Math.random() * 5000 + 500;
+            else amount = Math.random() * 10 + 1;
+            
+            transactions.push({
+                id: `tr_${Date.now()}_${i}`,
+                date: date.toISOString(),
+                vaquinhaName: vaquinhaNames[Math.floor(Math.random() * vaquinhaNames.length)],
+                type,
+                status: statuses[Math.floor(Math.random() * statuses.length)],
+                amount,
+            });
+             if (type === 'Contribuição' && Math.random() > 0.1) {
+                transactions.push({
+                    id: `tr_fee_${Date.now()}_${i}`,
+                    date: date.toISOString(),
+                    vaquinhaName: transactions[transactions.length - 1].vaquinhaName,
+                    type: 'Taxa',
+                    status: 'Concluído',
+                    amount: transactions[transactions.length - 1].amount * 0.03,
+                });
+            }
+        }
+        return transactions;
+    }, []);
+    
+    const [transactions] = useState<Transaction[]>(initialTransactions);
+
+    const filteredTransactions = useMemo(() => {
+        return transactions.filter(t =>
+            (t.vaquinhaName.toLowerCase().includes(searchTerm.toLowerCase()) || t.id.toLowerCase().includes(searchTerm.toLowerCase())) &&
+            (typeFilter === 'Todos' || t.type === typeFilter) &&
+            (statusFilter === 'Todos' || t.status === statusFilter)
+        );
+    }, [transactions, searchTerm, typeFilter, statusFilter]);
+
+    const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE);
+    const paginatedTransactions = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredTransactions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    }, [filteredTransactions, currentPage]);
+
+    const kpiData = useMemo(() => {
+        return {
+            grossRevenue: transactions.filter(t => t.type === 'Contribuição' && t.status === 'Concluído').reduce((acc, t) => acc + t.amount, 0),
+            platformFees: transactions.filter(t => t.type === 'Taxa' && t.status === 'Concluído').reduce((acc, t) => acc + t.amount, 0),
+            pendingWithdrawals: transactions.filter(t => t.type === 'Saque' && t.status === 'Pendente').reduce((acc, t) => acc + t.amount, 0),
+            // FIX: Use shared initialVaquinhasData to calculate average ticket per vaquinha.
+            avgTicket: transactions.filter(t => t.type === 'Contribuição').reduce((acc, t) => acc + t.amount, 0) / (initialVaquinhasData.length || 1),
+        }
+    }, [transactions]);
+    
+     const chartData = useMemo(() => {
+        const data: { [key: string]: number } = {};
+        const today = new Date();
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(today.getDate() - i);
+            const dateString = date.toISOString().split('T')[0];
+            data[dateString] = 0;
+        }
+        transactions.forEach(t => {
+            if (t.type === 'Taxa' && t.status === 'Concluído') {
+                const dateString = t.date.split('T')[0];
+                if (data[dateString] !== undefined) {
+                    data[dateString] += t.amount;
+                }
+            }
+        });
+        return Object.entries(data).map(([date, revenue]) => ({ date, revenue })).sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    }, [transactions]);
+
+    const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    
+    const statusBadges: { [key in Transaction['status']]: string } = {
+        Concluído: 'bg-emerald-100 text-emerald-800',
+        Pendente: 'bg-yellow-100 text-yellow-800',
+        Falhou: 'bg-red-100 text-red-800',
+    };
+    
     return (
         <div>
-            <PageTitle>Painel Financeiro</PageTitle>
+            <PageTitle actions={<Button variant="primary" onClick={() => addToast('Relatório exportado com sucesso!', 'success')}>Exportar Relatório</Button>}>
+                Painel Financeiro
+            </PageTitle>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <StatCard title="Receita Bruta Total" value={formatCurrency(kpiData.grossRevenue)} icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01" /></svg>} />
+                <StatCard title="Taxas da Plataforma" value={formatCurrency(kpiData.platformFees)} icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>} />
+                <StatCard title="Saques Pendentes" value={formatCurrency(kpiData.pendingWithdrawals)} icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />
+                <StatCard title="Ticket Médio / Vaquinha" value={formatCurrency(kpiData.avgTicket)} icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>} />
+            </div>
+            
+            <div className="mb-8">
+                <RevenueChart data={chartData} />
+            </div>
+
             <div className="bg-white p-6 rounded-lg shadow">
-                 <p className="text-gray-600">Funcionalidade completa da aba financeira com KPIs, gráficos, lista de transações e gerenciamento de saques implementada.</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Histórico de Transações</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <Input placeholder="Buscar por vaquinha ou ID..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="md:col-span-2" />
+                    <Select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+                        <option value="Todos">Todos os Tipos</option>
+                        <option value="Contribuição">Contribuição</option>
+                        <option value="Saque">Saque</option>
+                        <option value="Taxa">Taxa</option>
+                    </Select>
+                    <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+                        <option value="Todos">Todos os Status</option>
+                        <option value="Concluído">Concluído</option>
+                        <option value="Pendente">Pendente</option>
+                        <option value="Falhou">Falhou</option>
+                    </Select>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[720px]">
+                        <thead>
+                           <tr className="bg-slate-50 border-b">
+                                <th className="p-4 font-semibold text-gray-600">Data</th>
+                                <th className="p-4 font-semibold text-gray-600">Vaquinha</th>
+                                <th className="p-4 font-semibold text-gray-600">Tipo</th>
+                                <th className="p-4 font-semibold text-gray-600">Status</th>
+                                <th className="p-4 font-semibold text-gray-600 text-right">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {paginatedTransactions.map(t => (
+                                <tr key={t.id} className="border-b hover:bg-slate-50">
+                                    <td className="p-4 text-sm text-gray-600">{new Date(t.date).toLocaleString('pt-BR')}</td>
+                                    <td className="p-4 font-medium text-gray-800">{t.vaquinhaName}</td>
+                                    <td className="p-4 text-sm text-gray-600">{t.type}</td>
+                                    <td className="p-4">
+                                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusBadges[t.status]}`}>{t.status}</span>
+                                    </td>
+                                    <td className={`p-4 text-right font-semibold ${t.type === 'Saque' ? 'text-red-600' : 'text-gray-800'}`}>
+                                        {t.type === 'Saque' ? '-' : ''}{formatCurrency(t.amount)}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                 {paginatedTransactions.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                        <p>Nenhuma transação encontrada.</p>
+                    </div>
+                 )}
+                {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />}
             </div>
         </div>
     );
@@ -1403,28 +1609,319 @@ const SystemFinanceiroView = () => {
 
 
 // --- White-Label View ---
+type WhiteLabelClient = {
+    id: number;
+    clientName: string;
+    domain: string;
+    status: 'Ativo' | 'Inativo' | 'Pendente';
+    plan: 'Essencial' | 'Crescimento' | 'Empresarial';
+    startDate: string;
+};
+
+const initialWhiteLabelClients: WhiteLabelClient[] = [
+    { id: 1, clientName: 'Agência de Formaturas SonhoReal', domain: 'formaturas.sonhoreal.com', status: 'Ativo', plan: 'Empresarial', startDate: '2023-04-05' },
+    { id: 2, clientName: 'Condomínio Vila das Flores', domain: 'condominio.viladasflores.com', status: 'Ativo', plan: 'Crescimento', startDate: '2023-08-30' },
+    { id: 3, clientName: 'ONG Mãos que Ajudam', domain: 'doacoes.maosqueajudam.org', status: 'Inativo', plan: 'Essencial', startDate: '2023-02-10' },
+    { id: 4, clientName: 'Startup InovaTech', domain: 'projetos.inovatech.io', status: 'Pendente', plan: 'Crescimento', startDate: '2024-07-20' },
+];
+
+const WhiteLabelClientModal = ({ isOpen, onClose, onSave, client }: { isOpen: boolean, onClose: () => void, onSave: (client: WhiteLabelClient) => void, client: WhiteLabelClient | null }) => {
+    const [formData, setFormData] = useState<Omit<WhiteLabelClient, 'id' | 'startDate'>>({
+        clientName: '', domain: '', status: 'Ativo', plan: 'Essencial'
+    });
+
+    useEffect(() => {
+        if (client) {
+            setFormData({ clientName: client.clientName, domain: client.domain, status: client.status, plan: client.plan });
+        } else {
+            setFormData({ clientName: '', domain: '', status: 'Ativo', plan: 'Essencial' });
+        }
+    }, [client, isOpen]);
+    
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    const handleSubmit = () => {
+        if (!formData.clientName || !formData.domain) return;
+        const clientToSave: WhiteLabelClient = {
+            ...(client || { id: Date.now(), startDate: new Date().toISOString().split('T')[0] }),
+            ...formData
+        };
+        onSave(clientToSave);
+    };
+
+    return (
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={client ? 'Gerenciar Cliente White-Label' : 'Novo Cliente White-Label'}
+            footer={<><Button variant="secondary" onClick={onClose}>Cancelar</Button><Button variant="primary" onClick={handleSubmit}>Salvar</Button></>}
+        >
+            <div className="space-y-4">
+                <div><Label htmlFor="clientName">Nome do Cliente</Label><Input id="clientName" name="clientName" value={formData.clientName} onChange={handleChange} required /></div>
+                <div><Label htmlFor="domain">Domínio</Label><Input id="domain" name="domain" value={formData.domain} onChange={handleChange} placeholder="cliente.seusite.com" required /></div>
+                <div><Label htmlFor="plan">Plano</Label><Select id="plan" name="plan" value={formData.plan} onChange={handleChange}><option value="Essencial">Essencial</option><option value="Crescimento">Crescimento</option><option value="Empresarial">Empresarial</option></Select></div>
+                <div><Label htmlFor="status">Status</Label><Select id="status" name="status" value={formData.status} onChange={handleChange}><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option><option value="Pendente">Pendente</option></Select></div>
+            </div>
+        </Modal>
+    );
+};
+
 const SystemWhiteLabelView = () => {
+    const [clients, setClients] = useState<WhiteLabelClient[]>(initialWhiteLabelClients);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedClient, setSelectedClient] = useState<WhiteLabelClient | null>(null);
+    const { addToast } = useToast();
+    
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('Todos');
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 5;
+
+    const filteredClients = useMemo(() => {
+        return clients.filter(c =>
+            (c.clientName.toLowerCase().includes(searchTerm.toLowerCase()) || c.domain.toLowerCase().includes(searchTerm.toLowerCase())) &&
+            (statusFilter === 'Todos' || c.status === statusFilter)
+        );
+    }, [clients, searchTerm, statusFilter]);
+
+    const totalPages = Math.ceil(filteredClients.length / ITEMS_PER_PAGE);
+    const paginatedClients = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredClients.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    }, [filteredClients, currentPage]);
+    
+    const handleSave = (client: WhiteLabelClient) => {
+        if (selectedClient) {
+            setClients(clients.map(c => c.id === client.id ? client : c));
+            addToast('Cliente atualizado!', 'success');
+        } else {
+            setClients([client, ...clients]);
+            addToast('Novo cliente adicionado!', 'success');
+        }
+        setIsModalOpen(false);
+        setSelectedClient(null);
+    };
+
+    const handleOpenModal = (client: WhiteLabelClient | null) => {
+        setSelectedClient(client);
+        setIsModalOpen(true);
+    };
+    
+    const handleClearFilters = () => {
+        setSearchTerm('');
+        setStatusFilter('Todos');
+        setCurrentPage(1);
+    }
+
+    const statusBadges: { [key in WhiteLabelClient['status']]: string } = {
+        Ativo: 'bg-emerald-100 text-emerald-800',
+        Inativo: 'bg-red-100 text-red-800',
+        Pendente: 'bg-yellow-100 text-yellow-800',
+    };
+
     return (
         <div>
-            <PageTitle actions={<Button variant="primary">+ Novo Cliente</Button>}>
+            <PageTitle actions={<Button variant="primary" onClick={() => handleOpenModal(null)}>+ Novo Cliente</Button>}>
                 Clientes White-Label
             </PageTitle>
-            <div className="bg-white p-6 rounded-lg shadow">
-                <p className="text-gray-600">Funcionalidade completa da aba White-Label com KPIs, lista de clientes e ações (editar, configurar, suspender, deletar) implementada.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <StatCard title="Total de Clientes" value={clients.length.toString()} icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>} />
+                <StatCard title="Clientes Ativos" value={clients.filter(c => c.status === 'Ativo').length.toString()} icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />
+                <StatCard title="Receita Mensal (MRR)" value="R$ 1.250" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01" /></svg>} />
+                <StatCard title="Receita Anual Estimada" value="R$ 15.000" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>} />
             </div>
+
+            <div className="bg-white p-6 rounded-lg shadow">
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <Input placeholder="Buscar por cliente ou domínio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="md:col-span-2" />
+                    <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+                        <option value="Todos">Todos os Status</option>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Inativo">Inativo</option>
+                        <option value="Pendente">Pendente</option>
+                    </Select>
+                </div>
+
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[640px]">
+                        <thead>
+                            <tr className="bg-slate-50 border-b">
+                                <th className="p-4 font-semibold text-gray-600">Cliente</th>
+                                <th className="p-4 font-semibold text-gray-600">Domínio</th>
+                                <th className="p-4 font-semibold text-gray-600">Status</th>
+                                <th className="p-4 font-semibold text-gray-600">Plano</th>
+                                <th className="p-4 font-semibold text-gray-600"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {paginatedClients.map(client => (
+                                <tr key={client.id} className="border-b hover:bg-slate-50">
+                                    <td className="p-4 font-medium text-gray-800">{client.clientName}</td>
+                                    <td className="p-4 text-gray-600"><a href={`http://${client.domain}`} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-600 hover:underline">{client.domain}</a></td>
+                                    <td className="p-4"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusBadges[client.status]}`}>{client.status}</span></td>
+                                    <td className="p-4 text-gray-600">{client.plan}</td>
+                                    <td className="p-4 text-right"><Button variant="secondary" onClick={() => handleOpenModal(client)}>Gerenciar</Button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                 </div>
+
+                 {paginatedClients.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                        <p className="mb-2">Nenhum cliente encontrado.</p>
+                        <Button variant="secondary" onClick={handleClearFilters}>Limpar Filtros</Button>
+                    </div>
+                 )}
+                 {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />}
+
+            </div>
+            <WhiteLabelClientModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSave} client={selectedClient} />
         </div>
     );
 };
 
 
 // --- Suporte View ---
+type Ticket = {
+  id: number;
+  subject: string;
+  user: { name: string; email: string };
+  status: 'Aberto' | 'Em Andamento' | 'Resolvido' | 'Fechado';
+  priority: 'Baixa' | 'Média' | 'Alta' | 'Urgente';
+  lastUpdate: string;
+  messages: { author: string; text: string; date: string }[];
+};
+
+const initialTickets: Ticket[] = [
+    { id: 789, subject: 'Dúvida sobre saque', user: { name: 'Bruno Costa', email: 'bruno.costa@example.com' }, status: 'Aberto', priority: 'Alta', lastUpdate: '2024-07-22T10:00:00Z', messages: [{ author: 'Bruno Costa', text: 'Não estou conseguindo realizar o saque da minha vaquinha. O sistema apresenta um erro genérico. Podem me ajudar?', date: '2024-07-22T10:00:00Z' }] },
+    { id: 788, subject: 'Problema com pagamento', user: { name: 'Ana Silva', email: 'ana.silva@example.com' }, status: 'Em Andamento', priority: 'Média', lastUpdate: '2024-07-22T11:30:00Z', messages: [{ author: 'Ana Silva', text: 'Um dos participantes da minha vaquinha informou que não consegue pagar com cartão de crédito. A transação é recusada sem motivo aparente.', date: '2024-07-21T14:00:00Z' }, { author: 'Suporte', text: 'Olá Ana, estamos verificando o que pode ter acontecido com nosso gateway de pagamento. Manteremos você informada.', date: '2024-07-22T11:30:00Z' }] },
+    { id: 787, subject: 'Como criar vaquinha white-label?', user: { name: 'Daniel Alves', email: 'daniel.alves@example.com' }, status: 'Resolvido', priority: 'Baixa', lastUpdate: '2024-07-21T18:00:00Z', messages: [{ author: 'Daniel Alves', text: 'Olá, tenho interesse em contratar o plano white-label e gostaria de saber mais detalhes sobre a customização.', date: '2024-07-20T09:00:00Z' }, { author: 'Suporte', text: 'Claro, Daniel! Encaminhei a documentação completa com todas as opções de personalização para o seu e-mail.', date: '2024-07-21T18:00:00Z' }] },
+    { id: 786, subject: 'Sugestão de funcionalidade', user: { name: 'Gabriela Souza', email: 'gabriela.souza@example.com' }, status: 'Fechado', priority: 'Baixa', lastUpdate: '2024-07-20T15:00:00Z', messages: [{ author: 'Gabriela Souza', text: 'Seria ótimo ter uma opção para exportar a lista de participantes em PDF.', date: '2024-07-19T12:00:00Z' }, { author: 'Suporte', text: 'Excelente sugestão, Gabriela! Já encaminhamos para nossa equipe de produto. Agradecemos o feedback!', date: '2024-07-20T15:00:00Z' }] },
+];
+
+const TicketDetailModal = ({ isOpen, onClose, ticket, onReply }: { isOpen: boolean, onClose: () => void, ticket: Ticket | null, onReply: (ticketId: number, reply: string) => void }) => {
+    const [reply, setReply] = useState('');
+    if (!ticket) return null;
+
+    useEffect(() => {
+        if (!isOpen) {
+            setReply('');
+        }
+    }, [isOpen]);
+
+    const handleSubmit = () => {
+        if (!reply.trim()) return;
+        onReply(ticket.id, reply);
+        setReply('');
+    }
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} title={`Ticket #${ticket.id}: ${ticket.subject}`}
+            footer={<><Button variant="secondary" onClick={onClose}>Fechar</Button><Button variant="primary" onClick={handleSubmit} disabled={!reply.trim()}>Enviar Resposta</Button></>}
+        >
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                {ticket.messages.map((msg, index) => (
+                    <div key={index} className={`p-3 rounded-lg ${msg.author === 'Suporte' ? 'bg-emerald-50' : 'bg-gray-100'}`}>
+                        <p className="font-bold text-sm text-gray-800">{msg.author}</p>
+                        <p className="text-sm text-gray-600 mt-1">{msg.text}</p>
+                        <p className="text-xs text-gray-400 text-right mt-2">{new Date(msg.date).toLocaleString('pt-BR')}</p>
+                    </div>
+                ))}
+            </div>
+            <div className="mt-6 pt-4 border-t">
+                <Label htmlFor="reply">Sua Resposta</Label>
+                <Textarea id="reply" value={reply} onChange={e => setReply(e.target.value)} rows={4} placeholder="Digite sua resposta aqui..."/>
+            </div>
+        </Modal>
+    );
+};
+
+
 const SystemSuporteView = () => {
+    const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('Todos');
+    const [priorityFilter, setPriorityFilter] = useState('Todos');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+    const { addToast } = useToast();
+
+    const ITEMS_PER_PAGE = 5;
+
+    const filteredTickets = useMemo(() => tickets.filter(t => 
+        (t.subject.toLowerCase().includes(searchTerm.toLowerCase()) || t.user.name.toLowerCase().includes(searchTerm.toLowerCase()) || t.user.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (statusFilter === 'Todos' || t.status === statusFilter) &&
+        (priorityFilter === 'Todos' || t.priority === priorityFilter)
+    ), [tickets, searchTerm, statusFilter, priorityFilter]);
+
+    const paginatedTickets = useMemo(() => filteredTickets.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE), [filteredTickets, currentPage]);
+    const totalPages = Math.ceil(filteredTickets.length / ITEMS_PER_PAGE);
+
+    const handleReply = (ticketId: number, reply: string) => {
+        setTickets(tickets.map(t => t.id === ticketId ? {
+            ...t,
+            messages: [...t.messages, { author: 'Suporte', text: reply, date: new Date().toISOString() }],
+            status: 'Em Andamento',
+            lastUpdate: new Date().toISOString(),
+        } : t));
+        setSelectedTicket(null);
+        addToast(`Resposta enviada para o ticket #${ticketId}`, 'success');
+    };
+    
+    const handleClearFilters = () => {
+        setSearchTerm('');
+        setStatusFilter('Todos');
+        setPriorityFilter('Todos');
+        setCurrentPage(1);
+    }
+
+    const statusBadges: { [key in Ticket['status']]: string } = { Aberto: 'bg-yellow-100 text-yellow-800', 'Em Andamento': 'bg-sky-100 text-sky-800', Resolvido: 'bg-emerald-100 text-emerald-800', Fechado: 'bg-gray-100 text-gray-800' };
+    const priorityBadges: { [key in Ticket['priority']]: string } = { Baixa: 'bg-gray-100 text-gray-800', Média: 'bg-sky-100 text-sky-800', Alta: 'bg-yellow-100 text-yellow-800', Urgente: 'bg-red-100 text-red-800' };
+
     return (
         <div>
             <PageTitle>Central de Suporte</PageTitle>
-            <div className="bg-white p-6 rounded-lg shadow">
-                <p className="text-gray-600">Funcionalidade completa da aba de suporte com KPIs, lista de tickets e modal de visualização/resposta implementada.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <StatCard title="Tickets Abertos" value={tickets.filter(t=>t.status==='Aberto').length.toString()} icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 002 2h3m-3-4h3m0 0h4m-4 0a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2h-3a2 2 0 01-2-2v-3z" /></svg>} />
+                <StatCard title="Resolvidos Hoje" value="3" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />
+                <StatCard title="Tempo Médio de Resposta" value="2h 15m" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />
+                <StatCard title="Satisfação do Cliente" value="96%" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />
             </div>
+            <div className="bg-white p-6 rounded-lg shadow">
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <Input placeholder="Buscar por assunto, nome, e-mail..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="md:col-span-1" />
+                    <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+                        <option value="Todos">Todos os Status</option><option value="Aberto">Aberto</option><option value="Em Andamento">Em Andamento</option><option value="Resolvido">Resolvido</option><option value="Fechado">Fechado</option>
+                    </Select>
+                    <Select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)}>
+                        <option value="Todos">Todas as Prioridades</option><option value="Baixa">Baixa</option><option value="Média">Média</option><option value="Alta">Alta</option><option value="Urgente">Urgente</option>
+                    </Select>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[720px]">
+                        <thead><tr className="bg-slate-50 border-b"><th className="p-4 font-semibold text-gray-600">Ticket</th><th className="p-4 font-semibold text-gray-600">Usuário</th><th className="p-4 font-semibold text-gray-600">Status</th><th className="p-4 font-semibold text-gray-600">Prioridade</th><th className="p-4 font-semibold text-gray-600">Última Atualização</th><th className="p-4 font-semibold text-gray-600"></th></tr></thead>
+                        <tbody>
+                            {paginatedTickets.map(t => (
+                                <tr key={t.id} className="border-b hover:bg-slate-50">
+                                    <td className="p-4"><p className="font-medium text-gray-800">#{t.id}</p><p className="text-sm text-gray-500 truncate" style={{maxWidth: '200px'}}>{t.subject}</p></td>
+                                    <td className="p-4"><p className="font-medium text-gray-800">{t.user.name}</p><p className="text-sm text-gray-500">{t.user.email}</p></td>
+                                    <td className="p-4"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusBadges[t.status]}`}>{t.status}</span></td>
+                                    <td className="p-4"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${priorityBadges[t.priority]}`}>{t.priority}</span></td>
+                                    <td className="p-4 text-sm text-gray-600">{new Date(t.lastUpdate).toLocaleString('pt-BR')}</td>
+                                    <td className="p-4 text-right"><Button variant="secondary" onClick={() => setSelectedTicket(t)}>Ver Detalhes</Button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                {paginatedTickets.length === 0 && <div className="text-center py-12 text-gray-500"><p className="mb-2">Nenhum ticket encontrado.</p><Button variant="secondary" onClick={handleClearFilters}>Limpar Filtros</Button></div>}
+                {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />}
+            </div>
+            <TicketDetailModal isOpen={!!selectedTicket} onClose={() => setSelectedTicket(null)} ticket={selectedTicket} onReply={handleReply} />
         </div>
     );
 };
@@ -1442,7 +1939,7 @@ interface Gateway {
 
 const initialGateways: Gateway[] = [
     { id: 'stripe', name: 'Stripe', logo: 'https://cdn.worldvectorlogo.com/logos/stripe-4.svg', description: 'Plataforma completa para pagamentos globais.', status: 'connected', apiKey: 'sk_test_••••••••••••••••••••', secretKey: '••••••••••••••••••••••••••••' },
-    { id: 'mercadopago', name: 'Mercado Pago', logo: 'https://cdn.worldvectorlogo.com/logos/mercado-pago-2.svg', description: 'Solução de pagamentos popular na América Latina.', status: 'available', apiKey: '', secretKey: '' },
+    { id: 'mercadopago', name: 'Mercado Pago', logo: 'https://logospng.org/download/mercado-pago/logo-mercado-pago-2048.png', description: 'Solução de pagamentos popular na América Latina.', status: 'available', apiKey: '', secretKey: '' },
     { id: 'pagseguro', name: 'PagBank (PagSeguro)', logo: 'https://logospng.org/download/pagseguro/logo-pagseguro-4096.png', description: 'Gateway de pagamentos pioneiro no Brasil.', status: 'available', apiKey: '', secretKey: '' },
     { id: 'pagarme', name: 'Pagar.me', logo: 'https://pagar.me/wp-content/uploads/2022/02/logo-pagarme-2022-vertical-positivo-1-1.svg', description: 'API de pagamentos para negócios digitais.', status: 'available', apiKey: '', secretKey: '' },
     { id: 'picpay', name: 'PicPay', logo: 'https://cdn.worldvectorlogo.com/logos/picpay-1.svg', description: 'Carteira digital líder no Brasil, com pagamentos via QR Code.', status: 'available', apiKey: '', secretKey: '' },
