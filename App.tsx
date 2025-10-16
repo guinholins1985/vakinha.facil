@@ -966,15 +966,15 @@ const SystemAdminDashboard = () => {
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'Resumo': return <SystemResumoView />;
+            case 'Resumo': return <SystemResumoView setActiveTab={setActiveTab}/>;
             case 'Usuários': return <SystemUsuariosView />;
             case 'Vaquinhas': return <SystemVaquinhasView />;
             case 'Financeiro': return <SystemFinanceiroView />;
-            case 'White-Label': return <SystemWhiteLabelView />;
+            case 'White-Label': return <SystemWhiteLabelView setActiveTab={setActiveTab} />;
             case 'Suporte': return <SystemSuporteView />;
             case 'Integrações Gateway': return <SystemIntegracoesView />;
-            case 'Configurações': return <SystemConfiguracoesView />;
-            default: return <SystemResumoView />;
+            case 'Configurações': return <SystemConfiguracoesView setActiveTab={setActiveTab} />;
+            default: return <SystemResumoView setActiveTab={setActiveTab}/>;
         }
     };
     
@@ -1031,23 +1031,79 @@ const SystemAdminSidebar = ({ activeTab, setActiveTab }: { activeTab: SystemAdmi
 };
 
 // --- Resumo View ---
-const SystemResumoView = () => (
-    <div>
-        <PageTitle>Resumo do Sistema</PageTitle>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard title="Total de Usuários" value="1,245" change="+32 na última semana" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>} />
-            <StatCard title="Vaquinhas Ativas" value="89" change="+5 novas hoje" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>} />
-            <StatCard title="Receita (Mês)" value="R$ 12.870" change="+15% vs mês anterior" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>} />
-            <StatCard title="Tickets de Suporte" value="12 Abertos" change="3 resolvidos hoje" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>} />
+const SystemResumoView = ({ setActiveTab }: { setActiveTab: (tab: SystemAdminTab) => void }) => {
+    const { addToast } = useToast();
+    const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    
+    const chartData = useMemo(() => {
+        const data: { [key: string]: number } = {};
+        const today = new Date();
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(today.getDate() - i);
+            const dateString = date.toISOString().split('T')[0];
+            data[dateString] = Math.random() * 500 + 100; // Mock daily revenue
+        }
+        return Object.entries(data).map(([date, revenue]) => ({ date, revenue })).sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    }, []);
+
+    const recentActivities = [
+        { id: 1, text: "Nova vaquinha 'Formatura 2025' atingiu 50% da meta.", time: "há 15 minutos", type: "success" },
+        { id: 2, text: "Saque de R$ 800 solicitado para a vaquinha 'Presente do Chefe'.", time: "há 1 hora", type: "warning" },
+        { id: 3, text: "Novo usuário 'joana.darc@email.com' se cadastrou no plano Pro.", time: "há 3 horas", type: "info" },
+        { id: 4, text: "Ticket de suporte #790 aberto: 'Problema com login'.", time: "há 5 horas", type: "danger" },
+    ];
+
+    const activityIcons = {
+        success: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-500" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>,
+        warning: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8.257 3.099c.636-1.22 2.85-1.22 3.486 0l5.58 10.795a2 2 0 01-1.743 2.906H4.42a2 2 0 01-1.743-2.906l5.58-10.795zM10 12a1 1 0 110-2 1 1 0 010 2zm0-4a1 1 0 011 1v2a1 1 0 11-2 0V9a1 1 0 011-1z" clipRule="evenodd" /></svg>,
+        info: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-sky-500" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>,
+        danger: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg>
+    };
+
+    return (
+        <div>
+            <PageTitle>Dashboard Principal</PageTitle>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <StatCard title="Arrecadação Total (Mês)" value={formatCurrency(12870)} change="+15% vs mês anterior" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01" /></svg>} />
+                <StatCard title="Vaquinhas Ativas" value="89" change="+5 novas hoje" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>} />
+                <StatCard title="Novos Usuários (Mês)" value="128" change="+32 na última semana" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>} />
+                <StatCard title="Taxa de Conversão" value="4.2%" change="Meta: 5%" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>} />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                     <RevenueChart data={chartData} />
+                </div>
+                <div className="space-y-6">
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Ações Rápidas</h3>
+                        <div className="flex flex-col space-y-3">
+                            <Button onClick={() => addToast('Abrindo formulário de nova vaquinha...', 'info')}>+ Criar Nova Vaquinha</Button>
+                            <Button variant="secondary" onClick={() => addToast('Gerando relatório financeiro...', 'info')}>Gerar Relatório</Button>
+                            <Button variant="secondary" onClick={() => setActiveTab('Suporte')}>Ver Tickets de Suporte</Button>
+                        </div>
+                    </div>
+                     <div className="bg-white p-6 rounded-lg shadow">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Alertas e Atividades Recentes</h3>
+                        <ul className="space-y-4">
+                            {recentActivities.map(activity => (
+                                <li key={activity.id} className="flex items-start space-x-3">
+                                    <div>{activityIcons[activity.type as keyof typeof activityIcons]}</div>
+                                    <div>
+                                        <p className="text-sm text-gray-700">{activity.text}</p>
+                                        <p className="text-xs text-gray-400">{activity.time}</p>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div className="mt-8 bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Visão Geral</h2>
-            <p className="text-gray-600">
-                Bem-vindo ao painel de administração do Vakinha Fácil. Utilize o menu à esquerda para navegar entre as seções de gerenciamento de usuários, vaquinhas, finanças, clientes white-label e suporte. Este dashboard oferece uma visão consolidada de todas as operações da plataforma.
-            </p>
-        </div>
-    </div>
-);
+    );
+};
+
 
 // --- Usuarios View ---
 const SystemUsuariosView = () => {
@@ -1667,7 +1723,7 @@ const WhiteLabelClientModal = ({ isOpen, onClose, onSave, client }: { isOpen: bo
     );
 };
 
-const SystemWhiteLabelView = () => {
+const SystemWhiteLabelView = ({ setActiveTab }: { setActiveTab: (tab: SystemAdminTab) => void }) => {
     const [clients, setClients] = useState<WhiteLabelClient[]>(initialWhiteLabelClients);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedClient, setSelectedClient] = useState<WhiteLabelClient | null>(null);
@@ -1978,7 +2034,7 @@ const SystemSuporteView = () => {
                     <SubSectionCard
                         title="Base de Conhecimento"
                         description="Gerencie artigos de ajuda para os usuários."
-                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" /></svg>}
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0-2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" /></svg>}
                     >
                         <div className="space-y-2 text-sm">
                             <p className="font-semibold text-gray-700">Principais Artigos:</p>
@@ -2189,121 +2245,189 @@ const SystemIntegracoesView = () => {
 };
 
 // --- Configurações View ---
-const SystemConfiguracoesView = () => {
-    const [settings, setSettings] = useState({
-        platformName: 'Vakinha Fácil',
-        primaryColor: '#10b981',
-        logoUrl: '',
-        currency: 'BRL',
-        flexibleFee: 3.0,
-        adminEmail: 'admin@vakinhafacil.com',
-        maintenanceMode: false,
-    });
+const SystemConfiguracoesView = ({ setActiveTab }: { setActiveTab: (tab: SystemAdminTab) => void }) => {
     const { addToast } = useToast();
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
-        
-        if (type === 'checkbox') {
-             const { checked } = e.target as HTMLInputElement;
-             setSettings(prev => ({...prev, [name]: checked }));
-        } else {
-             setSettings(prev => ({ ...prev, [name]: value }));
-        }
-    };
-    
-    const handleSaveChanges = (section: string) => {
-        // Here you would typically make an API call to save the settings
-        console.log(`Saving ${section} settings:`, settings);
+    // Mock data and state for dynamic settings
+    const [dynamicFees, setDynamicFees] = useState([
+        { id: 1, startDate: '2024-12-01', endDate: '2024-12-31', fixedFee: 25.00, percentFee: 5.0 },
+        { id: 2, startDate: '2025-01-01', endDate: '2025-01-31', fixedFee: 20.00, percentFee: 3.0 },
+    ]);
+    const [plans, setPlans] = useState([
+        { id: 'basic', name: 'Básico', monthlyFee: 0, vaquinhaLimit: 1, maxValue: 5000 },
+        { id: 'premium', name: 'Premium', monthlyFee: 19.90, vaquinhaLimit: 999, maxValue: 20000 },
+    ]);
+    const [currencies, setCurrencies] = useState([
+        { code: 'BRL', name: 'Real Brasileiro', active: true },
+        { code: 'USD', name: 'Dólar Americano', active: false },
+        { code: 'EUR', name: 'Euro', active: false },
+    ]);
+    const [languages, setLanguages] = useState([
+        { code: 'pt-BR', name: 'Português (Brasil)', active: true },
+        { code: 'es-ES', name: 'Espanhol', active: false },
+        { code: 'en-US', name: 'Inglês', active: false },
+    ]);
+    const [emailTemplates, setEmailTemplates] = useState([
+        { id: 'invite', type: 'Convite de Vaquinha', subject: 'Você foi convidado para a vaquinha: {{vaquinha_nome}}', active: true },
+        { id: 'reminder', type: 'Lembrete de Pagamento', subject: 'Lembrete: Sua contribuição para {{vaquinha_nome}}', active: true },
+        { id: 'receipt', type: 'Comprovante de Pagamento', subject: 'Seu pagamento para {{vaquinha_nome}} foi confirmado', active: true },
+    ]);
+    const [security, setSecurity] = useState({
+        minPasswordLength: 8,
+        requireUppercase: true,
+        requireNumber: true,
+        force2faForAdmins: true,
+        lockoutAttempts: 5,
+    });
+
+    const [isFeeModalOpen, setFeeModalOpen] = useState(false);
+    const [isPlanModalOpen, setPlanModalOpen] = useState(false);
+    const [isTemplateModalOpen, setTemplateModalOpen] = useState(false);
+    const [editingPlan, setEditingPlan] = useState(null);
+    const [editingTemplate, setEditingTemplate] = useState(null);
+
+    const handleSave = (section: string) => {
         addToast(`${section} salvas com sucesso!`, 'success');
+        // Close any open modals
+        setFeeModalOpen(false);
+        setPlanModalOpen(false);
+        setTemplateModalOpen(false);
     };
-    
+
+    const Toggle = ({ checked, onChange }: { checked: boolean, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
+        <label className="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" checked={checked} onChange={onChange} className="sr-only peer" />
+            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-emerald-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+        </label>
+    );
+
     return (
         <div>
-            <PageTitle>Configurações da Plataforma</PageTitle>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="space-y-8">
-                     <SubSectionCard
-                        title="Configurações Gerais"
-                        description="Ajuste a identidade visual e o nome da sua plataforma."
-                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg>}
-                    >
-                        <div className="space-y-4">
-                            <div>
-                                <Label htmlFor="platformName">Nome da Plataforma</Label>
-                                <Input id="platformName" name="platformName" value={settings.platformName} onChange={handleInputChange} />
+            <PageTitle>Configurações Globais</PageTitle>
+            <div className="space-y-8">
+                {/* Financial Settings */}
+                <SubSectionCard
+                    title="Taxas, Planos e Moedas"
+                    description="Defina as regras financeiras da plataforma."
+                    icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.158-.103.346-.196.567-.267v1.692a2.5 2.5 0 00-1.167-.417c-.334 0-.652.093-.923.267v-1.692c.22.071.408.164.566.267zM11.567 7.151c.22-.071.408-.164.567-.267v1.692c-.27-.174-.59-.267-.923-.267a2.5 2.5 0 00-1.167.417v-1.692c.22.071.409.164.567.267z" /><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.5 4.5 0 00-1.88.756 1 1 0 10.76 1.852A2.5 2.5 0 0110 8.5v1.077a1 1 0 00.822.982.5.5 0 01.178.634 2.5 2.5 0 01-2.44 2.308 1 1 0 10-.5 1.936 4.5 4.5 0 004.366-4.112V9.5a1 1 0 00-1-1V5z" clipRule="evenodd" /></svg>}
+                >
+                    <div className="space-y-6">
+                        {/* Dynamic Fees */}
+                        <div>
+                            <div className="flex justify-between items-center mb-2">
+                                <h4 className="font-semibold text-gray-700">Taxas Dinâmicas</h4>
+                                <Button variant="secondary" onClick={() => setFeeModalOpen(true)}>+ Adicionar Período</Button>
                             </div>
-                            <div>
-                                <Label htmlFor="primaryColor">Cor Principal</Label>
-                                <Input id="primaryColor" name="primaryColor" type="color" value={settings.primaryColor} onChange={handleInputChange} className="w-20 h-10 p-1"/>
-                            </div>
-                             <div>
-                                <Label htmlFor="logoUrl">Logo</Label>
-                                <Input id="logoUrl" name="logoUrl" type="file" className="text-sm"/>
-                            </div>
-                             <div className="pt-2">
-                                <Button onClick={() => handleSaveChanges('Configurações Gerais')}>Salvar</Button>
+                            <div className="text-sm border rounded-lg overflow-hidden">
+                                <table className="w-full">
+                                    <thead className="bg-gray-50"><tr className="text-left text-gray-600"><th className="p-2 font-medium">Período</th><th className="p-2 font-medium">Taxa Fixa</th><th className="p-2 font-medium">Taxa %</th></tr></thead>
+                                    <tbody>{dynamicFees.map(f => <tr key={f.id} className="border-t"><td className="p-2">{new Date(f.startDate).toLocaleDateString('pt-BR')} - {new Date(f.endDate).toLocaleDateString('pt-BR')}</td><td className="p-2">R$ {f.fixedFee.toFixed(2)}</td><td className="p-2">{f.percentFee.toFixed(1)}%</td></tr>)}</tbody>
+                                </table>
                             </div>
                         </div>
-                    </SubSectionCard>
-                    <SubSectionCard
-                        title="Modo de Manutenção"
-                        description="Ative para desabilitar o acesso público ao site durante atualizações."
-                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" /></svg>}
-                    >
-                        <div className="flex items-center justify-between bg-yellow-50 p-4 rounded-lg">
-                            <p className="text-yellow-800 font-medium">Ativar modo de manutenção</p>
-                             <label className="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" name="maintenanceMode" checked={settings.maintenanceMode} onChange={handleInputChange} className="sr-only peer" />
-                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-emerald-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                            </label>
-                        </div>
-                         <div className="pt-4">
-                            <Button onClick={() => handleSaveChanges('Modo de Manutenção')}>Salvar</Button>
-                        </div>
-                    </SubSectionCard>
-                </div>
-                 <div className="space-y-8">
-                    <SubSectionCard
-                        title="Taxas e Moeda"
-                        description="Defina a moeda padrão e as taxas de serviço da plataforma."
-                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.158-.103.346-.196.567-.267v1.692a2.5 2.5 0 00-1.167-.417c-.334 0-.652.093-.923.267v-1.692c.22.071.408.164.566.267zM11.567 7.151c.22-.071.408-.164.567-.267v1.692c-.27-.174-.59-.267-.923-.267a2.5 2.5 0 00-1.167.417v-1.692c.22.071.409.164.567.267z" /><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.5 4.5 0 00-1.88.756 1 1 0 10.76 1.852A2.5 2.5 0 0110 8.5v1.077a1 1 0 00.822.982.5.5 0 01.178.634 2.5 2.5 0 01-2.44 2.308 1 1 0 10-.5 1.936 4.5 4.5 0 004.366-4.112V9.5a1 1 0 00-1-1V5z" clipRule="evenodd" /></svg>}
-                    >
-                         <div className="space-y-4">
-                            <div>
-                                <Label htmlFor="currency">Moeda Padrão</Label>
-                                <Select id="currency" name="currency" value={settings.currency} onChange={handleInputChange}>
-                                    <option value="BRL">Real Brasileiro (BRL)</option>
-                                    <option value="USD">Dólar Americano (USD)</option>
-                                    <option value="EUR">Euro (EUR)</option>
-                                </Select>
-                            </div>
-                            <div>
-                                <Label htmlFor="flexibleFee">Taxa do Plano Flexível (%)</Label>
-                                <Input id="flexibleFee" name="flexibleFee" type="number" step="0.1" value={settings.flexibleFee} onChange={handleInputChange} />
-                            </div>
-                            <div className="pt-2">
-                                <Button onClick={() => handleSaveChanges('Taxas e Moeda')}>Salvar</Button>
+                        {/* Plan Limits */}
+                        <div>
+                            <h4 className="font-semibold text-gray-700 mb-2">Limites por Plano</h4>
+                            <div className="text-sm border rounded-lg overflow-hidden">
+                                <table className="w-full">
+                                    <thead className="bg-gray-50"><tr className="text-left text-gray-600"><th className="p-2 font-medium">Plano</th><th className="p-2 font-medium">Limite Vaquinhas</th><th className="p-2 font-medium">Valor Máx. / Vaquinha</th><th className="p-2 font-medium">Ação</th></tr></thead>
+                                    <tbody>{plans.map(p => <tr key={p.id} className="border-t"><td className="p-2 font-semibold">{p.name}</td><td className="p-2">{p.vaquinhaLimit === 999 ? 'Ilimitado' : p.vaquinhaLimit}</td><td className="p-2">R$ {p.maxValue.toFixed(2)}</td><td className="p-2"><Button variant="secondary" className="py-1 px-2 text-xs" onClick={() => { setEditingPlan(p as any); setPlanModalOpen(true); }}>Editar</Button></td></tr>)}</tbody>
+                                </table>
                             </div>
                         </div>
-                    </SubSectionCard>
-                    <SubSectionCard
-                        title="Notificações"
-                        description="Configure para onde os alertas administrativos serão enviados."
-                        icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 2.882l7.997 3.002A2 2 0 0119 7.818V12a2 2 0 01-2 2h-2.167l-3.04-1.932a2.5 2.5 0 00-2.586 0L6.167 14H4a2 2 0 01-2-2V7.818a2 2 0 011.003-1.934z" /><path d="M10 15a2.5 2.5 0 01-2.5 2.5H4a2 2 0 01-2-2V7.818a2 2 0 011.003-1.934L10 2.882l7.997 3.002A2 2 0 0119 7.818V12a2 2 0 01-2 2h-3.5a2.5 2.5 0 01-2.5-2.5z" /></svg>}
-                    >
-                        <div className="space-y-4">
-                            <div>
-                                <Label htmlFor="adminEmail">E-mail para Alertas</Label>
-                                <Input id="adminEmail" name="adminEmail" type="email" value={settings.adminEmail} onChange={handleInputChange} />
-                            </div>
-                             <div className="pt-2">
-                                <Button onClick={() => handleSaveChanges('Notificações')}>Salvar</Button>
+                        {/* Currencies */}
+                        <div>
+                            <h4 className="font-semibold text-gray-700 mb-2">Moedas Múltiplas</h4>
+                            <div className="space-y-2">{currencies.map(c => <div key={c.code} className="flex justify-between items-center text-sm p-2 bg-gray-50 rounded-md"><span className="text-gray-700">{c.name} ({c.code})</span><Toggle checked={c.active} onChange={() => setCurrencies(currencies.map(curr => curr.code === c.code ? {...curr, active: !curr.active} : curr))} /></div>)}</div>
+                            <div className="pt-4"><Button onClick={() => handleSave('Configurações financeiras')}>Salvar Seção</Button></div>
+                        </div>
+                    </div>
+                </SubSectionCard>
+
+                {/* Personalization & Localization */}
+                <SubSectionCard
+                    title="Personalização e Comunicação"
+                    description="Gerencie idiomas e templates de e-mail."
+                    icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg>}
+                >
+                     <div className="space-y-6">
+                        {/* Languages */}
+                        <div>
+                            <h4 className="font-semibold text-gray-700 mb-2">Idiomas Múltiplos</h4>
+                            <div className="space-y-2">{languages.map(l => <div key={l.code} className="flex justify-between items-center text-sm p-2 bg-gray-50 rounded-md"><span className="text-gray-700">{l.name}</span><Toggle checked={l.active} onChange={() => setLanguages(languages.map(lang => lang.code === l.code ? {...lang, active: !lang.active} : lang))} /></div>)}</div>
+                        </div>
+                        {/* Email Templates */}
+                        <div>
+                             <h4 className="font-semibold text-gray-700 mb-2">Templates de E-mail</h4>
+                             <div className="text-sm border rounded-lg overflow-hidden">
+                                <table className="w-full">
+                                    <thead className="bg-gray-50"><tr className="text-left text-gray-600"><th className="p-2 font-medium">Tipo</th><th className="p-2 font-medium">Assunto</th><th className="p-2 font-medium">Ação</th></tr></thead>
+                                    <tbody>{emailTemplates.map(t => <tr key={t.id} className="border-t"><td className="p-2">{t.type}</td><td className="p-2 truncate" style={{maxWidth: '200px'}}>{t.subject}</td><td className="p-2"><Button variant="secondary" className="py-1 px-2 text-xs" onClick={() => { setEditingTemplate(t as any); setTemplateModalOpen(true); }}>Editar</Button></td></tr>)}</tbody>
+                                </table>
                             </div>
                         </div>
-                    </SubSectionCard>
-                </div>
+                        <div className="pt-2"><Button onClick={() => handleSave('Configurações de comunicação')}>Salvar Seção</Button></div>
+                     </div>
+                </SubSectionCard>
+
+                 {/* Security & System */}
+                <SubSectionCard
+                    title="Segurança e Sistema"
+                    description="Defina políticas de segurança e backups."
+                     icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5.066 11.954 11.954 0 0110 18.056a11.954 11.954 0 017.834-12.99 11.954 11.954 0 01-7.834-3.122zM10 4a1 1 0 011 1v5a1 1 0 11-2 0V5a1 1 0 011-1zm0 8a1 1 0 100 2 1 1 0 000-2z" clipRule="evenodd" /></svg>}
+                >
+                     <div className="space-y-6">
+                        {/* Security Policies */}
+                        <div>
+                            <h4 className="font-semibold text-gray-700 mb-2">Políticas de Segurança</h4>
+                            <div className="space-y-3 text-sm">
+                                <div className="flex justify-between items-center"><Label htmlFor="minPasswordLength">Tamanho mínimo da senha</Label><Input id="minPasswordLength" type="number" value={security.minPasswordLength} onChange={(e) => setSecurity({...security, minPasswordLength: parseInt(e.target.value)})} className="w-20"/></div>
+                                <div className="flex justify-between items-center"><p>Exigir maiúsculas e números</p><Toggle checked={security.requireUppercase} onChange={(e) => setSecurity({...security, requireUppercase: e.target.checked})}/></div>
+                                <div className="flex justify-between items-center"><p>2FA obrigatório para admins</p><Toggle checked={security.force2faForAdmins} onChange={(e) => setSecurity({...security, force2faForAdmins: e.target.checked})}/></div>
+                                <div className="flex justify-between items-center"><Label htmlFor="lockoutAttempts">Bloquear após N tentativas</Label><Input id="lockoutAttempts" type="number" value={security.lockoutAttempts} onChange={(e) => setSecurity({...security, lockoutAttempts: parseInt(e.target.value)})} className="w-20"/></div>
+                            </div>
+                        </div>
+                         {/* Backups */}
+                         <div>
+                            <h4 className="font-semibold text-gray-700 mb-2">Backups Automáticos</h4>
+                            <div className="text-sm p-3 bg-gray-50 rounded-md">
+                                <p><strong>Status:</strong> <span className="text-emerald-600 font-semibold">Ativo</span></p>
+                                <p><strong>Frequência:</strong> Diariamente às 03:00</p>
+                                <p><strong>Destino:</strong> AWS S3 (Bucket: `vakinha-facil-backups`)</p>
+                            </div>
+                        </div>
+                        <div className="pt-2"><Button onClick={() => handleSave('Configurações de segurança')}>Salvar Seção</Button></div>
+                     </div>
+                </SubSectionCard>
+
+                 {/* Links to other sections */}
+                <SubSectionCard
+                    title="Domínios Personalizados"
+                    description="Gerencie domínios para clientes White-Label."
+                    icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>}
+                >
+                    <p className="text-sm text-gray-600 mb-4">A configuração de domínios, certificados SSL e DNS é gerenciada na seção White-Label.</p>
+                    <Button variant="secondary" onClick={() => setActiveTab('White-Label')}>
+                        Gerenciar Domínios
+                    </Button>
+                </SubSectionCard>
+
             </div>
+
+             {/* Modals */}
+             <Modal isOpen={isFeeModalOpen} onClose={() => setFeeModalOpen(false)} title="Adicionar Período de Taxa" footer={<><Button variant="secondary" onClick={() => setFeeModalOpen(false)}>Cancelar</Button><Button variant="primary" onClick={() => handleSave('Taxas dinâmicas')}>Salvar</Button></>}>
+                <div className="space-y-4"><div className="grid grid-cols-2 gap-4"><div><Label>Data Início</Label><Input type="date"/></div><div><Label>Data Fim</Label><Input type="date"/></div></div><div><Label>Taxa Fixa (R$)</Label><Input type="number" placeholder="25.00"/></div><div><Label>Taxa Percentual (%)</Label><Input type="number" placeholder="5.0"/></div></div>
+             </Modal>
+
+             <Modal isOpen={isPlanModalOpen} onClose={() => setPlanModalOpen(false)} title={`Editar Plano: ${editingPlan?.name}`} footer={<><Button variant="secondary" onClick={() => setPlanModalOpen(false)}>Cancelar</Button><Button variant="primary" onClick={() => handleSave('Limites do plano')}>Salvar</Button></>}>
+                <div className="space-y-4"><div><Label>Limite de Vaquinhas (999 para ilimitado)</Label><Input type="number" defaultValue={editingPlan?.vaquinhaLimit}/></div><div><Label>Valor Máximo por Vaquinha (R$)</Label><Input type="number" defaultValue={editingPlan?.maxValue}/></div></div>
+             </Modal>
+
+             <Modal isOpen={isTemplateModalOpen} onClose={() => setTemplateModalOpen(false)} title={`Editar Template: ${editingTemplate?.type}`} footer={<><Button variant="secondary" onClick={() => setTemplateModalOpen(false)}>Cancelar</Button><Button variant="primary" onClick={() => handleSave('Template de e-mail')}>Salvar</Button></>}>
+                 <div className="space-y-4"><div><Label>Assunto do E-mail</Label><Input defaultValue={editingTemplate?.subject}/></div><div><Label>Corpo do E-mail</Label><Textarea rows={8} placeholder="Edite o conteúdo do e-mail aqui. Em um ambiente real, este seria um editor WYSIWYG."/>
+                 {/* FIX: The double curly braces were being parsed as JSX objects. Wrapping the string in a JSX expression with quotes (`{''}`) treats it as a literal string. */}
+                 <p className="text-xs text-gray-500 mt-1">{'Variáveis disponíveis: `{{vaquinha_nome}}`, `{{nome_usuario}}`, `{{link_vaquinha}}`.'}</p></div></div>
+             </Modal>
         </div>
     );
 };
