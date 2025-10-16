@@ -1,3 +1,5 @@
+
+
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 
@@ -51,6 +53,8 @@ interface PushNotificationsProps {
     onGenerate: (type: 'push') => void;
 }
 
+type PageName = 'dashboard' | 'users' | 'vaquinhas' | 'finance' | 'marketing' | 'support' | 'settings';
+
 
 // --- COMPONENTS ---
 
@@ -70,7 +74,9 @@ const ICONS = {
   support: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z",
   settings: "M9.594 3.94c.09-.542.56-1.008 1.11-1.226.55-.218 1.19-.243 1.74-.102.55.14.99.553 1.226 1.11.236.55.26 1.19.102 1.74-.14.55-.553.99-1.11 1.226-.55.218-1.19.243-1.74.102a2.22 2.22 0 01-1.226-1.11zM12.03 13.94c.09-.542.56-1.008 1.11-1.226.55-.218 1.19-.243 1.74-.102.55.14.99.553 1.226 1.11.236.55.26 1.19.102 1.74-.14.55-.553.99-1.11 1.226-.55.218-1.19.243-1.74.102a2.22 2.22 0 01-1.226-1.11zM6.594 13.94c.09-.542.56-1.008 1.11-1.226.55-.218 1.19-.243 1.74-.102.55.14.99.553 1.226 1.11.236.55.26 1.19.102 1.74-.14.55-.553.99-1.11 1.226-.55.218-1.19.243-1.74.102a2.22 2.22 0 01-1.226-1.11z",
   logout: "M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75",
-  ai: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
+  ai: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z",
+  plusCircle: "M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z",
+  chartBar: "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z",
 };
 
 const Spinner = () => (
@@ -78,6 +84,163 @@ const Spinner = () => (
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
     </svg>
+);
+
+const PlaceholderPage = ({ title, children }: { title: string, children?: React.ReactNode }) => (
+    <div className="p-6 animate-fade-in">
+        <div className="bg-white p-8 rounded-lg shadow-md">
+            <h3 className="text-2xl font-bold font-heading text-gray-800 mb-4">{title}</h3>
+            <div className="text-gray-600 space-y-4">
+                {children}
+            </div>
+        </div>
+    </div>
+);
+
+const StatCard = ({ title, value, iconPath, colorClass }: { title: string, value: string, iconPath: string, colorClass: string }) => (
+    <div className="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
+        <div className={`p-3 rounded-full ${colorClass}`}>
+            <Icon path={iconPath} className="w-6 h-6 text-white" />
+        </div>
+        <div>
+            <p className="text-sm text-gray-500">{title}</p>
+            <p className="text-2xl font-bold text-gray-800">{value}</p>
+        </div>
+    </div>
+);
+
+const QuickActionButton = ({ label, iconPath, onClick }: { label: string, iconPath: string, onClick: () => void }) => (
+    <button onClick={onClick} className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors border border-gray-200">
+        <div className="p-3 bg-indigo-100 rounded-full mb-2">
+            <Icon path={iconPath} className="w-6 h-6 text-indigo-600" />
+        </div>
+        <span className="text-sm font-semibold text-gray-700 text-center">{label}</span>
+    </button>
+);
+
+const DashboardPage = () => (
+    <div className="p-6 animate-fade-in space-y-6">
+        {/* Section 1: KPIs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard title="Arrecadação Total" value="R$ 1.250.340" iconPath={ICONS.finance} colorClass="bg-blue-500" />
+            <StatCard title="Vaquinhas Ativas" value="89" iconPath={ICONS.vaquinhas} colorClass="bg-green-500" />
+            <StatCard title="Usuários Ativos" value="12.450" iconPath={ICONS.users} colorClass="bg-yellow-500" />
+            <StatCard title="Novos Cadastros (Mês)" value="432" iconPath={ICONS.users} colorClass="bg-purple-500" />
+        </div>
+
+        {/* Section 2: Quick Actions & Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Ações Rápidas</h3>
+                <div className="grid grid-cols-2 gap-4">
+                    <QuickActionButton label="Nova Vaquinha" iconPath={ICONS.plusCircle} onClick={() => alert('Abrir formulário de nova vaquinha...')} />
+                    <QuickActionButton label="Gerar Relatório" iconPath={ICONS.chartBar} onClick={() => alert('Abrir painel de relatórios...')} />
+                    <QuickActionButton label="Ver Tickets" iconPath={ICONS.support} onClick={() => alert('Ir para a página de suporte...')} />
+                    <QuickActionButton label="Convidar Admin" iconPath={ICONS.users} onClick={() => alert('Abrir modal para convidar administrador...')} />
+                </div>
+            </div>
+            <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Atividade Recente</h3>
+                <ul className="space-y-4">
+                    <li className="flex items-center space-x-3">
+                        <div className="p-2 bg-green-100 rounded-full"><Icon path={ICONS.vaquinhas} className="w-4 h-4 text-green-600" /></div>
+                        <p className="text-sm text-gray-600">Nova vaquinha <span className="font-semibold text-gray-800">"Formatura de Medicina"</span> foi criada.</p>
+                        <span className="text-xs text-gray-400 ml-auto flex-shrink-0">agora</span>
+                    </li>
+                    <li className="flex items-center space-x-3">
+                        <div className="p-2 bg-blue-100 rounded-full"><Icon path={ICONS.users} className="w-4 h-4 text-blue-600" /></div>
+                        <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">Carlos Souza</span> acabou de se cadastrar.</p>
+                        <span className="text-xs text-gray-400 ml-auto flex-shrink-0">2 min atrás</span>
+                    </li>
+                    <li className="flex items-center space-x-3">
+                         <div className="p-2 bg-yellow-100 rounded-full"><Icon path={ICONS.finance} className="w-4 h-4 text-yellow-600" /></div>
+                        <p className="text-sm text-gray-600">Doação de <span className="font-semibold text-gray-800">R$ 150,00</span> recebida para <span className="font-semibold text-gray-800">"Ajude o Lar São José"</span>.</p>
+                        <span className="text-xs text-gray-400 ml-auto flex-shrink-0">10 min atrás</span>
+                    </li>
+                    <li className="flex items-center space-x-3">
+                         <div className="p-2 bg-red-100 rounded-full"><Icon path={ICONS.support} className="w-4 h-4 text-red-600" /></div>
+                        <p className="text-sm text-gray-600">Novo ticket de suporte <span className="font-semibold text-gray-800">#81245</span> foi aberto.</p>
+                        <span className="text-xs text-gray-400 ml-auto flex-shrink-0">1 hora atrás</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {/* Section 3: Vaquinhas nearing goal */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Vaquinhas Próximas da Meta</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                      <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campanha</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progresso</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Arrecadado / Meta</th>
+                      </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                      <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Viagem para a Disney</td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                  <div className="bg-green-600 h-2.5 rounded-full" style={{ width: '95%' }}></div>
+                              </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 9.500 / R$ 10.000 (95%)</td>
+                      </tr>
+                      <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Presente Casamento Joana e Pedro</td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                               <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                  <div className="bg-green-600 h-2.5 rounded-full" style={{ width: '82%' }}></div>
+                              </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 4.100 / R$ 5.000 (82%)</td>
+                      </tr>
+                      <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Reforma da Sede do Grupo</td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                               <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                  <div className="bg-yellow-500 h-2.5 rounded-full" style={{ width: '75%' }}></div>
+                              </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 15.000 / R$ 20.000 (75%)</td>
+                      </tr>
+                  </tbody>
+              </table>
+            </div>
+        </div>
+    </div>
+);
+
+const UsersPage = () => (
+    <PlaceholderPage title="Gestão de Usuários">
+        <p>Funcionalidade em desenvolvimento. Aqui você poderá gerenciar todos os usuários da plataforma, visualizar perfis, permissões e histórico de atividades.</p>
+    </PlaceholderPage>
+);
+
+const VaquinhasPage = () => (
+    <PlaceholderPage title="Gestão de Vaquinhas">
+        <p>Funcionalidade em desenvolvimento. Nesta seção será possível visualizar, aprovar, e gerenciar todas as vaquinhas criadas na plataforma.</p>
+    </PlaceholderPage>
+);
+
+const FinancePage = () => (
+    <PlaceholderPage title="Financeiro">
+        <p>Funcionalidade em desenvolvimento. Acompanhe o histórico de transações, configure taxas, gerencie saques e visualize relatórios financeiros detalhados.</p>
+    </PlaceholderPage>
+);
+
+const SupportPage = () => (
+    <PlaceholderPage title="Suporte e Atendimento">
+        <p>Funcionalidade em desenvolvimento. Gerencie tickets de suporte, configure o chat ao vivo e mantenha a base de conhecimento (FAQ) atualizada.</p>
+    </PlaceholderPage>
+);
+
+const SettingsPage = () => (
+    <PlaceholderPage title="Configurações">
+        <p>Funcionalidade em desenvolvimento. Configure as definições gerais da plataforma, integrações, segurança e personalize e-mails transacionais.</p>
+    </PlaceholderPage>
 );
 
 const AIContentModal: React.FC<AIContentModalProps> = ({ isOpen, onClose, onGenerate, isGenerating, generatedContent, onUseContent, context }) => {
@@ -152,32 +315,72 @@ const AIContentModal: React.FC<AIContentModalProps> = ({ isOpen, onClose, onGene
     );
 };
 
-
-const Sidebar = () => (
-    <div className="w-64 bg-gray-900 text-gray-300 flex flex-col min-h-screen">
-      <div className="h-16 flex items-center px-6 border-b border-gray-800">
-        <h1 className="text-xl font-bold font-heading text-white">Vakinha Fácil</h1>
-      </div>
-      <nav className="flex-1 px-4 py-6 space-y-2">
-        <a href="#" className="flex items-center px-4 py-2 text-sm rounded-md hover:bg-gray-700 hover:text-white"><Icon path={ICONS.dashboard} className="w-5 h-5 mr-3"/> Dashboard</a>
-        <a href="#" className="flex items-center px-4 py-2 text-sm rounded-md hover:bg-gray-700 hover:text-white"><Icon path={ICONS.users} className="w-5 h-5 mr-3"/> Usuários</a>
-        <a href="#" className="flex items-center px-4 py-2 text-sm rounded-md hover:bg-gray-700 hover:text-white"><Icon path={ICONS.vaquinhas} className="w-5 h-5 mr-3"/> Vaquinhas</a>
-        <a href="#" className="flex items-center px-4 py-2 text-sm rounded-md hover:bg-gray-700 hover:text-white"><Icon path={ICONS.finance} className="w-5 h-5 mr-3"/> Financeiro</a>
-        <a href="#" className="flex items-center px-4 py-2 text-sm rounded-md bg-indigo-600 text-white font-semibold"><Icon path={ICONS.marketing} className="w-5 h-5 mr-3"/> Marketing</a>
-        <a href="#" className="flex items-center px-4 py-2 text-sm rounded-md hover:bg-gray-700 hover:text-white"><Icon path={ICONS.support} className="w-5 h-5 mr-3"/> Suporte</a>
-      </nav>
-      <div className="px-4 py-6 border-t border-gray-800 space-y-2">
-        <a href="#" className="flex items-center px-4 py-2 text-sm rounded-md hover:bg-gray-700 hover:text-white"><Icon path={ICONS.settings} className="w-5 h-5 mr-3"/> Configurações</a>
-        <a href="#" className="flex items-center px-4 py-2 text-sm rounded-md hover:bg-gray-700 hover:text-white"><Icon path={ICONS.logout} className="w-5 h-5 mr-3"/> Sair</a>
-      </div>
-    </div>
+// FIX: Changed NavLink to be a typed React.FC component by defining its props interface.
+// This allows TypeScript to correctly handle React's special `key` prop when
+// NavLink is used in a list, resolving the type error.
+interface NavLinkProps {
+    item: { id: PageName, label: string, icon: string };
+    isActive: boolean;
+    onClick: (id: PageName) => void;
+}
+const NavLink: React.FC<NavLinkProps> = ({ item, isActive, onClick }) => (
+    <button
+        onClick={() => onClick(item.id)}
+        className={`flex items-center w-full px-4 py-2 text-sm rounded-md transition-colors ${
+            isActive 
+            ? 'bg-indigo-600 text-white font-semibold' 
+            : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+        }`}
+    >
+        <Icon path={item.icon} className="w-5 h-5 mr-3"/>
+        {item.label}
+    </button>
 );
 
-const Header = () => (
+const Sidebar = ({ activePage, onNavigate }: { activePage: PageName, onNavigate: (page: PageName) => void }) => {
+    const navItems: { id: PageName, label: string, icon: string }[] = [
+        { id: 'dashboard', label: 'Dashboard', icon: ICONS.dashboard },
+        { id: 'users', label: 'Usuários', icon: ICONS.users },
+        { id: 'vaquinhas', label: 'Vaquinhas', icon: ICONS.vaquinhas },
+        { id: 'finance', label: 'Financeiro', icon: ICONS.finance },
+        { id: 'marketing', label: 'Marketing', icon: ICONS.marketing },
+        { id: 'support', label: 'Suporte', icon: ICONS.support },
+    ];
+
+    const settingsItems: { id: PageName, label: string, icon: string }[] = [
+        { id: 'settings', label: 'Configurações', icon: ICONS.settings },
+    ];
+    
+    return (
+        <aside className="w-64 bg-gray-900 text-gray-300 flex flex-col min-h-screen flex-shrink-0">
+            <div className="h-16 flex items-center px-6 border-b border-gray-800">
+                <h1 className="text-xl font-bold font-heading text-white">Vakinha Fácil</h1>
+            </div>
+            <nav className="flex-1 px-4 py-6 space-y-2">
+                {navItems.map(item => (
+                    <NavLink key={item.id} item={item} isActive={activePage === item.id} onClick={onNavigate} />
+                ))}
+            </nav>
+            <div className="px-4 py-6 border-t border-gray-800 space-y-2">
+                {settingsItems.map(item => (
+                     <NavLink key={item.id} item={item} isActive={activePage === item.id} onClick={onNavigate} />
+                ))}
+                <button
+                    onClick={() => alert('Sessão encerrada com sucesso!')} 
+                    className="flex items-center w-full px-4 py-2 text-sm rounded-md text-gray-300 hover:bg-gray-700 hover:text-white"
+                >
+                    <Icon path={ICONS.logout} className="w-5 h-5 mr-3"/> Sair
+                </button>
+            </div>
+        </aside>
+    );
+};
+
+const Header = ({ title, description }: { title: string, description: string }) => (
   <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
     <div>
-        <h2 className="text-2xl font-bold font-heading text-gray-800">Marketing & Engajamento</h2>
-        <p className="text-sm text-gray-500">Gerencie campanhas, cupons e notificações para impulsionar o crescimento.</p>
+        <h2 className="text-2xl font-bold font-heading text-gray-800">{title}</h2>
+        <p className="text-sm text-gray-500">{description}</p>
     </div>
     <div className="flex items-center">
       {/* Search and Profile can be added here */}
@@ -574,7 +777,7 @@ const MarketingPage = () => {
             <div className="mb-6 border-b border-gray-200">
                 <nav 
                   role="tablist"
-                  className="-mb-px flex space-x-6" 
+                  className="-mb-px flex space-x-6 overflow-x-auto" 
                   aria-label="Seções de Marketing"
                 >
                     {Object.keys(tabNames).map(tabKey => (
@@ -612,14 +815,56 @@ const MarketingPage = () => {
 
 
 function App() {
+  const [activePage, setActivePage] = useState<PageName>('dashboard');
+
+  const PAGES: Record<PageName, { title: string, description: string, component: React.ReactElement }> = {
+      dashboard: {
+          title: "Dashboard",
+          description: "Visão geral da plataforma e estatísticas chave.",
+          component: <DashboardPage />,
+      },
+      users: {
+          title: "Gestão de Usuários",
+          description: "Visualize, adicione e gerencie todos os usuários da plataforma.",
+          component: <UsersPage />,
+      },
+      vaquinhas: {
+          title: "Gestão de Vaquinhas",
+          description: "Monitore, aprove e gerencie todas as vaquinhas ativas e encerradas.",
+          component: <VaquinhasPage />,
+      },
+      finance: {
+          title: "Financeiro",
+          description: "Acompanhe transações, gerencie saques e configure taxas.",
+          component: <FinancePage />,
+      },
+      marketing: {
+          title: "Marketing & Engajamento",
+          description: "Gerencie campanhas, cupons e notificações para impulsionar o crescimento.",
+          component: <MarketingPage />,
+      },
+      support: {
+          title: "Suporte e Atendimento",
+          description: "Responda a tickets de suporte e gerencie a base de conhecimento.",
+          component: <SupportPage />,
+      },
+      settings: {
+          title: "Configurações",
+          description: "Ajuste as configurações gerais, segurança e integrações da plataforma.",
+          component: <SettingsPage />,
+      }
+  };
+
+  const currentPage = PAGES[activePage];
+
   return (
-    <div className="flex bg-gray-100 font-sans">
-        <Sidebar />
-        <main className="flex-1">
-          <Header />
-          <MarketingPage />
-        </main>
-    </div>
+      <div className="flex bg-gray-100 font-sans min-h-screen">
+          <Sidebar activePage={activePage} onNavigate={setActivePage} />
+          <main className="flex-1">
+              <Header title={currentPage.title} description={currentPage.description} />
+              {currentPage.component}
+          </main>
+      </div>
   );
 }
 
