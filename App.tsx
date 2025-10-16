@@ -189,7 +189,7 @@ const AiChatbot = () => {
 
 const Logo = ({ className }: { className?: string }) => (
     <img 
-        src="https://i.imgur.com/i9zB081.png"
+        src="https://i.ibb.co/c8SgX2N/logo-vakinha.png"
         alt="Vakinha Fácil Logo"
         className={className}
     />
