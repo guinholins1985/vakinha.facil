@@ -116,3 +116,40 @@ O sistema de suporte será configurado para incluir os seguintes componentes:
   - Tempo médio de primeira resposta.
   - Taxa de resolução no primeiro contato.
   - Nível de satisfação do usuário (CSAT) através de pesquisa pós-atendimento.
+
+### 8.2. Monitoramento e Analytics (Google Analytics + Power BI)
+
+Configure um sistema de monitoramento e analytics para o "Vakinha Fácil" usando Google Analytics e Power BI. O sistema deve rastrear:
+
+#### 1. Google Analytics
+- **Eventos**:
+  - `vaquinha_criada`: Quando um usuário cria uma vaquinha.
+  - `participante_convidado`: Quando um participante é convidado.
+  - `pagamento_realizado`: Quando um pagamento é confirmado.
+  - `assinatura_contratada`: Quando um usuário assina o plano Premium.
+- **Metas**:
+  - Taxa de conversão (visitantes → usuários cadastrados).
+  - Taxa de retenção (usuários que voltam após 30 dias).
+
+#### 2. Power BI
+- **Dashboards**:
+  a) **Visão Geral**:
+     - Receita mensal (por modelo: taxas, assinaturas, white-label).
+     - Número de vaquinhas ativas.
+     - Taxa de inadimplência.
+  b) **Usuários**:
+     - Crescimento de usuários (mês a mês).
+     - Distribuição por tipo (admin_sistema, admin_grupo, participante).
+  c) **Vaquinhas**:
+     - Valor médio por vaquinha.
+     - Tempo médio para atingir a meta.
+     - Vaquinhas mais populares (por objetivo: viagem, presente, etc.).
+  d) **Financeiro**:
+     - Receita x Despesas.
+     - ROI por canal de aquisição (Meta Ads, Google Ads, Afiliados).
+
+#### 3. Alertas
+- Configure alertas para:
+  - Queda na taxa de conversão.
+  - Aumento na inadimplência.
+  - Falhas em pagamentos recorrentes.
