@@ -1,5 +1,4 @@
 
-
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 
@@ -77,6 +76,11 @@ const ICONS = {
   ai: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z",
   plusCircle: "M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z",
   chartBar: "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z",
+  edit: "M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10",
+  trash: "M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.134-2.033-2.134H8.033c-1.12 0-2.033.954-2.033 2.134v.916m7.5 0a48.667 48.667 0 00-7.5 0",
+  eye: "M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.432 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M12 15a3 3 0 100-6 3 3 0 000 6z",
+  checkCircle: "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+  xCircle: "M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
 };
 
 const Spinner = () => (
@@ -84,17 +88,6 @@ const Spinner = () => (
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
     </svg>
-);
-
-const PlaceholderPage = ({ title, children }: { title: string, children?: React.ReactNode }) => (
-    <div className="p-6 animate-fade-in">
-        <div className="bg-white p-8 rounded-lg shadow-md">
-            <h3 className="text-2xl font-bold font-heading text-gray-800 mb-4">{title}</h3>
-            <div className="text-gray-600 space-y-4">
-                {children}
-            </div>
-        </div>
-    </div>
 );
 
 const StatCard = ({ title, value, iconPath, colorClass }: { title: string, value: string, iconPath: string, colorClass: string }) => (
@@ -118,7 +111,15 @@ const QuickActionButton = ({ label, iconPath, onClick }: { label: string, iconPa
     </button>
 );
 
-const DashboardPage = () => (
+const DashboardPage = () => {
+    const userGrowthData = [
+        { month: 'Jan', users: 65 }, { month: 'Fev', users: 59 }, { month: 'Mar', users: 80 },
+        { month: 'Abr', users: 81 }, { month: 'Mai', users: 56 }, { month: 'Jun', users: 55 },
+        { month: 'Jul', users: 40 }, { month: 'Ago', users: 62 }, { month: 'Set', users: 75 }
+    ];
+    const maxUsers = Math.max(...userGrowthData.map(d => d.users));
+
+    return (
     <div className="p-6 animate-fade-in space-y-6">
         {/* Section 1: KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -128,7 +129,7 @@ const DashboardPage = () => (
             <StatCard title="Novos Cadastros (Mês)" value="432" iconPath={ICONS.users} colorClass="bg-purple-500" />
         </div>
 
-        {/* Section 2: Quick Actions & Recent Activity */}
+        {/* Section 2: Quick Actions & User Growth */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Ações Rápidas</h3>
@@ -140,108 +141,271 @@ const DashboardPage = () => (
                 </div>
             </div>
             <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Atividade Recente</h3>
-                <ul className="space-y-4">
-                    <li className="flex items-center space-x-3">
-                        <div className="p-2 bg-green-100 rounded-full"><Icon path={ICONS.vaquinhas} className="w-4 h-4 text-green-600" /></div>
-                        <p className="text-sm text-gray-600">Nova vaquinha <span className="font-semibold text-gray-800">"Formatura de Medicina"</span> foi criada.</p>
-                        <span className="text-xs text-gray-400 ml-auto flex-shrink-0">agora</span>
-                    </li>
-                    <li className="flex items-center space-x-3">
-                        <div className="p-2 bg-blue-100 rounded-full"><Icon path={ICONS.users} className="w-4 h-4 text-blue-600" /></div>
-                        <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">Carlos Souza</span> acabou de se cadastrar.</p>
-                        <span className="text-xs text-gray-400 ml-auto flex-shrink-0">2 min atrás</span>
-                    </li>
-                    <li className="flex items-center space-x-3">
-                         <div className="p-2 bg-yellow-100 rounded-full"><Icon path={ICONS.finance} className="w-4 h-4 text-yellow-600" /></div>
-                        <p className="text-sm text-gray-600">Doação de <span className="font-semibold text-gray-800">R$ 150,00</span> recebida para <span className="font-semibold text-gray-800">"Ajude o Lar São José"</span>.</p>
-                        <span className="text-xs text-gray-400 ml-auto flex-shrink-0">10 min atrás</span>
-                    </li>
-                    <li className="flex items-center space-x-3">
-                         <div className="p-2 bg-red-100 rounded-full"><Icon path={ICONS.support} className="w-4 h-4 text-red-600" /></div>
-                        <p className="text-sm text-gray-600">Novo ticket de suporte <span className="font-semibold text-gray-800">#81245</span> foi aberto.</p>
-                        <span className="text-xs text-gray-400 ml-auto flex-shrink-0">1 hora atrás</span>
-                    </li>
-                </ul>
+                 <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Crescimento de Usuários (Últimos Meses)</h3>
+                 <div className="flex items-end h-48 space-x-2">
+                    {userGrowthData.map(data => (
+                        <div key={data.month} className="flex-1 flex flex-col items-center">
+                            <div className="w-full bg-indigo-500 rounded-t-md hover:bg-indigo-600 transition-colors" style={{ height: `${(data.users / maxUsers) * 100}%` }}></div>
+                            <span className="text-xs text-gray-500 mt-1">{data.month}</span>
+                        </div>
+                    ))}
+                 </div>
             </div>
         </div>
-
-        {/* Section 3: Vaquinhas nearing goal */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Vaquinhas Próximas da Meta</h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                      <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campanha</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progresso</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Arrecadado / Meta</th>
-                      </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                      <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Viagem para a Disney</td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                  <div className="bg-green-600 h-2.5 rounded-full" style={{ width: '95%' }}></div>
-                              </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 9.500 / R$ 10.000 (95%)</td>
-                      </tr>
-                      <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Presente Casamento Joana e Pedro</td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                               <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                  <div className="bg-green-600 h-2.5 rounded-full" style={{ width: '82%' }}></div>
-                              </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 4.100 / R$ 5.000 (82%)</td>
-                      </tr>
-                      <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Reforma da Sede do Grupo</td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                               <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                  <div className="bg-yellow-500 h-2.5 rounded-full" style={{ width: '75%' }}></div>
-                              </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 15.000 / R$ 20.000 (75%)</td>
-                      </tr>
-                  </tbody>
-              </table>
+        
+        {/* Section 3: Recent Activity & Vaquinhas nearing goal */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Atividade Recente</h3>
+                 <ul className="space-y-4">
+                    <li className="flex items-center space-x-3"><div className="p-2 bg-green-100 rounded-full"><Icon path={ICONS.vaquinhas} className="w-4 h-4 text-green-600" /></div><p className="text-sm text-gray-600">Nova vaquinha <span className="font-semibold text-gray-800">"Formatura de Medicina"</span> foi criada.</p><span className="text-xs text-gray-400 ml-auto flex-shrink-0">agora</span></li>
+                    <li className="flex items-center space-x-3"><div className="p-2 bg-blue-100 rounded-full"><Icon path={ICONS.users} className="w-4 h-4 text-blue-600" /></div><p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">Carlos Souza</span> acabou de se cadastrar.</p><span className="text-xs text-gray-400 ml-auto flex-shrink-0">2 min</span></li>
+                    <li className="flex items-center space-x-3"><div className="p-2 bg-yellow-100 rounded-full"><Icon path={ICONS.finance} className="w-4 h-4 text-yellow-600" /></div><p className="text-sm text-gray-600">Doação de <span className="font-semibold text-gray-800">R$ 150,00</span> recebida para <span className="font-semibold text-gray-800">"Ajude o Lar São José"</span>.</p><span className="text-xs text-gray-400 ml-auto flex-shrink-0">10 min</span></li>
+                    <li className="flex items-center space-x-3"><div className="p-2 bg-red-100 rounded-full"><Icon path={ICONS.support} className="w-4 h-4 text-red-600" /></div><p className="text-sm text-gray-600">Novo ticket de suporte <span className="font-semibold text-gray-800">#81245</span> foi aberto.</p><span className="text-xs text-gray-400 ml-auto flex-shrink-0">1 hora</span></li>
+                </ul>
+            </div>
+            <div className="lg:col-span-3 bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Vaquinhas Próximas da Meta</h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200"><thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campanha</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progresso</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Arrecadado / Meta</th></tr></thead><tbody className="bg-white divide-y divide-gray-200"><tr><td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Viagem para a Disney</td><td className="px-6 py-4 whitespace-nowrap"><div className="w-full bg-gray-200 rounded-full h-2.5"><div className="bg-green-600 h-2.5 rounded-full" style={{ width: '95%' }}></div></div></td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 9.500 / R$ 10.000</td></tr><tr><td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Presente Casamento Joana e Pedro</td><td className="px-6 py-4 whitespace-nowrap"><div className="w-full bg-gray-200 rounded-full h-2.5"><div className="bg-green-600 h-2.5 rounded-full" style={{ width: '82%' }}></div></div></td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 4.100 / R$ 5.000</td></tr><tr><td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Reforma da Sede do Grupo</td><td className="px-6 py-4 whitespace-nowrap"><div className="w-full bg-gray-200 rounded-full h-2.5"><div className="bg-yellow-500 h-2.5 rounded-full" style={{ width: '75%' }}></div></div></td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ 15.000 / R$ 20.000</td></tr></tbody></table>
+                </div>
             </div>
         </div>
     </div>
+    );
+};
+
+const UsersPage = () => {
+    const users = [
+        { id: 1, name: 'Ana Silva', email: 'ana.silva@example.com', role: 'Admin', status: 'Ativo', joined: '2023-01-15' },
+        { id: 2, name: 'Bruno Costa', email: 'bruno.costa@example.com', role: 'Gestor', status: 'Ativo', joined: '2023-02-20' },
+        { id: 3, name: 'Carla Dias', email: 'carla.dias@example.com', role: 'Usuário', status: 'Ativo', joined: '2023-03-10' },
+        { id: 4, name: 'Daniel Alves', email: 'daniel.alves@example.com', role: 'Usuário', status: 'Bloqueado', joined: '2023-04-05' },
+    ];
+
+    const getStatusClass = (status: string) => status === 'Ativo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+    
+    return (
+        <div className="p-6 animate-fade-in">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+                    <h3 className="text-xl font-bold font-heading text-gray-800">Todos os Usuários</h3>
+                    <div className="flex items-center gap-2">
+                        <input type="text" placeholder="Buscar usuário..." className="p-2 border rounded-md text-sm"/>
+                        <select className="p-2 border rounded-md text-sm"><option>Filtrar por Status</option><option>Ativo</option><option>Bloqueado</option></select>
+                        <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2"><Icon path={ICONS.plusCircle} className="w-5 h-5"/> Adicionar</button>
+                    </div>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Função</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Cadastro</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th></tr></thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {users.map(user => (
+                                <tr key={user.id}>
+                                    <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900">{user.name}</div><div className="text-sm text-gray-500">{user.email}</div></td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.role}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(user.status)}`}>{user.status}</span></td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.joined}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2"><button className="text-indigo-600 hover:text-indigo-900"><Icon path={ICONS.edit} className="w-5 h-5"/></button><button className="text-red-600 hover:text-red-900"><Icon path={ICONS.trash} className="w-5 h-5"/></button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="flex justify-between items-center mt-4 text-sm text-gray-600"><p>Mostrando 1 a 4 de 120 usuários</p><div className="flex gap-1"><button className="px-3 py-1 border rounded-md hover:bg-gray-100">Anterior</button><button className="px-3 py-1 border rounded-md hover:bg-gray-100">Próximo</button></div></div>
+            </div>
+        </div>
+    );
+};
+
+const VaquinhasPage = () => {
+    const vaquinhas = [
+        { id: 1, name: 'Formatura de Medicina', creator: 'Turma C', status: 'Ativa', raised: 45000, goal: 50000 },
+        { id: 2, name: 'Ajude o Lar São José', creator: 'Maria Oliveira', status: 'Ativa', raised: 8200, goal: 10000 },
+        { id: 3, name: 'Construção da Quadra', creator: 'Comunidade Local', status: 'Pendente', raised: 0, goal: 25000 },
+        { id: 4, name: 'Viagem de Férias', creator: 'Família Souza', status: 'Encerrada', raised: 5000, goal: 5000 },
+    ];
+    
+    const getStatusClass = (status: string) => {
+        if (status === 'Ativa') return 'bg-green-100 text-green-800';
+        if (status === 'Pendente') return 'bg-yellow-100 text-yellow-800';
+        return 'bg-gray-100 text-gray-800';
+    };
+
+    return (
+        <div className="p-6 animate-fade-in">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold font-heading text-gray-800">Todas as Vaquinhas</h3>
+                    <div className="flex items-center gap-2">
+                        <input type="text" placeholder="Buscar vaquinha..." className="p-2 border rounded-md text-sm"/>
+                        <select className="p-2 border rounded-md text-sm"><option>Filtrar por Status</option><option>Ativa</option><option>Pendente</option><option>Encerrada</option></select>
+                    </div>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                         <thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campanha</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progresso</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th></tr></thead>
+                         <tbody className="bg-white divide-y divide-gray-200">
+                            {vaquinhas.map(v => {
+                                const progress = (v.raised / v.goal) * 100;
+                                return (
+                                <tr key={v.id}>
+                                    <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900">{v.name}</div><div className="text-sm text-gray-500">Criador: {v.creator}</div></td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="text-sm text-gray-900">R$ {v.raised.toLocaleString()} / R$ {v.goal.toLocaleString()}</div>
+                                        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1"><div className="bg-indigo-600 h-1.5 rounded-full" style={{ width: `${progress}%` }}></div></div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(v.status)}`}>{v.status}</span></td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                        <button className="text-gray-500 hover:text-indigo-600"><Icon path={ICONS.eye} className="w-5 h-5"/></button>
+                                        {v.status === 'Pendente' && <><button className="text-green-600 hover:text-green-900"><Icon path={ICONS.checkCircle} className="w-5 h-5"/></button><button className="text-red-600 hover:text-red-900"><Icon path={ICONS.xCircle} className="w-5 h-5"/></button></>}
+                                    </td>
+                                </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="flex justify-between items-center mt-4 text-sm text-gray-600"><p>Mostrando 1 a 4 de 89 vaquinhas</p><div className="flex gap-1"><button className="px-3 py-1 border rounded-md hover:bg-gray-100">Anterior</button><button className="px-3 py-1 border rounded-md hover:bg-gray-100">Próximo</button></div></div>
+            </div>
+        </div>
+    );
+};
+
+const FinancePage = () => {
+    const transactions = [
+        { id: 'TXN123', date: '2024-07-28', type: 'Doação', amount: 50.00, status: 'Concluída' },
+        { id: 'TXN124', date: '2024-07-28', type: 'Taxa', amount: -1.50, status: 'Concluída' },
+        { id: 'TXN125', date: '2024-07-27', type: 'Saque', amount: -850.00, status: 'Pendente' },
+        { id: 'TXN126', date: '2024-07-26', type: 'Doação', amount: 200.00, status: 'Concluída' },
+    ];
+    
+    return (
+        <div className="p-6 animate-fade-in space-y-6">
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard title="Receita Bruta (Mês)" value="R$ 85.400" iconPath={ICONS.finance} colorClass="bg-blue-500" />
+                <StatCard title="Taxas (Mês)" value="R$ 2.562" iconPath={ICONS.vaquinhas} colorClass="bg-yellow-500" />
+                <StatCard title="Lucro Líquido (Mês)" value="R$ 82.838" iconPath={ICONS.chartBar} colorClass="bg-green-500" />
+                <StatCard title="Saques Pendentes" value="R$ 12.300" iconPath={ICONS.users} colorClass="bg-red-500" />
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex justify-between items-center mb-4">
+                     <h3 className="text-xl font-bold font-heading text-gray-800">Histórico de Transações</h3>
+                     <div className="flex items-center gap-2">
+                        <input type="date" className="p-2 border rounded-md text-sm"/>
+                        <input type="date" className="p-2 border rounded-md text-sm"/>
+                        <button className="bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-800">Exportar</button>
+                     </div>
+                </div>
+                 <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                         <thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID da Transação</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th></tr></thead>
+                         <tbody className="bg-white divide-y divide-gray-200">
+                            {transactions.map(t => (
+                                <tr key={t.id}>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">{t.id}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{t.date}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{t.type}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${t.status === 'Concluída' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{t.status}</span></td>
+                                    <td className={`px-6 py-4 whitespace-nowrap text-right text-sm font-semibold ${t.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>R$ {t.amount.toFixed(2)}</td>
+                                </tr>
+                            ))}
+                         </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const SupportPage = () => {
+    const tickets = [
+        { id: 81245, subject: 'Problema com saque', user: 'joana.m@email.com', priority: 'Alta', status: 'Aberto', updated: '2h atrás' },
+        { id: 81244, subject: 'Como mudar o prazo?', user: 'pedro.g@email.com', priority: 'Média', status: 'Pendente', updated: '1 dia atrás' },
+        { id: 81243, subject: 'Sugestão: PIX Recorrente', user: 'ana.s@email.com', priority: 'Baixa', status: 'Resolvido', updated: '3 dias atrás' },
+    ];
+    
+    const getPriorityClass = (p: string) => {
+        if (p === 'Alta') return 'bg-red-100 text-red-800';
+        if (p === 'Média') return 'bg-yellow-100 text-yellow-800';
+        return 'bg-blue-100 text-blue-800';
+    };
+
+    return (
+        <div className="p-6 animate-fade-in space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard title="Tickets Abertos" value="12" iconPath={ICONS.support} colorClass="bg-red-500" />
+                <StatCard title="Tickets Pendentes" value="35" iconPath={ICONS.support} colorClass="bg-yellow-500" />
+                <StatCard title="Resolvidos (Hoje)" value="28" iconPath={ICONS.checkCircle} colorClass="bg-green-500" />
+                <StatCard title="Primeira Resposta" value="~ 45 min" iconPath={ICONS.users} colorClass="bg-blue-500" />
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                 <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold font-heading text-gray-800">Fila de Atendimento</h3>
+                    <div className="flex items-center gap-2">
+                        <select className="p-2 border rounded-md text-sm"><option>Filtrar por Status</option></select>
+                        <select className="p-2 border rounded-md text-sm"><option>Filtrar por Prioridade</option></select>
+                    </div>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prioridade</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Última Atualização</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th></tr></thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {tickets.map(t => (
+                                <tr key={t.id}>
+                                    <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900">{t.subject}</div><div className="text-sm text-gray-500">#{t.id} - {t.user}</div></td>
+                                    <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getPriorityClass(t.priority)}`}>{t.priority}</span></td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{t.status}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{t.updated}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button className="text-indigo-600 hover:text-indigo-900 font-semibold">Ver</button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Fix: Refactored props to a dedicated interface to resolve potential TypeScript inference issues with the inline type definition that were causing errors about a missing 'children' property.
+interface SettingsCardProps {
+    title: string;
+    description: string;
+    children: React.ReactNode;
+}
+
+const SettingsCard = ({ title, description, children }: SettingsCardProps) => (
+    <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-lg font-bold font-heading text-gray-800">{title}</h3>
+        <p className="text-sm text-gray-500 mb-6">{description}</p>
+        <div className="space-y-4">{children}</div>
+    </div>
 );
 
-const UsersPage = () => (
-    <PlaceholderPage title="Gestão de Usuários">
-        <p>Funcionalidade em desenvolvimento. Aqui você poderá gerenciar todos os usuários da plataforma, visualizar perfis, permissões e histórico de atividades.</p>
-    </PlaceholderPage>
-);
+const SettingsPage = () => {
+    return (
+        <div className="p-6 animate-fade-in space-y-6">
+            <SettingsCard title="Geral" description="Configurações globais da plataforma.">
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Nome da Plataforma</label><input type="text" defaultValue="Vakinha Fácil" className="p-2 border rounded-md w-full md:w-1/2"/></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">E-mail de Contato Principal</label><input type="email" defaultValue="contato@vakinhafacil.com" className="p-2 border rounded-md w-full md:w-1/2"/></div>
+            </SettingsCard>
 
-const VaquinhasPage = () => (
-    <PlaceholderPage title="Gestão de Vaquinhas">
-        <p>Funcionalidade em desenvolvimento. Nesta seção será possível visualizar, aprovar, e gerenciar todas as vaquinhas criadas na plataforma.</p>
-    </PlaceholderPage>
-);
+            <SettingsCard title="Taxas e Pagamentos" description="Defina as taxas de serviço e integre gateways de pagamento.">
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Taxa Padrão por Transação (%)</label><input type="number" defaultValue="3.5" className="p-2 border rounded-md w-full md:w-1/4"/></div>
+                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Chave API Stripe</label><input type="password" defaultValue="************" className="p-2 border rounded-md w-full md:w-1/2 font-mono"/></div>
+            </SettingsCard>
 
-const FinancePage = () => (
-    <PlaceholderPage title="Financeiro">
-        <p>Funcionalidade em desenvolvimento. Acompanhe o histórico de transações, configure taxas, gerencie saques e visualize relatórios financeiros detalhados.</p>
-    </PlaceholderPage>
-);
+            <SettingsCard title="Segurança" description="Gerencie as configurações de segurança da conta e da plataforma.">
+                <div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-900">Exigir Autenticação de Dois Fatores (2FA) para Admins</p><label className="relative inline-flex items-center cursor-pointer"><input type="checkbox" value="" className="sr-only peer" defaultChecked/><div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div></label></div>
+            </SettingsCard>
 
-const SupportPage = () => (
-    <PlaceholderPage title="Suporte e Atendimento">
-        <p>Funcionalidade em desenvolvimento. Gerencie tickets de suporte, configure o chat ao vivo e mantenha a base de conhecimento (FAQ) atualizada.</p>
-    </PlaceholderPage>
-);
-
-const SettingsPage = () => (
-    <PlaceholderPage title="Configurações">
-        <p>Funcionalidade em desenvolvimento. Configure as definições gerais da plataforma, integrações, segurança e personalize e-mails transacionais.</p>
-    </PlaceholderPage>
-);
+            <div className="flex justify-end">
+                <button className="bg-indigo-600 text-white px-6 py-2 rounded-md font-semibold hover:bg-indigo-700 transition-colors">Salvar Alterações</button>
+            </div>
+        </div>
+    );
+};
 
 const AIContentModal: React.FC<AIContentModalProps> = ({ isOpen, onClose, onGenerate, isGenerating, generatedContent, onUseContent, context }) => {
     if (!isOpen) return null;
@@ -315,9 +479,6 @@ const AIContentModal: React.FC<AIContentModalProps> = ({ isOpen, onClose, onGene
     );
 };
 
-// FIX: Changed NavLink to be a typed React.FC component by defining its props interface.
-// This allows TypeScript to correctly handle React's special `key` prop when
-// NavLink is used in a list, resolving the type error.
 interface NavLinkProps {
     item: { id: PageName, label: string, icon: string };
     isActive: boolean;
@@ -830,7 +991,7 @@ function App() {
       },
       vaquinhas: {
           title: "Gestão de Vaquinhas",
-          description: "Monitore, aprove e gerencie todas as vaquinhas ativas e encerradas.",
+          description: "Monitore, approve e gerencie todas as vaquinhas ativas e encerradas.",
           component: <VaquinhasPage />,
       },
       finance: {
