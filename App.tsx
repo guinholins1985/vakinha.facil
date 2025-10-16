@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 
@@ -81,6 +82,11 @@ const ICONS = {
   eye: "M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.432 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M12 15a3 3 0 100-6 3 3 0 000 6z",
   checkCircle: "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
   xCircle: "M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+  creditCard: "M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h6m3-3.75l-3 3m0 0l-3-3m3 3V15m6-1.5V6a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6v12a2.25 2.25 0 002.25 2.25h10.5A2.25 2.25 0 0019.5 18v-2.25",
+  palette: "M.5 7.5l.75-2.25h1.5l.75 2.25m-3 0h3m-3 0l-1.125 3.375a.5.5 0 00.44 1.125h2.25a.5.5 0 00.439-.875L2.5 7.5m0 0l-1.125-3.375a.5.5 0 01.44-1.125h2.25a.5.5 0 01.439.875L2.5 7.5m6.5-3.375l.75-2.25h1.5l.75 2.25m-3 0h3m-3 0l-1.125 3.375a.5.5 0 00.44 1.125h2.25a.5.5 0 00.439-.875L9 7.5m0 0l-1.125-3.375a.5.5 0 01.44-1.125h2.25a.5.5 0 01.439.875L9 7.5m6.5-3.375l.75-2.25h1.5l.75 2.25m-3 0h3m-3 0l-1.125 3.375a.5.5 0 00.44 1.125h2.25a.5.5 0 00.439-.875L15.5 7.5m0 0l-1.125-3.375a.5.5 0 01.44-1.125h2.25a.5.5 0 01.439.875L15.5 7.5",
+  link: "M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244",
+  lock: "M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z",
+  camera: "M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.776 48.776 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316zM12 15a3 3 0 100-6 3 3 0 000 6z",
 };
 
 const Spinner = () => (
@@ -368,13 +374,13 @@ const SupportPage = () => {
     );
 };
 
-// Fix: Refactored props to a dedicated interface to resolve potential TypeScript inference issues with the inline type definition that were causing errors about a missing 'children' property.
+// --- Settings Page Components ---
+
 interface SettingsCardProps {
     title: string;
     description: string;
-    children: React.ReactNode;
+    children?: React.ReactNode;
 }
-
 const SettingsCard = ({ title, description, children }: SettingsCardProps) => (
     <div className="bg-white p-6 rounded-lg shadow-md">
         <h3 className="text-lg font-bold font-heading text-gray-800">{title}</h3>
@@ -383,30 +389,134 @@ const SettingsCard = ({ title, description, children }: SettingsCardProps) => (
     </div>
 );
 
-const SettingsPage = () => {
+const GeneralSettings = () => (
+    <SettingsCard title="Geral" description="Configurações globais da plataforma.">
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Nome da Plataforma</label><input type="text" defaultValue="Vakinha Fácil" className="p-2 border rounded-md w-full md:w-1/2"/></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">E-mail de Contato Principal</label><input type="email" defaultValue="contato@vakinhafacil.com" className="p-2 border rounded-md w-full md:w-1/2"/></div>
+    </SettingsCard>
+);
+
+const SecuritySettings = () => (
+    <SettingsCard title="Segurança" description="Gerencie as configurações de segurança da conta e da plataforma.">
+        <div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-900">Exigir Autenticação de Dois Fatores (2FA) para Admins</p><label className="relative inline-flex items-center cursor-pointer"><input type="checkbox" value="" className="sr-only peer" defaultChecked/><div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div></label></div>
+    </SettingsCard>
+);
+
+const GatewayCard = ({ name, logoSrc, description, isActive }: { name: string, logoSrc: string, description: string, isActive: boolean }) => (
+    <div className="bg-white p-6 rounded-lg shadow-md border flex flex-col">
+        <div className="flex justify-between items-start">
+            <img src={logoSrc} alt={`${name} logo`} className="h-8 mb-4"/>
+            <span className={`px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{isActive ? 'Ativo' : 'Inativo'}</span>
+        </div>
+        <p className="text-sm text-gray-600 flex-grow">{description}</p>
+        <div className="flex items-center justify-between mt-4 pt-4 border-t">
+             <label className="relative inline-flex items-center cursor-pointer"><input type="checkbox" value="" className="sr-only peer" defaultChecked={isActive}/><div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div></label>
+            <button className="text-sm font-semibold text-indigo-600 hover:text-indigo-800">Configurar</button>
+        </div>
+    </div>
+);
+
+const GatewaySettings = () => (
+    <div className="space-y-6">
+        <h3 className="text-xl font-bold font-heading text-gray-800">Gateways de Pagamento</h3>
+        <p className="text-gray-600">Ative e configure os provedores de pagamento para processar as transações em sua plataforma.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <GatewayCard name="Stripe" logoSrc="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" description="Plataforma global para pagamentos online, ideal para aceitar cartões de crédito com facilidade." isActive={true} />
+            <GatewayCard name="Mercado Pago" logoSrc="https://logospng.org/download/mercado-pago/logo-mercado-pago-2048.png" description="Solução líder na América Latina, oferecendo pagamentos via PIX, boleto e cartões." isActive={true} />
+            <GatewayCard name="PagSeguro" logoSrc="https://logodownload.org/wp-content/uploads/2019/08/pagseguro-logo-0-2048x410.png" description="Gateway de pagamento popular no Brasil com diversas opções de parcelamento e segurança." isActive={false} />
+        </div>
+    </div>
+);
+
+const LayoutSettings = () => {
+    const affiliates = [
+        { id: 1, name: 'Blog do Investidor', code: 'INVESTIDOR10', commission: '5%', earnings: 'R$ 1,250.00' },
+        { id: 2, name: 'Canal Tech Reviews', code: 'TECHVAKA', commission: '7%', earnings: 'R$ 3,420.50' },
+        { id: 3, name: 'Finanças Pessoais BR', code: 'FINBR20', commission: '5%', earnings: 'R$ 875.00' },
+    ];
     return (
-        <div className="p-6 animate-fade-in space-y-6">
-            <SettingsCard title="Geral" description="Configurações globais da plataforma.">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Nome da Plataforma</label><input type="text" defaultValue="Vakinha Fácil" className="p-2 border rounded-md w-full md:w-1/2"/></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">E-mail de Contato Principal</label><input type="email" defaultValue="contato@vakinhafacil.com" className="p-2 border rounded-md w-full md:w-1/2"/></div>
+        <div className="space-y-8">
+            <SettingsCard title="Banner Principal" description="Personalize o banner que aparece na página inicial do seu site.">
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Imagem do Banner (URL)</label><input type="text" placeholder="https://example.com/banner.jpg" className="p-2 border rounded-md w-full"/></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Título</label><input type="text" placeholder="Arrecade fundos para seus sonhos" className="p-2 border rounded-md w-full"/></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Subtítulo</label><input type="text" placeholder="Crie sua vaquinha online de forma fácil e segura." className="p-2 border rounded-md w-full"/></div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Texto do Botão</label><input type="text" placeholder="Criar Vaquinha Grátis" className="p-2 border rounded-md w-full"/></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Link do Botão</label><input type="text" placeholder="/criar-vaquinha" className="p-2 border rounded-md w-full"/></div>
+                </div>
             </SettingsCard>
 
-            <SettingsCard title="Taxas e Pagamentos" description="Defina as taxas de serviço e integre gateways de pagamento.">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Taxa Padrão por Transação (%)</label><input type="number" defaultValue="3.5" className="p-2 border rounded-md w-full md:w-1/4"/></div>
-                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Chave API Stripe</label><input type="password" defaultValue="************" className="p-2 border rounded-md w-full md:w-1/2 font-mono"/></div>
+            <SettingsCard title="Cabeçalho e Rodapé" description="Configure o logo e os links de navegação.">
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">URL do Logo</label><input type="text" placeholder="https://example.com/logo.svg" className="p-2 border rounded-md w-full"/></div>
+                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Links do Cabeçalho (separados por vírgula)</label><input type="text" defaultValue="Como Funciona, Preços, Contato" className="p-2 border rounded-md w-full"/></div>
+                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Links do Rodapé (separados por vírgula)</label><input type="text" defaultValue="Termos de Uso, Política de Privacidade, Sobre Nós" className="p-2 border rounded-md w-full"/></div>
             </SettingsCard>
-
-            <SettingsCard title="Segurança" description="Gerencie as configurações de segurança da conta e da plataforma.">
-                <div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-900">Exigir Autenticação de Dois Fatores (2FA) para Admins</p><label className="relative inline-flex items-center cursor-pointer"><input type="checkbox" value="" className="sr-only peer" defaultChecked/><div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div></label></div>
-            </SettingsCard>
-
-            <div className="flex justify-end">
-                <button className="bg-indigo-600 text-white px-6 py-2 rounded-md font-semibold hover:bg-indigo-700 transition-colors">Salvar Alterações</button>
+            
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold font-heading text-gray-800">Programa de Afiliados</h3>
+                    <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2"><Icon path={ICONS.plusCircle} className="w-5 h-5"/> Novo Afiliado</button>
+                </div>
+                 <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Afiliado</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Link de Referência</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comissão</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ganhos</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th></tr></thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {affiliates.map(aff => (
+                                <tr key={aff.id}>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{aff.name}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">.../?ref={aff.code}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{aff.commission}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">{aff.earnings}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2"><button className="text-indigo-600 hover:text-indigo-900"><Icon path={ICONS.edit} className="w-5 h-5"/></button><button className="text-red-600 hover:text-red-900"><Icon path={ICONS.trash} className="w-5 h-5"/></button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                 </div>
             </div>
         </div>
     );
 };
 
+
+const SettingsPage = () => {
+    const [activeTab, setActiveTab] = useState('general');
+
+    const tabNames: { [key: string]: string } = {
+        general: "Geral",
+        security: "Segurança",
+        gateways: "Gateways de Pagamento",
+        layout: "Layout e Aparência",
+    };
+
+    const renderActiveTabContent = () => {
+        switch (activeTab) {
+            case 'general': return <GeneralSettings />;
+            case 'security': return <SecuritySettings />;
+            case 'gateways': return <GatewaySettings />;
+            case 'layout': return <LayoutSettings />;
+            default: return null;
+        }
+    };
+
+    return (
+        <div className="p-6 animate-fade-in space-y-6">
+            <div className="mb-6 border-b border-gray-200">
+                <nav className="-mb-px flex space-x-6 overflow-x-auto" aria-label="Seções de Configurações">
+                    {Object.keys(tabNames).map(tabKey => (
+                        <button key={tabKey} onClick={() => setActiveTab(tabKey)} className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 rounded-t-sm ${activeTab === tabKey ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                            {tabNames[tabKey]}
+                        </button>
+                    ))}
+                </nav>
+            </div>
+            {renderActiveTabContent()}
+            <div className="flex justify-end mt-6">
+                <button className="bg-indigo-600 text-white px-6 py-2 rounded-md font-semibold hover:bg-indigo-700 transition-colors">Salvar Alterações</button>
+            </div>
+        </div>
+    );
+};
 const AIContentModal: React.FC<AIContentModalProps> = ({ isOpen, onClose, onGenerate, isGenerating, generatedContent, onUseContent, context }) => {
     if (!isOpen) return null;
 
@@ -498,7 +608,7 @@ const NavLink: React.FC<NavLinkProps> = ({ item, isActive, onClick }) => (
     </button>
 );
 
-const Sidebar = ({ activePage, onNavigate }: { activePage: PageName, onNavigate: (page: PageName) => void }) => {
+const Sidebar = ({ activePage, onNavigate, onLogout }: { activePage: PageName, onNavigate: (page: PageName) => void, onLogout: () => void }) => {
     const navItems: { id: PageName, label: string, icon: string }[] = [
         { id: 'dashboard', label: 'Dashboard', icon: ICONS.dashboard },
         { id: 'users', label: 'Usuários', icon: ICONS.users },
@@ -527,7 +637,7 @@ const Sidebar = ({ activePage, onNavigate }: { activePage: PageName, onNavigate:
                      <NavLink key={item.id} item={item} isActive={activePage === item.id} onClick={onNavigate} />
                 ))}
                 <button
-                    onClick={() => alert('Sessão encerrada com sucesso!')} 
+                    onClick={onLogout} 
                     className="flex items-center w-full px-4 py-2 text-sm rounded-md text-gray-300 hover:bg-gray-700 hover:text-white"
                 >
                     <Icon path={ICONS.logout} className="w-5 h-5 mr-3"/> Sair
@@ -974,9 +1084,68 @@ const MarketingPage = () => {
     );
 };
 
+const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
+    const [activeTab, setActiveTab] = useState('user');
+
+    const handleLoginSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        // In a real app, you would have validation and an API call here.
+        onLogin();
+    }
+
+    return (
+        <div className="flex items-center justify-center min-h-screen bg-gray-100 font-sans">
+            <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md animate-fade-in">
+                <div className="text-center">
+                    <h1 className="text-3xl font-bold font-heading text-gray-900">Vakinha Fácil</h1>
+                    <p className="mt-2 text-sm text-gray-600">Acesse sua conta para continuar</p>
+                </div>
+
+                <div className="flex border-b border-gray-200">
+                    <button onClick={() => setActiveTab('user')} className={`flex-1 py-2 text-sm font-semibold text-center transition-colors ${activeTab === 'user' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                        Acesso Usuário
+                    </button>
+                     <button onClick={() => setActiveTab('admin')} className={`flex-1 py-2 text-sm font-semibold text-center transition-colors ${activeTab === 'admin' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                        Acesso Admin
+                    </button>
+                </div>
+
+                <form className="space-y-6" onSubmit={handleLoginSubmit}>
+                    <div>
+                        <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
+                        <input id="email" name="email" type="email" required className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="voce@example.com" />
+                    </div>
+                    <div>
+                        <label htmlFor="password"className="text-sm font-medium text-gray-700">Senha</label>
+                        <input id="password" name="password" type="password" required className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="Sua senha" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                            <input id="remember-me" name="remember-me" type="checkbox" className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"/>
+                            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">Lembrar-me</label>
+                        </div>
+                        <div className="text-sm">
+                            <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">Esqueceu a senha?</a>
+                        </div>
+                    </div>
+                    <div>
+                        <button type="submit" className="w-full px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Entrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activePage, setActivePage] = useState<PageName>('dashboard');
+
+  const handleLogin = () => setIsAuthenticated(true);
+  const handleLogout = () => setIsAuthenticated(false);
 
   const PAGES: Record<PageName, { title: string, description: string, component: React.ReactElement }> = {
       dashboard: {
@@ -1018,9 +1187,13 @@ function App() {
 
   const currentPage = PAGES[activePage];
 
+  if (!isAuthenticated) {
+      return <LoginPage onLogin={handleLogin} />;
+  }
+
   return (
       <div className="flex bg-gray-100 font-sans min-h-screen">
-          <Sidebar activePage={activePage} onNavigate={setActivePage} />
+          <Sidebar activePage={activePage} onNavigate={setActivePage} onLogout={handleLogout} />
           <main className="flex-1">
               <Header title={currentPage.title} description={currentPage.description} />
               {currentPage.component}
