@@ -1,9 +1,61 @@
-
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 
+// AI client initialized once at the module level for performance.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+// --- TYPE DEFINITIONS ---
+interface ModalContext {
+  promptType: 'email' | 'push' | '';
+}
+
+interface GeneratedEmail {
+  subject: string;
+  body: string;
+}
+
+interface GeneratedPush {
+  title: string;
+  message: string;
+}
+
+interface GenerationError {
+  error: string;
+}
+
+type GeneratedContent = GeneratedEmail | GeneratedPush | GenerationError | null;
+
+interface AIContentModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onGenerate: (objective: string) => void;
+    isGenerating: boolean;
+    generatedContent: GeneratedContent;
+    onUseContent: () => void;
+    context: ModalContext;
+}
+
+interface EmailMarketingProps {
+    subject: string;
+    onSubjectChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    body: string;
+    onBodyChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    onGenerate: (type: 'email') => void;
+}
+
+interface PushNotificationsProps {
+    title: string;
+    onTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    message: string;
+    onMessageChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    onGenerate: (type: 'push') => void;
+}
+
+
+// --- COMPONENTS ---
+
 // Helper component for SVG Icons
-const Icon = ({ path, className = 'w-6 h-6' }) => (
+const Icon = ({ path, className = 'w-6 h-6' }: { path: string; className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
     <path strokeLinecap="round" strokeLinejoin="round" d={path} />
   </svg>
@@ -28,7 +80,7 @@ const Spinner = () => (
     </svg>
 );
 
-const AIContentModal = ({ isOpen, onClose, onGenerate, isGenerating, generatedContent, onUseContent, context }) => {
+const AIContentModal: React.FC<AIContentModalProps> = ({ isOpen, onClose, onGenerate, isGenerating, generatedContent, onUseContent, context }) => {
     if (!isOpen) return null;
 
     const [objective, setObjective] = useState('');
@@ -37,12 +89,20 @@ const AIContentModal = ({ isOpen, onClose, onGenerate, isGenerating, generatedCo
       onGenerate(objective);
     };
 
+    const isError = generatedContent && 'error' in generatedContent;
+
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4" onClick={onClose}>
+        <div 
+            className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4" 
+            onClick={onClose}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="ai-modal-title"
+        >
             <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-bold font-heading text-gray-800">Assistente de Conteúdo IA</h3>
-                  <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+                  <h3 id="ai-modal-title" className="text-xl font-bold font-heading text-gray-800">Assistente de Conteúdo IA</h3>
+                  <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="Fechar modal">
                     <Icon path="M6 18L18 6M6 6l12 12" className="w-6 h-6"/>
                   </button>
                 </div>
@@ -63,22 +123,26 @@ const AIContentModal = ({ isOpen, onClose, onGenerate, isGenerating, generatedCo
                     {isGenerating ? <><Spinner/> Gerando...</> : <><Icon path={ICONS.ai} className="w-5 h-5 mr-2"/> Gerar Conteúdo</>}
                 </button>
 
-                {generatedContent && !generatedContent.error && (
+                {generatedContent && !isError && (
                     <div className="mt-6 border-t pt-4 space-y-4 animate-fade-in">
                         <div>
                             <h4 className="font-semibold text-gray-700">{context.promptType === 'email' ? 'Assunto Sugerido' : 'Título Sugerido'}</h4>
-                            <p className="text-sm text-gray-800 bg-gray-100 p-3 rounded-md mt-1 font-medium">{generatedContent.subject || generatedContent.title}</p>
+                            <p className="text-sm text-gray-800 bg-gray-100 p-3 rounded-md mt-1 font-medium">
+                                {('subject' in generatedContent && generatedContent.subject) || ('title' in generatedContent && generatedContent.title)}
+                            </p>
                         </div>
                         <div>
                             <h4 className="font-semibold text-gray-700">{context.promptType === 'email' ? 'Corpo do E-mail Sugerido' : 'Mensagem Sugerida'}</h4>
-                            <p className="text-sm text-gray-800 bg-gray-100 p-3 rounded-md mt-1 whitespace-pre-wrap h-48 overflow-y-auto">{generatedContent.body || generatedContent.message}</p>
+                            <p className="text-sm text-gray-800 bg-gray-100 p-3 rounded-md mt-1 whitespace-pre-wrap h-48 overflow-y-auto">
+                                {('body' in generatedContent && generatedContent.body) || ('message' in generatedContent && generatedContent.message)}
+                            </p>
                         </div>
                         <button onClick={onUseContent} className="bg-green-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-green-700 w-full transition-colors">
                             Usar este conteúdo
                         </button>
                     </div>
                 )}
-                {generatedContent && generatedContent.error && (
+                {isError && (
                     <div className="mt-6 border-t pt-4 text-red-600 bg-red-50 p-3 rounded-md">
                         <p><span className="font-bold">Erro:</span> {generatedContent.error}</p>
                     </div>
@@ -197,7 +261,7 @@ const Coupons = () => (
   </div>
 );
 
-const EmailMarketing = ({ subject, onSubjectChange, body, onBodyChange, onGenerate }) => (
+const EmailMarketing: React.FC<EmailMarketingProps> = ({ subject, onSubjectChange, body, onBodyChange, onGenerate }) => (
     <div className="bg-white p-6 rounded-lg shadow-md">
         <h3 className="text-lg font-semibold text-gray-700 mb-4">E-mail Marketing</h3>
         <div className="border border-gray-200 rounded-lg p-4">
@@ -272,7 +336,7 @@ const ReferralProgram = () => (
     </div>
 );
 
-const PushNotifications = ({ title, onTitleChange, message, onMessageChange, onGenerate }) => (
+const PushNotifications: React.FC<PushNotificationsProps> = ({ title, onTitleChange, message, onMessageChange, onGenerate }) => (
     <div className="bg-white p-6 rounded-lg shadow-md">
         <h3 className="text-lg font-semibold text-gray-700 mb-4">Notificações Push</h3>
         <div className="border border-gray-200 rounded-lg p-4">
@@ -316,7 +380,6 @@ const MarketingReports = () => (
             <div className="bg-white p-6 rounded-lg shadow-md">
                 <h4 className="font-semibold text-gray-700 mb-4">Taxa de Abertura de E-mails</h4>
                 <div className="h-48 bg-gray-100 rounded-md p-4">
-                  {/* Fake Line Chart */}
                   <svg className="w-full h-full" viewBox="0 0 100 40" preserveAspectRatio="none">
                     <path d="M 0 30 L 20 20 L 40 25 L 60 15 L 80 22 L 100 10" fill="none" stroke="#818cf8" strokeWidth="2"/>
                   </svg>
@@ -331,9 +394,9 @@ const MarketingPage = () => {
     
     // State for AI Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalContext, setModalContext] = useState({ promptType: '' });
+    const [modalContext, setModalContext] = useState<ModalContext>({ promptType: '' });
     const [isGenerating, setIsGenerating] = useState(false);
-    const [generatedContent, setGeneratedContent] = useState(null);
+    const [generatedContent, setGeneratedContent] = useState<GeneratedContent>(null);
 
     // State for controlled components
     const [emailSubject, setEmailSubject] = useState("");
@@ -341,7 +404,7 @@ const MarketingPage = () => {
     const [pushTitle, setPushTitle] = useState("");
     const [pushMessage, setPushMessage] = useState("");
 
-    const handleOpenAIModal = (promptType) => {
+    const handleOpenAIModal = (promptType: 'email' | 'push') => {
         setModalContext({ promptType });
         setGeneratedContent(null);
         setIsModalOpen(true);
@@ -349,48 +412,90 @@ const MarketingPage = () => {
     
     const handleCloseModal = () => setIsModalOpen(false);
     
-    const handleGenerateContent = async (objective) => {
+    const handleGenerateContent = async (objective: string) => {
         setIsGenerating(true);
         setGeneratedContent(null);
-
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
-        let prompt;
+    
+        if (!objective.trim() || !modalContext.promptType) {
+            setGeneratedContent({ error: "O objetivo não pode estar vazio." });
+            setIsGenerating(false);
+            return;
+        }
+    
+        let systemInstruction: string;
+        let userPrompt: string;
         let schema;
-
+    
+        const baseSystemInstruction = `Você é um assistente de marketing da "Vakinha Fácil", uma plataforma de arrecadação de fundos em grupo. Crie conteúdo para engajar usuários. O tom deve ser amigável, claro e encorajador.`;
+    
         if (modalContext.promptType === 'email') {
-            prompt = `Você é um assistente de marketing da "Vakinha Fácil", uma plataforma de arrecadação de fundos em grupo. Crie um e-mail de marketing com base neste objetivo: "${objective}". O tom deve ser amigável, claro e encorajador. Retorne o resultado em formato JSON com as chaves "subject" e "body".`;
+            systemInstruction = baseSystemInstruction;
+            userPrompt = `Crie um e-mail de marketing com o seguinte objetivo: "${objective}".`;
             schema = {
                 type: Type.OBJECT,
                 properties: {
-                    subject: { type: Type.STRING, description: "Assunto do e-mail" },
-                    body: { type: Type.STRING, description: "Corpo do e-mail" }
+                    subject: { type: Type.STRING, description: "Assunto conciso e chamativo para o e-mail." },
+                    body: { type: Type.STRING, description: "Corpo do e-mail, usando placeholders como {nome} se apropriado." }
                 },
                 required: ["subject", "body"]
             };
-        } else if (modalContext.promptType === 'push') {
-            prompt = `Você é um assistente de marketing da "Vakinha Fácil", uma plataforma de arrecadação de fundos em grupo. Crie uma notificação push com base neste objetivo: "${objective}". O tom deve ser envolvente e direto. Retorne o resultado em formato JSON com as chaves "title" e "message" (a mensagem deve ter no máximo 200 caracteres).`;
+        } else { // 'push'
+            systemInstruction = `${baseSystemInstruction} A mensagem deve ser curta e direta, com no máximo 200 caracteres.`;
+            userPrompt = `Crie uma notificação push com o seguinte objetivo: "${objective}".`;
             schema = {
                 type: Type.OBJECT,
                 properties: {
-                    title: { type: Type.STRING, description: "Título da notificação" },
-                    message: { type: Type.STRING, description: "Mensagem da notificação" }
+                    title: { type: Type.STRING, description: "Título curto e impactante para a notificação push." },
+                    message: { type: Type.STRING, description: "Mensagem da notificação, com no máximo 200 caracteres." }
                 },
                 required: ["title", "message"]
             };
         }
-
+    
         try {
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash',
-                contents: prompt,
+                contents: userPrompt,
                 config: {
+                    systemInstruction: systemInstruction,
                     responseMimeType: 'application/json',
                     responseSchema: schema
                 }
             });
-            const parsedContent = JSON.parse(response.text);
+            
+            let textResponse = response.text;
+            if (!textResponse) {
+                throw new Error("A API retornou uma resposta vazia.");
+            }
+            
+            const jsonMatch = textResponse.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+            if (jsonMatch && jsonMatch[1]) {
+                textResponse = jsonMatch[1];
+            }
+
+            let parsedContent;
+            try {
+                parsedContent = JSON.parse(textResponse);
+            } catch (e) {
+                throw new Error("A resposta da IA não é um JSON válido.");
+            }
+    
+            const isEmailContent = modalContext.promptType === 'email' &&
+                                   typeof parsedContent === 'object' && parsedContent !== null &&
+                                   'subject' in parsedContent && typeof parsedContent.subject === 'string' &&
+                                   'body' in parsedContent && typeof parsedContent.body === 'string';
+    
+            const isPushContent = modalContext.promptType === 'push' &&
+                                   typeof parsedContent === 'object' && parsedContent !== null &&
+                                   'title' in parsedContent && typeof parsedContent.title === 'string' &&
+                                   'message' in parsedContent && typeof parsedContent.message === 'string';
+    
+            if (!isEmailContent && !isPushContent) {
+                throw new Error("A resposta da IA não corresponde ao formato esperado.");
+            }
+    
             setGeneratedContent(parsedContent);
+    
         } catch (error) {
             console.error("Error generating content:", error);
             const errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.';
@@ -401,40 +506,19 @@ const MarketingPage = () => {
     };
     
     const handleUseContent = () => {
-        if (!generatedContent || generatedContent.error) return;
-        if (modalContext.promptType === 'email') {
-            setEmailSubject(generatedContent.subject || emailSubject);
-            setEmailBody(generatedContent.body || emailBody);
-        } else if (modalContext.promptType === 'push') {
-            setPushTitle(generatedContent.title || pushTitle);
-            setPushMessage(generatedContent.message || pushMessage);
+        if (!generatedContent || 'error' in generatedContent) return;
+    
+        if (modalContext.promptType === 'email' && 'subject' in generatedContent && 'body' in generatedContent) {
+            setEmailSubject(generatedContent.subject);
+            setEmailBody(generatedContent.body);
+        } else if (modalContext.promptType === 'push' && 'title' in generatedContent && 'message' in generatedContent) {
+            setPushTitle(generatedContent.title);
+            setPushMessage(generatedContent.message);
         }
         handleCloseModal();
     };
 
-
-    const TABS = {
-        campaigns: <MarketingCampaigns />,
-        coupons: <Coupons />,
-        email: <EmailMarketing 
-                  subject={emailSubject}
-                  onSubjectChange={(e) => setEmailSubject(e.target.value)}
-                  body={emailBody}
-                  onBodyChange={(e) => setEmailBody(e.target.value)}
-                  onGenerate={handleOpenAIModal}
-               />,
-        referrals: <ReferralProgram />,
-        push: <PushNotifications 
-                title={pushTitle}
-                onTitleChange={(e) => setPushTitle(e.target.value)}
-                message={pushMessage}
-                onMessageChange={(e) => setPushMessage(e.target.value)}
-                onGenerate={handleOpenAIModal}
-              />,
-        reports: <MarketingReports />,
-    };
-
-    const tabNames = {
+    const tabNames: { [key: string]: string } = {
       campaigns: "Campanhas",
       coupons: "Cupons",
       email: "E-mail Marketing",
@@ -442,6 +526,38 @@ const MarketingPage = () => {
       push: "Push",
       reports: "Relatórios",
     };
+    
+    const renderActiveTabContent = () => {
+        switch (activeTab) {
+            case 'campaigns':
+                return <MarketingCampaigns />;
+            case 'coupons':
+                return <Coupons />;
+            case 'email':
+                return <EmailMarketing 
+                          subject={emailSubject}
+                          onSubjectChange={(e) => setEmailSubject(e.target.value)}
+                          body={emailBody}
+                          onBodyChange={(e) => setEmailBody(e.target.value)}
+                          onGenerate={handleOpenAIModal}
+                       />;
+            case 'referrals':
+                return <ReferralProgram />;
+            case 'push':
+                return <PushNotifications 
+                        title={pushTitle}
+                        onTitleChange={(e) => setPushTitle(e.target.value)}
+                        message={pushMessage}
+                        onMessageChange={(e) => setPushMessage(e.target.value)}
+                        onGenerate={handleOpenAIModal}
+                      />;
+            case 'reports':
+                return <MarketingReports />;
+            default:
+                return null;
+        }
+    };
+
 
     return (
         <div className="p-6">
@@ -454,13 +570,22 @@ const MarketingPage = () => {
               onUseContent={handleUseContent}
               context={modalContext}
             />
+            
             <div className="mb-6 border-b border-gray-200">
-                <nav className="-mb-px flex space-x-6" aria-label="Tabs">
-                    {Object.keys(TABS).map(tabKey => (
+                <nav 
+                  role="tablist"
+                  className="-mb-px flex space-x-6" 
+                  aria-label="Seções de Marketing"
+                >
+                    {Object.keys(tabNames).map(tabKey => (
                         <button
                             key={tabKey}
+                            id={`tab-${tabKey}`}
+                            role="tab"
+                            aria-selected={activeTab === tabKey}
+                            aria-controls={`tabpanel-${tabKey}`}
                             onClick={() => setActiveTab(tabKey)}
-                            className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                            className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 rounded-t-sm ${
                                 activeTab === tabKey
                                     ? 'border-indigo-500 text-indigo-600'
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -472,8 +597,14 @@ const MarketingPage = () => {
                 </nav>
             </div>
 
-            <div>
-                {TABS[activeTab]}
+            <div
+              id={`tabpanel-${activeTab}`}
+              role="tabpanel"
+              aria-labelledby={`tab-${activeTab}`}
+              tabIndex={0}
+              className="focus:outline-none"
+            >
+                {renderActiveTabContent()}
             </div>
         </div>
     );
