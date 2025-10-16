@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 
 // AI client initialized once at the module level for performance.
@@ -53,6 +54,13 @@ interface PushNotificationsProps {
 
 type PageName = 'dashboard' | 'users' | 'vaquinhas' | 'rifas' | 'finance' | 'marketing' | 'support' | 'settings' | 'notifications' | 'whitelabel';
 
+type ModalType = 'addUser' | 'addVaquinha' | 'addRifa' | 'addClient' | 'addCampaign' | 'addCoupon' | 'viewTicket' | null;
+
+interface ModalState {
+  type: ModalType;
+  data?: any; 
+}
+
 
 // --- COMPONENTS ---
 
@@ -88,7 +96,11 @@ const ICONS = {
   camera: "M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.776 48.776 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316zM12 15a3 3 0 100-6 3 3 0 000 6z",
   trophy: "M16.5 18.75h-9a9.383 9.383 0 01-3.566-6.892 2.25 2.25 0 01-.013-.393 9.384 9.384 0 013.579-6.892 2.25 2.25 0 011.693-1.082 9.384 9.384 0 017.38 0 2.25 2.25 0 011.693 1.082 9.384 9.384 0 013.579 6.892 2.25 2.25 0 01-.013.393A9.383 9.383 0 0116.5 18.75zM12 2.25a.75.75 0 01.75.75v3a.75.75 0 01-1.5 0v-3a.75.75 0 01.75-.75zM12 21a.75.75 0 01.75.75v.008a.75.75 0 01-1.5 0V21.75a.75.75 0 01.75-.75z",
   notifications: "M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0",
-  whitelabel: "M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6M9 11.25h6m-6 4.5h6M6.75 21v-2.25a2.25 2.25 0 012.25-2.25h6a2.25 2.25 0 012.25 2.25V21m-12-2.25v-2.25a2.25 2.25 0 00-2.25-2.25H3.75m16.5 4.5V16.5a2.25 2.25 0 00-2.25-2.25h-1.5"
+  whitelabel: "M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6M9 11.25h6m-6 4.5h6M6.75 21v-2.25a2.25 2.25 0 012.25-2.25h6a2.25 2.25 0 012.25 2.25V21m-12-2.25v-2.25a2.25 2.25 0 00-2.25-2.25H3.75m16.5 4.5V16.5a2.25 2.25 0 00-2.25-2.25h-1.5",
+  arrowRight: "M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3",
+  featureShield: "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.286zm0 13.036h.008v.016h-.008v-.016z",
+  featureCash: "M2.25 18.75a6 6 0 006-6 6 6 0 00-6-6v12zM12.75 18.75a6 6 0 006-6 6 6 0 00-6-6v12zM12.75 7.5a6 6 0 016 6 6 6 0 01-6-6zM21 13.5a8.25 8.25 0 01-8.25 8.25H8.25a8.25 8.25 0 01-8.25-8.25V12a8.25 8.25 0 018.25-8.25h4.5A8.25 8.25 0 0121 12v1.5z",
+  featureGift: "M12 3.75a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0112 3.75zM12 18.75a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0112 18.75zM8.25 6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 018.25 6zM15 15a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75zM3.75 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM18.75 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM4.5 8.25a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 014.5 8.25zM17.25 15a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75z"
 };
 
 const Spinner = () => (
@@ -96,6 +108,40 @@ const Spinner = () => (
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
     </svg>
+);
+
+const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4" onClick={onClose}>
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg animate-fade-in" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center p-4 border-b">
+                    <h3 className="text-xl font-bold font-heading text-gray-800">{title}</h3>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+                        <Icon path="M6 18L18 6M6 6l12 12" className="w-6 h-6"/>
+                    </button>
+                </div>
+                <div className="p-6">
+                    {children}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const FormField = ({ label, id, type = 'text', placeholder = '', required = true, children }: { label: string; id: string; type?: string; placeholder?: string; required?: boolean; children?: React.ReactNode }) => (
+    <div>
+        <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        {children || <input type={type} id={id} placeholder={placeholder} required={required} className="p-2 border rounded-md w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>}
+    </div>
+);
+
+const FormActions = ({ onCancel, onSaveLabel }: { onCancel: () => void; onSaveLabel: string }) => (
+    <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+        <button type="button" onClick={onCancel} className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md font-semibold hover:bg-gray-300">Cancelar</button>
+        <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-indigo-700">{onSaveLabel}</button>
+    </div>
 );
 
 const StatCard = ({ title, value, iconPath, colorClass }: { title: string, value: string, iconPath: string, colorClass: string }) => (
@@ -119,7 +165,59 @@ const QuickActionButton = ({ label, iconPath, onClick }: { label: string, iconPa
     </button>
 );
 
-const DashboardPage = () => {
+const LandingPage = ({ onLoginClick }: { onLoginClick: () => void }) => {
+    return (
+        <div className="bg-white font-sans text-gray-800">
+            {/* Header */}
+            <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm shadow-sm z-50">
+                <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+                    <h1 className="text-2xl font-bold font-heading text-indigo-600">Vakinha Fácil</h1>
+                    <nav className="hidden md:flex items-center space-x-8">
+                        <a href="#" className="text-gray-600 hover:text-indigo-600 font-semibold">Vaquinhas</a>
+                        <a href="#" className="text-gray-600 hover:text-indigo-600 font-semibold">Rifas</a>
+                        <a href="#" className="text-gray-600 hover:text-indigo-600 font-semibold">Como Funciona</a>
+                    </nav>
+                    <button onClick={onLoginClick} className="bg-indigo-600 text-white px-5 py-2 rounded-full font-bold hover:bg-indigo-700 transition-colors">Entrar</button>
+                </div>
+            </header>
+
+            {/* Hero Section */}
+            <section className="pt-32 pb-20 bg-gray-50">
+                <div className="container mx-auto px-6 text-center">
+                    <h2 className="text-4xl md:text-6xl font-extrabold font-heading mb-4 animate-fade-in">Arrecade fundos para seus sonhos.</h2>
+                    <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>Crie vaquinhas online ou rifas de forma transparente, segura e sem burocracia. Automatize sua arrecadação em 3 cliques.</p>
+                    <button onClick={onLoginClick} className="bg-green-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-green-600 transition-transform transform hover:scale-105 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                        Começar Agora <Icon path={ICONS.arrowRight} className="w-5 h-5 inline-block ml-2" />
+                    </button>
+                </div>
+            </section>
+            
+            {/* Features Section */}
+            <section className="py-20">
+                <div className="container mx-auto px-6">
+                    <div className="text-center mb-12">
+                        <h3 className="text-3xl font-bold font-heading">Por que escolher a Vakinha Fácil?</h3>
+                        <p className="text-gray-600 mt-2">Tudo que você precisa em um só lugar.</p>
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-10">
+                        <div className="text-center p-6 bg-white rounded-lg"><div className="inline-block p-4 bg-indigo-100 rounded-full mb-4"><Icon path={ICONS.featureShield} className="w-8 h-8 text-indigo-600"/></div><h4 className="text-xl font-bold mb-2">Seguro e Transparente</h4><p className="text-gray-600">Acompanhe todas as doações e vendas em tempo real, com total segurança para você e seus contribuidores.</p></div>
+                        <div className="text-center p-6 bg-white rounded-lg"><div className="inline-block p-4 bg-green-100 rounded-full mb-4"><Icon path={ICONS.featureCash} className="w-8 h-8 text-green-600"/></div><h4 className="text-xl font-bold mb-2">Vaquinhas e Rifas</h4><p className="text-gray-600">A única plataforma que permite criar tanto campanhas de arrecadação contínua quanto rifas com prêmios.</p></div>
+                        <div className="text-center p-6 bg-white rounded-lg"><div className="inline-block p-4 bg-purple-100 rounded-full mb-4"><Icon path={ICONS.featureGift} className="w-8 h-8 text-purple-600"/></div><h4 className="text-xl font-bold mb-2">Fácil de Usar</h4><p className="text-gray-600">Crie e divulgue sua campanha em minutos, sem complicação e com total autonomia.</p></div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="bg-gray-900 text-white py-10">
+                <div className="container mx-auto px-6 text-center">
+                    <p>&copy; 2024 Vakinha Fácil. Todos os direitos reservados.</p>
+                </div>
+            </footer>
+        </div>
+    );
+};
+
+const DashboardPage = ({ onQuickActionClick }: { onQuickActionClick: (page: PageName) => void }) => {
     const userGrowthData = [
         { month: 'Jan', users: 65 }, { month: 'Fev', users: 59 }, { month: 'Mar', users: 80 },
         { month: 'Abr', users: 81 }, { month: 'Mai', users: 56 }, { month: 'Jun', users: 55 },
@@ -142,10 +240,10 @@ const DashboardPage = () => {
             <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-lg font-bold font-heading text-gray-800 mb-4">Ações Rápidas</h3>
                 <div className="grid grid-cols-2 gap-4">
-                    <QuickActionButton label="Nova Vaquinha" iconPath={ICONS.plusCircle} onClick={() => alert('Abrir formulário de nova vaquinha...')} />
-                    <QuickActionButton label="Nova Rifa" iconPath={ICONS.rifas} onClick={() => alert('Abrir formulário de nova rifa...')} />
-                    <QuickActionButton label="Gerar Relatório" iconPath={ICONS.chartBar} onClick={() => alert('Abrir painel de relatórios...')} />
-                    <QuickActionButton label="Ver Tickets" iconPath={ICONS.support} onClick={() => alert('Ir para a página de suporte...')} />
+                    <QuickActionButton label="Nova Vaquinha" iconPath={ICONS.plusCircle} onClick={() => onQuickActionClick('vaquinhas')} />
+                    <QuickActionButton label="Nova Rifa" iconPath={ICONS.rifas} onClick={() => onQuickActionClick('rifas')} />
+                    <QuickActionButton label="Gerar Relatório" iconPath={ICONS.chartBar} onClick={() => onQuickActionClick('finance')} />
+                    <QuickActionButton label="Ver Tickets" iconPath={ICONS.support} onClick={() => onQuickActionClick('support')} />
                 </div>
             </div>
             <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
@@ -187,7 +285,7 @@ const DashboardPage = () => {
     );
 };
 
-const UsersPage = () => {
+const UsersPage = ({ onAddUser }: { onAddUser: () => void }) => {
     const users = [
         { id: 1, name: 'Ana Silva', email: 'ana.silva@example.com', role: 'Admin', status: 'Ativo', joined: '2023-01-15' },
         { id: 2, name: 'Bruno Costa', email: 'bruno.costa@example.com', role: 'Gestor', status: 'Ativo', joined: '2023-02-20' },
@@ -205,7 +303,7 @@ const UsersPage = () => {
                     <div className="flex items-center gap-2">
                         <input type="text" placeholder="Buscar usuário..." className="p-2 border rounded-md text-sm"/>
                         <select className="p-2 border rounded-md text-sm"><option>Filtrar por Status</option><option>Ativo</option><option>Bloqueado</option></select>
-                        <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2"><Icon path={ICONS.plusCircle} className="w-5 h-5"/> Adicionar</button>
+                        <button onClick={onAddUser} className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2"><Icon path={ICONS.plusCircle} className="w-5 h-5"/> Adicionar</button>
                     </div>
                 </div>
                 <div className="overflow-x-auto">
@@ -230,7 +328,7 @@ const UsersPage = () => {
     );
 };
 
-const VaquinhasPage = () => {
+const VaquinhasPage = ({ onAddVaquinha }: { onAddVaquinha: () => void }) => {
     const vaquinhas = [
         { id: 1, name: 'Formatura de Medicina', creator: 'Turma C', status: 'Ativa', raised: 45000, goal: 50000 },
         { id: 2, name: 'Ajude o Lar São José', creator: 'Maria Oliveira', status: 'Ativa', raised: 8200, goal: 10000 },
@@ -252,7 +350,7 @@ const VaquinhasPage = () => {
                     <div className="flex items-center gap-2">
                         <input type="text" placeholder="Buscar vaquinha..." className="p-2 border rounded-md text-sm"/>
                         <select className="p-2 border rounded-md text-sm"><option>Filtrar por Status</option><option>Ativa</option><option>Pendente</option><option>Encerrada</option></select>
-                         <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2"><Icon path={ICONS.plusCircle} className="w-5 h-5"/> Nova Vaquinha</button>
+                         <button onClick={onAddVaquinha} className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2"><Icon path={ICONS.plusCircle} className="w-5 h-5"/> Nova Vaquinha</button>
                     </div>
                 </div>
                 <div className="overflow-x-auto">
@@ -285,7 +383,7 @@ const VaquinhasPage = () => {
     );
 };
 
-const RifasPage = () => {
+const RifasPage = ({ onAddRifa }: { onAddRifa: () => void }) => {
     const rifas = [
         { id: 1, prize: 'iPhone 15 Pro Max', status: 'Ativa', sold: 880, total: 1000, price: 25, drawDate: '2024-08-30' },
         { id: 2, prize: 'Viagem para Cancún (casal)', status: 'Ativa', sold: 450, total: 1500, price: 50, drawDate: '2024-09-15' },
@@ -307,7 +405,7 @@ const RifasPage = () => {
                     <div className="flex items-center gap-2">
                         <input type="text" placeholder="Buscar rifa..." className="p-2 border rounded-md text-sm"/>
                         <select className="p-2 border rounded-md text-sm"><option>Filtrar por Status</option><option>Ativa</option><option>Sorteada</option><option>Pendente</option></select>
-                        <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2"><Icon path={ICONS.plusCircle} className="w-5 h-5"/> Nova Rifa</button>
+                        <button onClick={onAddRifa} className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2"><Icon path={ICONS.plusCircle} className="w-5 h-5"/> Nova Rifa</button>
                     </div>
                 </div>
                 <div className="overflow-x-auto">
@@ -367,7 +465,7 @@ const FinancePage = () => {
                      <div className="flex items-center gap-2">
                         <input type="date" className="p-2 border rounded-md text-sm"/>
                         <input type="date" className="p-2 border rounded-md text-sm"/>
-                        <button className="bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-800">Exportar</button>
+                        <button onClick={() => alert('Gerando exportação de transações em PDF/TXT...')} className="bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-800">Exportar</button>
                      </div>
                 </div>
                  <div className="overflow-x-auto">
@@ -391,11 +489,11 @@ const FinancePage = () => {
     );
 };
 
-const SupportPage = () => {
+const SupportPage = ({ onViewTicket }: { onViewTicket: (ticket: any) => void }) => {
     const tickets = [
-        { id: 81245, subject: 'Problema com saque', user: 'joana.m@email.com', priority: 'Alta', status: 'Aberto', updated: '2h atrás' },
-        { id: 81244, subject: 'Como mudar o prazo?', user: 'pedro.g@email.com', priority: 'Média', status: 'Pendente', updated: '1 dia atrás' },
-        { id: 81243, subject: 'Sugestão: PIX Recorrente', user: 'ana.s@email.com', priority: 'Baixa', status: 'Resolvido', updated: '3 dias atrás' },
+        { id: 81245, subject: 'Problema com saque', user: 'joana.m@email.com', priority: 'Alta', status: 'Aberto', updated: '2h atrás', content: 'Não consigo realizar o saque da minha vaquinha. O botão aparece desabilitado.' },
+        { id: 81244, subject: 'Como mudar o prazo?', user: 'pedro.g@email.com', priority: 'Média', status: 'Pendente', updated: '1 dia atrás', content: 'Gostaria de estender o prazo da minha campanha, como faço?' },
+        { id: 81243, subject: 'Sugestão: PIX Recorrente', user: 'ana.s@email.com', priority: 'Baixa', status: 'Resolvido', updated: '3 dias atrás', content: 'Seria ótimo se a plataforma aceitasse doações recorrentes via PIX.' },
     ];
     
     const getPriorityClass = (p: string) => {
@@ -430,7 +528,7 @@ const SupportPage = () => {
                                     <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getPriorityClass(t.priority)}`}>{t.priority}</span></td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{t.status}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{t.updated}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button className="text-indigo-600 hover:text-indigo-900 font-semibold">Ver</button></td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button onClick={() => onViewTicket(t)} className="text-indigo-600 hover:text-indigo-900 font-semibold">Ver</button></td>
                                 </tr>
                             ))}
                         </tbody>
@@ -442,9 +540,7 @@ const SupportPage = () => {
 };
 
 const NotificationsPage = () => {
-    const [activeTab, setActiveTab] = useState('all');
-
-    const allNotifications = [
+    const initialNotifications = [
         { id: 1, type: 'donation', title: 'Nova Doação Recebida', message: 'Você recebeu uma doação de R$ 50,00 para a vaquinha "Ajude o Lar São José".', time: '5 min atrás', read: false },
         { id: 2, type: 'rifa', title: 'Número de Rifa Comprado', message: 'Carlos Souza comprou 3 números para a "Rifa do iPhone 15".', time: '25 min atrás', read: false },
         { id: 3, type: 'system', title: 'Atualização de Segurança', message: 'A autenticação de dois fatores foi ativada para sua conta.', time: '1h atrás', read: false },
@@ -453,7 +549,18 @@ const NotificationsPage = () => {
         { id: 6, type: 'system', title: 'Manutenção Programada', message: 'A plataforma entrará em manutenção amanhã às 02:00.', time: '2 dias atrás', read: true },
     ];
     
-    const filteredNotifications = allNotifications.filter(n => {
+    const [notifications, setNotifications] = useState(initialNotifications);
+    const [activeTab, setActiveTab] = useState('all');
+
+    const handleMarkAllAsRead = () => {
+        setNotifications(notifications.map(n => ({ ...n, read: true })));
+    };
+
+    const handleClearAll = () => {
+        setNotifications([]);
+    };
+    
+    const filteredNotifications = notifications.filter(n => {
         if (activeTab === 'all') return true;
         if (activeTab === 'unread') return !n.read;
         return n.type === activeTab;
@@ -482,8 +589,8 @@ const NotificationsPage = () => {
                  <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
                      <h3 className="text-xl font-bold font-heading text-gray-800">Central de Notificações</h3>
                      <div className="flex items-center gap-2">
-                         <button className="text-sm text-indigo-600 font-semibold hover:underline">Marcar todas como lidas</button>
-                         <button className="text-sm text-red-600 font-semibold hover:underline">Limpar notificações</button>
+                         <button onClick={handleMarkAllAsRead} className="text-sm text-indigo-600 font-semibold hover:underline">Marcar todas como lidas</button>
+                         <button onClick={handleClearAll} className="text-sm text-red-600 font-semibold hover:underline">Limpar notificações</button>
                      </div>
                  </div>
 
@@ -526,7 +633,7 @@ const NotificationsPage = () => {
     );
 };
 
-const WhiteLabelPage = () => {
+const WhiteLabelPage = ({ onAddClient }: { onAddClient: () => void }) => {
     const clients = [
         { id: 1, name: 'Banco Digital X', domain: 'app.bancox.com.br', plan: 'Premium', status: 'Ativo', startDate: '2024-01-15' },
         { id: 2, name: 'Eventos Criativos SA', domain: 'eventos.criativos.com', plan: 'Básico', status: 'Ativo', startDate: '2024-03-22' },
@@ -553,7 +660,7 @@ const WhiteLabelPage = () => {
                     <h3 className="text-xl font-bold font-heading text-gray-800">Clientes White-Label</h3>
                     <div className="flex items-center gap-2">
                         <input type="text" placeholder="Buscar cliente..." className="p-2 border rounded-md text-sm"/>
-                        <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2"><Icon path={ICONS.plusCircle} className="w-5 h-5"/> Adicionar Cliente</button>
+                        <button onClick={onAddClient} className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 flex items-center gap-2"><Icon path={ICONS.plusCircle} className="w-5 h-5"/> Adicionar Cliente</button>
                     </div>
                 </div>
                 <div className="overflow-x-auto">
@@ -744,7 +851,7 @@ const SettingsPage = () => {
             </div>
             {renderActiveTabContent()}
             <div className="flex justify-end mt-6">
-                <button className="bg-indigo-600 text-white px-6 py-2 rounded-md font-semibold hover:bg-indigo-700 transition-colors">Salvar Alterações</button>
+                <button onClick={() => alert('Configurações salvas com sucesso!')} className="bg-indigo-600 text-white px-6 py-2 rounded-md font-semibold hover:bg-indigo-700 transition-colors">Salvar Alterações</button>
             </div>
         </div>
     );
@@ -943,11 +1050,11 @@ const Header = ({ title, description, onNavigate }: { title: string, description
     );
 };
 
-const MarketingCampaigns = () => (
+const MarketingCampaigns = ({ onAddCampaign }: { onAddCampaign: () => void }) => (
   <div className="bg-white p-6 rounded-lg shadow-md">
     <div className="flex justify-between items-center mb-4">
       <h3 className="text-lg font-semibold text-gray-700">Gerenciar Campanhas</h3>
-      <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700">Criar Nova Campanha</button>
+      <button onClick={onAddCampaign} className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700">Criar Nova Campanha</button>
     </div>
     <table className="min-w-full divide-y divide-gray-200">
       <thead className="bg-gray-50">
@@ -976,11 +1083,11 @@ const MarketingCampaigns = () => (
   </div>
 );
 
-const Coupons = () => (
+const Coupons = ({ onAddCoupon }: { onAddCoupon: () => void }) => (
     <div className="bg-white p-6 rounded-lg shadow-md">
     <div className="flex justify-between items-center mb-4">
       <h3 className="text-lg font-semibold text-gray-700">Cupons e Promoções</h3>
-      <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700">Criar Novo Cupom</button>
+      <button onClick={onAddCoupon} className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700">Criar Novo Cupom</button>
     </div>
      <table className="min-w-full divide-y divide-gray-200">
       <thead className="bg-gray-50">
@@ -1044,8 +1151,8 @@ const EmailMarketing: React.FC<EmailMarketingProps> = ({ subject, onSubjectChang
                     <option>Criadores de Vaquinha</option>
                 </select>
                 <div className="flex items-center space-x-2">
-                    <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-300 w-full">Enviar Teste</button>
-                    <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 w-full">Agendar Envio</button>
+                    <button onClick={() => alert('Email de teste enviado!')} className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-300 w-full">Enviar Teste</button>
+                    <button onClick={() => alert('Envio de email agendado!')} className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 w-full">Agendar Envio</button>
                 </div>
             </div>
         </div>
@@ -1113,7 +1220,7 @@ const PushNotifications: React.FC<PushNotificationsProps> = ({ title, onTitleCha
                         <option>Segmento: Doadores</option>
                         <option>Segmento: Criadores</option>
                     </select>
-                    <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700">Enviar Agora</button>
+                    <button onClick={() => alert('Notificação push enviada!')} className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700">Enviar Agora</button>
                 </div>
             </div>
         </div>
@@ -1123,7 +1230,7 @@ const PushNotifications: React.FC<PushNotificationsProps> = ({ title, onTitleCha
 const MarketingReports = () => (
     <div>
         <div className="flex justify-end mb-4">
-            <button className="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-50">Exportar Relatórios (CSV/PDF)</button>
+            <button onClick={() => alert('Gerando relatórios em CSV/PDF...')} className="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-50">Exportar Relatórios (CSV/PDF)</button>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white p-6 rounded-lg shadow-md">
@@ -1147,7 +1254,7 @@ const MarketingReports = () => (
     </div>
 );
 
-const MarketingPage = () => {
+const MarketingPage = ({ onAddCampaign, onAddCoupon }: { onAddCampaign: () => void; onAddCoupon: () => void }) => {
     const [activeTab, setActiveTab] = useState('campaigns');
     
     // State for AI Modal
@@ -1289,9 +1396,9 @@ const MarketingPage = () => {
     const renderActiveTabContent = () => {
         switch (activeTab) {
             case 'campaigns':
-                return <MarketingCampaigns />;
+                return <MarketingCampaigns onAddCampaign={onAddCampaign} />;
             case 'coupons':
-                return <Coupons />;
+                return <Coupons onAddCoupon={onAddCoupon} />;
             case 'email':
                 return <EmailMarketing 
                           subject={emailSubject}
@@ -1474,42 +1581,136 @@ const LoginPage = ({ onLogin }: { onLogin: () => void }) => {
     );
 };
 
+// --- FORM COMPONENTS for Modals ---
+const AddUserForm = ({ onClose }: { onClose: () => void }) => (
+    <form onSubmit={(e) => { e.preventDefault(); alert('Usuário adicionado!'); onClose(); }} className="space-y-4">
+        <FormField label="Nome Completo" id="userName" placeholder="Ex: João da Silva"/>
+        <FormField label="E-mail" id="userEmail" type="email" placeholder="Ex: joao.silva@email.com"/>
+        <FormField label="Função" id="userRole">
+            <select id="userRole" className="p-2 border rounded-md w-full"><option>Usuário</option><option>Gestor</option><option>Admin</option></select>
+        </FormField>
+        <FormActions onCancel={onClose} onSaveLabel="Adicionar Usuário" />
+    </form>
+);
+
+const AddVaquinhaForm = ({ onClose }: { onClose: () => void }) => (
+    <form onSubmit={(e) => { e.preventDefault(); alert('Vaquinha adicionada!'); onClose(); }} className="space-y-4">
+        <FormField label="Título da Vaquinha" id="vaquinhaTitle" />
+        <FormField label="Meta de Arrecadação (R$)" id="vaquinhaGoal" type="number" />
+        <FormField label="Data de Encerramento" id="vaquinhaDate" type="date" />
+        <FormField label="Descrição" id="vaquinhaDesc">
+             <textarea id="vaquinhaDesc" rows={4} className="p-2 border rounded-md w-full"></textarea>
+        </FormField>
+        <FormActions onCancel={onClose} onSaveLabel="Criar Vaquinha" />
+    </form>
+);
+
+const AddRifaForm = ({ onClose }: { onClose: () => void }) => (
+    <form onSubmit={(e) => { e.preventDefault(); alert('Rifa adicionada!'); onClose(); }} className="space-y-4">
+        <FormField label="Descrição do Prêmio" id="rifaPrize" />
+        <FormField label="Valor por Número (R$)" id="rifaPrice" type="number" />
+        <FormField label="Quantidade de Números" id="rifaTotal" type="number" />
+        <FormField label="Data do Sorteio" id="rifaDate" type="date" />
+        <FormActions onCancel={onClose} onSaveLabel="Criar Rifa" />
+    </form>
+);
+
+const AddClientForm = ({ onClose }: { onClose: () => void }) => (
+    <form onSubmit={(e) => { e.preventDefault(); alert('Cliente adicionado!'); onClose(); }} className="space-y-4">
+        <FormField label="Nome do Cliente" id="clientName" />
+        <FormField label="Domínio" id="clientDomain" placeholder="cliente.sua-plataforma.com" />
+        <FormField label="Plano" id="clientPlan">
+            <select id="clientPlan" className="p-2 border rounded-md w-full"><option>Básico</option><option>Premium</option></select>
+        </FormField>
+        <FormActions onCancel={onClose} onSaveLabel="Adicionar Cliente" />
+    </form>
+);
+
+const AddCampaignForm = ({ onClose }: { onClose: () => void }) => (
+    <form onSubmit={(e) => { e.preventDefault(); alert('Campanha criada!'); onClose(); }} className="space-y-4">
+        <FormField label="Nome da Campanha" id="campaignName" placeholder="Ex: Black Friday 2024"/>
+        <FormField label="Descrição" id="campaignDesc" placeholder="Ex: Taxa zero para novas vaquinhas"/>
+        <div className="grid grid-cols-2 gap-4">
+            <FormField label="Data de Início" id="campaignStart" type="date"/>
+            <FormField label="Data de Fim" id="campaignEnd" type="date"/>
+        </div>
+        <FormField label="Público-Alvo" id="campaignAudience">
+             <select id="campaignAudience" className="p-2 border rounded-md w-full"><option>Todos os usuários</option><option>Novos usuários</option><option>Criadores de vaquinhas</option></select>
+        </FormField>
+        <FormActions onCancel={onClose} onSaveLabel="Criar Campanha" />
+    </form>
+);
+
+const AddCouponForm = ({ onClose }: { onClose: () => void }) => (
+    <form onSubmit={(e) => { e.preventDefault(); alert('Cupom criado!'); onClose(); }} className="space-y-4">
+        <FormField label="Código do Cupom" id="couponCode" placeholder="Ex: BEMVINDO10"/>
+        <FormField label="Tipo de Desconto" id="couponType">
+            <select id="couponType" className="p-2 border rounded-md w-full"><option>Percentual (%)</option><option>Valor Fixo (R$)</option></select>
+        </FormField>
+        <FormField label="Valor do Desconto" id="couponValue" type="number"/>
+        <FormField label="Data de Validade" id="couponDate" type="date"/>
+        <FormActions onCancel={onClose} onSaveLabel="Criar Cupom" />
+    </form>
+);
+
+const ViewTicketModal = ({ onClose, ticket }: { onClose: () => void, ticket: any }) => (
+    <div className="space-y-4">
+        <div className="p-4 bg-gray-50 rounded-md">
+            <p className="text-sm text-gray-600"><strong>Usuário:</strong> {ticket.user}</p>
+            <p className="text-sm text-gray-600"><strong>Assunto:</strong> {ticket.subject}</p>
+        </div>
+        <p className="text-gray-800">{ticket.content}</p>
+        <textarea placeholder="Escreva sua resposta aqui..." rows={5} className="p-2 border rounded-md w-full"></textarea>
+        <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+            <button type="button" onClick={onClose} className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md font-semibold hover:bg-gray-300">Fechar</button>
+            <button type="submit" onClick={() => { alert('Resposta enviada!'); onClose(); }} className="bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-indigo-700">Enviar Resposta</button>
+        </div>
+    </div>
+);
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [view, setView] = useState<'landing' | 'login' | 'dashboard'>('landing');
   const [activePage, setActivePage] = useState<PageName>('dashboard');
-
-  const handleLogin = () => setIsAuthenticated(true);
+  const [modalState, setModalState] = useState<ModalState>({ type: null, data: null });
+  
+  const handleLogin = () => setView('dashboard');
   const handleLogout = () => {
-    setIsAuthenticated(false);
+    setView('landing');
     setActivePage('dashboard'); // Reset to default page on logout
   };
+
+  const openModal = (type: ModalType, data: any = null) => setModalState({ type, data });
+  const closeModal = () => setModalState({ type: null, data: null });
 
   const PAGES: Record<PageName, { title: string, description: string, component: React.ReactElement }> = {
       dashboard: {
           title: "Dashboard",
           description: "Visão geral da plataforma e estatísticas chave.",
-          component: <DashboardPage />,
+          component: <DashboardPage onQuickActionClick={(page) => {
+              setActivePage(page);
+              if (page === 'vaquinhas') openModal('addVaquinha');
+              if (page === 'rifas') openModal('addRifa');
+          }} />,
       },
       users: {
           title: "Gestão de Usuários",
           description: "Visualize, adicione e gerencie todos os usuários da plataforma.",
-          component: <UsersPage />,
+          component: <UsersPage onAddUser={() => openModal('addUser')} />,
       },
       vaquinhas: {
           title: "Gestão de Vaquinhas",
           description: "Monitore, approve e gerencie todas as vaquinhas ativas e encerradas.",
-          component: <VaquinhasPage />,
+          component: <VaquinhasPage onAddVaquinha={() => openModal('addVaquinha')} />,
       },
       rifas: {
           title: "Gestão de Rifas",
           description: "Crie, monitore e sorteie rifas para arrecadar fundos.",
-          component: <RifasPage />,
+          component: <RifasPage onAddRifa={() => openModal('addRifa')} />,
       },
        whitelabel: {
           title: "Gestão White-Label",
           description: "Gerencie clientes e personalize plataformas licenciadas.",
-          component: <WhiteLabelPage />,
+          component: <WhiteLabelPage onAddClient={() => openModal('addClient')} />,
       },
       finance: {
           title: "Financeiro",
@@ -1519,7 +1720,7 @@ function App() {
       marketing: {
           title: "Marketing & Engajamento",
           description: "Gerencie campanhas, cupons e notificações para impulsionar o crescimento.",
-          component: <MarketingPage />,
+          component: <MarketingPage onAddCampaign={() => openModal('addCampaign')} onAddCoupon={() => openModal('addCoupon')} />,
       },
       notifications: {
           title: "Notificações",
@@ -1529,7 +1730,7 @@ function App() {
       support: {
           title: "Suporte e Atendimento",
           description: "Responda a tickets de suporte e gerencie a base de conhecimento.",
-          component: <SupportPage />,
+          component: <SupportPage onViewTicket={(ticket) => openModal('viewTicket', ticket)} />,
       },
       settings: {
           title: "Configurações",
@@ -1539,8 +1740,38 @@ function App() {
   };
 
   const currentPage = PAGES[activePage];
+  
+  const renderModalContent = () => {
+    switch (modalState.type) {
+        case 'addUser': return <AddUserForm onClose={closeModal} />;
+        case 'addVaquinha': return <AddVaquinhaForm onClose={closeModal} />;
+        case 'addRifa': return <AddRifaForm onClose={closeModal} />;
+        case 'addClient': return <AddClientForm onClose={closeModal} />;
+        case 'addCampaign': return <AddCampaignForm onClose={closeModal} />;
+        case 'addCoupon': return <AddCouponForm onClose={closeModal} />;
+        case 'viewTicket': return <ViewTicketModal onClose={closeModal} ticket={modalState.data} />;
+        default: return null;
+    }
+  };
 
-  if (!isAuthenticated) {
+  const getModalTitle = () => {
+      switch (modalState.type) {
+          case 'addUser': return "Adicionar Novo Usuário";
+          case 'addVaquinha': return "Criar Nova Vaquinha";
+          case 'addRifa': return "Criar Nova Rifa";
+          case 'addClient': return "Adicionar Novo Cliente";
+          case 'addCampaign': return "Criar Nova Campanha";
+          case 'addCoupon': return "Criar Novo Cupom";
+          case 'viewTicket': return `Ticket #${modalState.data?.id}`;
+          default: return "";
+      }
+  };
+
+  if (view === 'landing') {
+      return <LandingPage onLoginClick={() => setView('login')} />;
+  }
+  
+  if (view === 'login') {
       return <LoginPage onLogin={handleLogin} />;
   }
 
@@ -1551,6 +1782,13 @@ function App() {
               <Header title={currentPage.title} description={currentPage.description} onNavigate={setActivePage} />
               {currentPage.component}
           </main>
+{/* The TypeScript compiler was having trouble inferring the 'children' prop when passed via JSX child syntax. By changing to an explicit prop on a self-closing component, we make the type checker's job easier and resolve the error. */}
+          <Modal
+            isOpen={modalState.type !== null}
+            onClose={closeModal}
+            title={getModalTitle()}
+            children={renderModalContent()}
+          />
       </div>
   );
 }
