@@ -214,7 +214,7 @@ const Header = ({ userType, onGroupAdminLogin, onSystemAdminLogin, onLogout }: {
                          <>
                             <button onClick={onSystemAdminLogin} className="text-sm text-gray-500 hover:text-emerald-600 font-medium transition-colors">Admin do Sistema</button>
                             <button onClick={onGroupAdminLogin} className="text-gray-600 hover:text-emerald-600 font-medium transition-colors">Entrar</button>
-                            <button className="hidden sm:inline-block bg-emerald-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition-all duration-300 transform hover:scale-105">
+                            <button onClick={onGroupAdminLogin} className="hidden sm:inline-block bg-emerald-500 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-emerald-600 transition-all duration-300 transform hover:scale-105">
                                 Criar Vaquinha
                             </button>
                         </>
@@ -225,21 +225,21 @@ const Header = ({ userType, onGroupAdminLogin, onSystemAdminLogin, onLogout }: {
     </header>
 );
 
-const LandingPage = () => (
+const LandingPage = ({ onStartCreating }: { onStartCreating: () => void }) => (
     <>
-        <HeroSection />
+        <HeroSection onStartCreating={onStartCreating} />
         <BenefitsSection />
         <HowItWorksSection />
         <UseCasesSection />
         <TestimonialsSection />
         <SecuritySection />
-        <PricingSection />
-        <FinalCTASection />
+        <PricingSection onStartCreating={onStartCreating} />
+        <FinalCTASection onStartCreating={onStartCreating} />
         <Footer />
     </>
 );
 
-const HeroSection = () => (
+const HeroSection = ({ onStartCreating }: { onStartCreating: () => void }) => (
     <section className="relative overflow-hidden pt-32 pb-20 lg:pt-48 lg:pb-28">
          <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]">
             <div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#d5f5e3,transparent)]"></div>
@@ -253,7 +253,7 @@ const HeroSection = () => (
                     <p className="text-lg md:text-xl text-gray-700 mb-10 max-w-xl mx-auto lg:mx-0">
                         Crie vaquinhas coletivas em 3 passos, convide participantes e acompanhe tudo em tempo real. Sem planilhas, sem dor de cabeça.
                     </p>
-                    <button className="inline-block bg-emerald-500 text-white font-bold text-lg px-8 py-4 rounded-lg shadow-lg hover:bg-emerald-600 transition-transform transform hover:scale-105 duration-300 ease-in-out">
+                    <button onClick={onStartCreating} className="inline-block bg-emerald-500 text-white font-bold text-lg px-8 py-4 rounded-lg shadow-lg hover:bg-emerald-600 transition-transform transform hover:scale-105 duration-300 ease-in-out">
                         Comece agora – Grátis por 7 dias
                     </button>
                 </div>
@@ -462,7 +462,7 @@ const SecuritySection = () => (
 );
 
 
-const PricingSection = () => {
+const PricingSection = ({ onStartCreating }: { onStartCreating: () => void }) => {
     const plans = [
         {
             name: 'Uso Flexível',
@@ -513,7 +513,7 @@ const PricingSection = () => {
                                      <li key={fIndex} className="flex items-start"><span className="text-emerald-500 mr-3 mt-1">&#10003;</span><span>{feature}</span></li>
                                 ))}
                             </ul>
-                            <button className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-300 ${plan.popular ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
+                            <button onClick={onStartCreating} className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-300 ${plan.popular ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
                                 {plan.cta}
                             </button>
                         </div>
@@ -525,7 +525,7 @@ const PricingSection = () => {
 };
 
 
-const FinalCTASection = () => (
+const FinalCTASection = ({ onStartCreating }: { onStartCreating: () => void }) => (
     <section className="py-20 bg-emerald-600">
         <div className="container mx-auto px-6 text-center">
             <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-6 font-heading">
@@ -534,7 +534,7 @@ const FinalCTASection = () => (
             <p className="text-lg text-emerald-100 mb-10 max-w-2xl mx-auto">
                 Crie sua conta e comece a usar a plataforma hoje mesmo. Seus primeiros 7 dias são por nossa conta!
             </p>
-             <button className="inline-block bg-white text-emerald-600 font-bold text-lg px-8 py-4 rounded-lg shadow-lg hover:bg-emerald-50 transition-transform transform hover:scale-105 duration-300 ease-in-out">
+             <button onClick={onStartCreating} className="inline-block bg-white text-emerald-600 font-bold text-lg px-8 py-4 rounded-lg shadow-lg hover:bg-emerald-50 transition-transform transform hover:scale-105 duration-300 ease-in-out">
                 Criar minha vaquinha agora
             </button>
         </div>
@@ -2321,7 +2321,7 @@ const App = () => {
         switch(userType) {
             case 'groupAdmin': return <GroupAdminDashboard />;
             case 'systemAdmin': return <SystemAdminDashboard />;
-            default: return <LandingPage />;
+            default: return <LandingPage onStartCreating={handleGroupAdminLogin} />;
         }
     };
 
