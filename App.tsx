@@ -1,4 +1,5 @@
-import React, { useState, ReactNode, FC } from 'react';
+
+import React, { useState, useEffect, useRef, ReactNode, FC } from 'react';
 
 // --- Ícones SVG ---
 const DashboardIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>;
@@ -30,9 +31,11 @@ const CheckCircleIcon: FC<{ className?: string }> = ({ className = "w-8 h-8" }) 
 const ArrowRightIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>;
 const ShieldCheckIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 20.944a11.955 11.955 0 019-2.944c.435 0 .86-.033 1.284-.096m6.143-4.873a5.976 5.976 0 00-8.243-7.53" /></svg>;
 const BookOpenIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
+const MenuIcon: FC<{ className?: string }> = ({ className }) => <svg className={className} stroke="currentColor" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>;
+const XIcon: FC<{ className?: string }> = ({ className }) => <svg className={className} stroke="currentColor" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>;
 
 
-const primaryButtonClasses = "bg-gradient-to-r from-primary-light to-primary text-white font-bold rounded-lg shadow-md hover:from-primary hover:to-primary-dark transition-all duration-300 transform hover:scale-105";
+const primaryButtonClasses = "bg-gradient-to-r from-primary-light to-primary text-white font-bold rounded-lg shadow-md hover:from-primary hover:to-primary-dark transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100";
 const navLinkClasses = "py-2 relative text-neutral-dark font-semibold after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:h-[3px] after:w-0 after:bg-primary after:rounded-full after:transition-all after:duration-300 hover:text-primary hover:after:w-full";
 
 // --- Types ---
@@ -89,7 +92,7 @@ const BannerSlider: FC<{ onNavigate: (page: 'vaquinhas' | 'rifas' | 'slots') => 
 
     const [current, setCurrent] = useState(0);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const timer = setTimeout(() => {
             setCurrent(current === slides.length - 1 ? 0 : current + 1);
         }, 5000);
@@ -126,7 +129,7 @@ const UserVaquinhasPage: FC = () => {
     return (
         <div className="animate-fade-in">
             <h2 className="text-3xl font-bold text-white mb-6">Vaquinhas em Destaque</h2>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {vaquinhas.map(v => (
                     <div key={v.title} className="bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:-translate-y-1 transition-transform">
                         <img src={v.image} alt={v.title} className="w-full h-48 object-cover" />
@@ -159,7 +162,7 @@ const UserRifasPage: FC = () => {
     return (
         <div className="animate-fade-in">
             <h2 className="text-3xl font-bold text-white mb-6">Rifas Ativas</h2>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {rifas.map(r => (
                     <div key={r.prize} className="bg-gray-800 rounded-lg overflow-hidden shadow-lg text-center">
                         <img src={r.image} alt={r.prize} className="w-full h-56 object-cover" />
@@ -194,13 +197,13 @@ const UserCuponsPage: FC = () => {
             <h2 className="text-3xl font-bold text-white mb-6">Meus Cupons</h2>
             <div className="space-y-4 max-w-2xl mx-auto">
                 {cupons.map(c => (
-                     <div key={c.code} className="bg-gray-800 rounded-lg p-4 flex items-center justify-between border-l-4 border-secondary">
+                     <div key={c.code} className="bg-gray-800 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between border-l-4 border-secondary gap-4">
                         <div>
                              <p className="text-sm text-gray-400">Código</p>
                              <p className="text-white font-bold text-lg tracking-widest">{c.code}</p>
                              <p className="text-gray-300 mt-1">{c.description}</p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-left sm:text-right">
                              <p className="text-sm text-gray-400">Válido até</p>
                              <p className="text-white font-semibold">{c.expiry}</p>
                              <button className="text-primary hover:text-primary-light text-sm font-semibold mt-1">Usar Agora</button>
@@ -336,29 +339,29 @@ const FortunaFelizGame: FC<{ slotConfig: SlotConfig; permissions: Permissions['u
     };
     
     return (
-        <div className="bg-gradient-to-b from-secondary to-red-800 p-6 rounded-2xl shadow-2xl max-w-4xl mx-auto border-4 border-yellow-400">
-            <h1 className="text-4xl font-bold text-yellow-300 text-center mb-4">Fortuna Feliz</h1>
-            <div className="flex justify-between items-center text-white font-semibold mb-4 bg-black/30 p-4 rounded-xl">
+        <div className="bg-gradient-to-b from-secondary to-red-800 p-4 sm:p-6 rounded-2xl shadow-2xl max-w-4xl mx-auto border-4 border-yellow-400">
+            <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300 text-center mb-4 font-heading">Fortuna Feliz</h1>
+            <div className="flex flex-col sm:flex-row justify-between items-center text-white font-semibold mb-4 bg-black/30 p-2 sm:p-4 rounded-xl text-sm sm:text-base gap-2">
                 <div>Saldo: R$ {isAdminView ? '---' : balance.toFixed(2)}</div>
                 <div>Rodadas Grátis: {isAdminView ? '---' : freeSpins}</div>
                 <div>Aposta: R$ {bet.toFixed(2)}</div>
             </div>
-            <div className="grid grid-cols-5 gap-4 p-4 bg-red-900/50 rounded-lg">
+            <div className="grid grid-cols-5 gap-1 sm:gap-2 md:gap-4 p-2 sm:p-4 bg-red-900/50 rounded-lg">
                 {reels.map((reel, reelIndex) => (
-                    <div key={reelIndex} className="overflow-hidden h-60 bg-red-200/10 rounded-lg">
+                    <div key={reelIndex} className="overflow-hidden h-48 sm:h-60 bg-red-200/10 rounded-lg">
                         <div className={`flex flex-col transition-transform duration-500 ease-in-out ${spinning ? 'animate-spin-slow' : ''}`}>
                            {reel.map((symbol, symbolIndex) => (
-                               <div key={symbolIndex} className="flex-shrink-0 h-20 flex items-center justify-center text-5xl">{symbol}</div>
+                               <div key={symbolIndex} className="flex-shrink-0 h-16 sm:h-20 flex items-center justify-center text-3xl sm:text-5xl">{symbol}</div>
                            ))}
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="mt-4 p-2 text-center bg-black/40 rounded-lg"><p className="text-yellow-300">{message}</p></div>
-            <div className="mt-4 flex justify-center items-center space-x-4">
-                <button onClick={() => setBet(b => Math.max(slotConfig.minBet, b - 0.5))} disabled={spinning} className="px-4 py-2 font-bold text-white bg-yellow-600 rounded-full">-</button>
-                <button onClick={spinReels} disabled={spinning} className="px-8 py-4 text-xl font-bold text-red-900 bg-yellow-400 rounded-full">{spinning ? '...' : 'GIRAR'}</button>
-                <button onClick={() => setBet(b => Math.min(isAdminView ? slotConfig.maxBet : permissions.maxBetAmount, b + 0.5))} disabled={spinning} className="px-4 py-2 font-bold text-white bg-yellow-600 rounded-full">+</button>
+            <div className="mt-4 p-2 text-center bg-black/40 rounded-lg"><p className="text-yellow-300 text-sm sm:text-base">{message}</p></div>
+            <div className="mt-4 flex justify-center items-center space-x-2 sm:space-x-4">
+                <button onClick={() => setBet(b => Math.max(slotConfig.minBet, b - 0.5))} disabled={spinning} className="px-3 py-2 sm:px-4 font-bold text-white bg-yellow-600 rounded-full text-sm sm:text-base">-</button>
+                <button onClick={spinReels} disabled={spinning} className="px-6 py-3 sm:px-8 sm:py-4 text-lg sm:text-xl font-bold text-red-900 bg-yellow-400 rounded-full">{spinning ? '...' : 'GIRAR'}</button>
+                <button onClick={() => setBet(b => Math.min(isAdminView ? slotConfig.maxBet : permissions.maxBetAmount, b + 0.5))} disabled={spinning} className="px-3 py-2 sm:px-4 font-bold text-white bg-yellow-600 rounded-full text-sm sm:text-base">+</button>
             </div>
         </div>
     );
@@ -491,7 +494,7 @@ const LoginPage: FC<{
                     <input id="password" value={password} onChange={e => setPassword(e.target.value)} className="shadow appearance-none border rounded w-full py-2 px-3 text-neutral-dark/90 leading-tight focus:outline-none focus:shadow-outline" type="password" placeholder="Senha" />
                 </div>
                 <button className={`w-full py-2 px-4 ${primaryButtonClasses}`} type="submit">Entrar</button>
-                <button onClick={onBack} className="w-full bg-gray-200 hover:bg-gray-300 text-neutral-dark/90 font-bold py-2 px-4 rounded mt-2 transition-colors" type="button">Voltar</button>
+                <button onClick={onBack} className="w-full bg-gray-200 hover:bg-gray-300 text-neutral-dark/90 font-bold py-2 px-4 rounded-lg mt-2 transition-colors" type="button">Voltar</button>
             </form>
              <p className="text-center text-neutral-dark/60 text-sm mt-6">
                 Não tem uma conta?{' '}
@@ -558,7 +561,7 @@ const RegistrationPage: FC<{
             <input id="confirmPassword" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="shadow appearance-none border rounded w-full py-2 px-3 text-neutral-dark/90 leading-tight focus:outline-none focus:shadow-outline" type="password" placeholder="Confirmar Senha" />
           </div>
           <button className={`w-full py-2 px-4 ${primaryButtonClasses}`} type="submit">Cadastrar</button>
-           <button onClick={onSwitchToLogin} className="w-full bg-gray-200 hover:bg-gray-300 text-neutral-dark/90 font-bold py-2 px-4 rounded mt-2 transition-colors" type="button">Voltar</button>
+           <button onClick={onSwitchToLogin} className="w-full bg-gray-200 hover:bg-gray-300 text-neutral-dark/90 font-bold py-2 px-4 rounded-lg mt-2 transition-colors" type="button">Voltar</button>
         </form>
         <p className="text-center text-neutral-dark/60 text-sm mt-6">
           Já tem uma conta?{' '}
@@ -583,7 +586,7 @@ const UserView: FC<{ onLogout: () => void; slotConfig: SlotConfig; permissions: 
         permissions.canUseCoupons && { id: 'cupons' as UserPage, label: 'Cupons', icon: <CouponIcon /> },
     ].filter(Boolean) as { id: UserPage, label: string, icon: ReactNode }[];
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (!navItems.find(item => item.id === activePage)) {
             setActivePage('inicio');
         }
@@ -612,27 +615,27 @@ const UserView: FC<{ onLogout: () => void; slotConfig: SlotConfig; permissions: 
             <header className="bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 p-4 flex justify-between items-center shadow-lg">
                 <h1 className="text-2xl font-bold text-primary font-heading">PREMIX</h1>
                 <div className="flex items-center space-x-4">
-                     <p>Bem-vindo, Usuário!</p>
+                     <p className="hidden sm:block">Bem-vindo, Usuário!</p>
                      <button onClick={onLogout} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2 transition-colors">
-                        <LogoutIcon className="w-5 h-5"/> <span>Sair</span>
+                        <LogoutIcon className="w-5 h-5"/> <span className="hidden sm:inline">Sair</span>
                     </button>
                 </div>
             </header>
             
-            <nav className="bg-gray-800 p-2 flex justify-center space-x-2 md:space-x-8">
+            <nav className="bg-gray-800 p-2 flex justify-center space-x-2 md:space-x-8 overflow-x-auto">
                 {navItems.map(item => (
                     <button 
                         key={item.id} 
                         onClick={() => setActivePage(item.id)} 
-                        className={`flex flex-col md:flex-row items-center space-x-2 px-4 py-2 rounded-lg transition-colors font-semibold ${activePage === item.id ? 'bg-primary text-white' : 'text-gray-300 hover:bg-gray-700'}`}
+                        className={`flex flex-col md:flex-row items-center space-x-0 md:space-x-2 px-3 py-2 rounded-lg transition-colors font-semibold flex-shrink-0 ${activePage === item.id ? 'bg-primary text-white' : 'text-gray-300 hover:bg-gray-700'}`}
                     >
                         {React.cloneElement(item.icon as React.ReactElement, { className: 'w-6 h-6' })}
-                        <span className="text-sm md:text-base">{item.label}</span>
+                        <span className="text-xs md:text-base mt-1 md:mt-0">{item.label}</span>
                     </button>
                 ))}
             </nav>
             
-            <main className="p-6 md:p-10">
+            <main className="p-4 sm:p-6 md:p-10">
                 {renderPage()}
             </main>
         </div>
@@ -650,10 +653,10 @@ const PublicVaquinhasPage: FC<{ onNavigate: (page: 'portal') => void }> = ({ onN
         <div className="bg-neutral-light py-20 animate-fade-in">
             <div className="container mx-auto px-6">
                 <div className="text-center mb-16">
-                    <h1 className="text-4xl font-bold text-neutral-dark font-heading">Vaquinhas em Destaque</h1>
+                    <h1 className="text-4xl lg:text-5xl font-bold text-neutral-dark font-heading">Vaquinhas em Destaque</h1>
                     <p className="text-neutral-dark/60 mt-4 max-w-3xl mx-auto">Veja algumas de nossas campanhas ativas. Junte-se a nós para apoiar causas nobres ou criar a sua própria vaquinha!</p>
                 </div>
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                      {vaquinhas.map(v => (
                         <div key={v.title} className="bg-white rounded-lg overflow-hidden shadow-lg transform hover:-translate-y-1 transition-transform">
                             <img src={v.image} alt={v.title} className="w-full h-48 object-cover" />
@@ -693,10 +696,10 @@ const PublicRifasPage: FC<{ onNavigate: (page: 'portal') => void }> = ({ onNavig
         <div className="bg-neutral-light py-20 animate-fade-in">
             <div className="container mx-auto px-6">
                  <div className="text-center mb-16">
-                    <h1 className="text-4xl font-bold text-neutral-dark font-heading">Rifas com Prêmios Incríveis</h1>
+                    <h1 className="text-4xl lg:text-5xl font-bold text-neutral-dark font-heading">Rifas com Prêmios Incríveis</h1>
                     <p className="text-neutral-dark/60 mt-4 max-w-3xl mx-auto">A sorte está ao seu lado! Participe de nossas rifas e concorra a prêmios fantásticos por um preço que cabe no seu bolso.</p>
                 </div>
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                      {rifas.map(r => (
                         <div key={r.prize} className="bg-white rounded-lg overflow-hidden shadow-lg text-center transform hover:-translate-y-1 transition-transform">
                             <img src={r.image} alt={r.prize} className="w-full h-56 object-cover" />
@@ -725,7 +728,7 @@ const PublicSlotsPage: FC<{ onNavigate: (page: 'portal') => void }> = ({ onNavig
             <div className="container mx-auto px-6">
                 <div className="flex flex-col md:flex-row items-center gap-12">
                     <div className="md:w-1/2">
-                        <h1 className="text-4xl font-bold text-neutral-dark font-heading">Diversão e Prêmios nos Slots!</h1>
+                        <h1 className="text-4xl lg:text-5xl font-bold text-neutral-dark font-heading">Diversão e Prêmios nos Slots!</h1>
                         <p className="text-neutral-dark/60 mt-4 text-lg">Gire os rolos da sorte em nosso jogo exclusivo, Fortuna Feliz. Com prêmios customizáveis e uma jogabilidade viciante, a próxima grande vitória pode ser sua!</p>
                         <ul className="mt-6 space-y-2 text-neutral-dark/80">
                             <li className="flex items-center"><CheckCircleIcon className="w-6 h-6 text-primary mr-2" /> Jogabilidade simples e divertida.</li>
@@ -754,18 +757,18 @@ const PublicCuponsPage: FC<{ onNavigate: (page: 'portal') => void }> = ({ onNavi
          <div className="bg-neutral-light py-20 animate-fade-in">
             <div className="container mx-auto px-6">
                  <div className="text-center mb-16">
-                    <h1 className="text-4xl font-bold text-neutral-dark font-heading">Cupons e Ofertas Especiais</h1>
+                    <h1 className="text-4xl lg:text-5xl font-bold text-neutral-dark font-heading">Cupons e Ofertas Especiais</h1>
                     <p className="text-neutral-dark/60 mt-4 max-w-3xl mx-auto">Aproveite descontos e bônus exclusivos para turbinar sua experiência na PREMIX.</p>
                 </div>
                 <div className="space-y-4 max-w-2xl mx-auto">
                     {cupons.map(c => (
-                         <div key={c.code} className="bg-white rounded-lg p-6 flex items-center justify-between shadow-md border-l-4 border-secondary">
+                         <div key={c.code} className="bg-white rounded-lg p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-md border-l-4 border-secondary gap-4">
                             <div>
                                  <p className="text-sm text-gray-500">Código</p>
                                  <p className="text-neutral-dark font-bold text-xl tracking-widest">{c.code}</p>
                                  <p className="text-neutral-dark/80 mt-1">{c.description}</p>
                             </div>
-                            <div className="text-right">
+                            <div className="text-left sm:text-right flex-shrink-0">
                                  <p className="text-sm text-gray-500">Válido até</p>
                                  <p className="text-neutral-dark font-semibold">{c.expiry}</p>
                             </div>
@@ -784,43 +787,84 @@ const PublicCuponsPage: FC<{ onNavigate: (page: 'portal') => void }> = ({ onNavi
 };
 
 
-type PublicPage = 'homepage' | 'faq' | 'portal' | 'vaquinhas' | 'rifas' | 'slots' | 'cupons';
+type PublicPage = 'homepage' | 'faq' | 'portal' | 'vaquinhas' | 'rifas' | 'slots' | 'cupons' | 'about' | 'privacy';
 
-const Header: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }) => (
-    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-            <button onClick={() => onNavigate('homepage')} className="text-3xl font-bold text-primary font-heading">PREMIX</button>
-            <nav className="hidden md:flex space-x-8 items-center">
-                <button onClick={() => onNavigate('homepage')} className={navLinkClasses}>Início</button>
-                <button onClick={() => onNavigate('vaquinhas')} className={navLinkClasses}>Vaquinhas</button>
-                <button onClick={() => onNavigate('rifas')} className={navLinkClasses}>Rifas</button>
-                <button onClick={() => onNavigate('slots')} className={navLinkClasses}>Slots</button>
-                <button onClick={() => onNavigate('cupons')} className={navLinkClasses}>Cupons</button>
-                <button onClick={() => onNavigate('faq')} className={navLinkClasses}>Como Funciona</button>
-            </nav>
-            <div className="flex items-center space-x-4">
-                <button onClick={() => onNavigate('portal')} className="hidden md:block text-neutral-dark/80 font-semibold hover:text-primary transition-colors">Login</button>
-                <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} px-6 py-2`}>Cadastre-se</button>
+const Header: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }) => {
+    const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    const navItems = [
+        { label: 'Início', page: 'homepage' as PublicPage },
+        { label: 'Vaquinhas', page: 'vaquinhas' as PublicPage },
+        { label: 'Rifas', page: 'rifas' as PublicPage },
+        { label: 'Slots', page: 'slots' as PublicPage },
+        { label: 'Cupons', page: 'cupons' as PublicPage },
+        { label: 'Como Funciona', page: 'faq' as PublicPage },
+    ];
+
+    const handleNav = (page: PublicPage) => {
+        onNavigate(page);
+        setMobileMenuOpen(false);
+    }
+    
+    return (
+    <>
+        <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+            <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+                <button onClick={() => handleNav('homepage')} className="text-3xl font-bold text-primary font-heading">PREMIX</button>
+                <nav className="hidden md:flex space-x-8 items-center">
+                    {navItems.map(item => (
+                         <button key={item.page} onClick={() => handleNav(item.page)} className={navLinkClasses}>{item.label}</button>
+                    ))}
+                </nav>
+                <div className="hidden md:flex items-center space-x-4">
+                    <button onClick={() => handleNav('portal')} className="text-neutral-dark/80 font-semibold hover:text-primary transition-colors">Login</button>
+                    <button onClick={() => handleNav('portal')} className={`${primaryButtonClasses} px-6 py-2`}>Cadastre-se</button>
+                </div>
+                <div className="md:hidden">
+                    <button onClick={() => setMobileMenuOpen(true)} aria-label="Abrir menu">
+                        <MenuIcon className="w-8 h-8 text-neutral-dark" />
+                    </button>
+                </div>
             </div>
+        </header>
+
+        {/* Mobile Menu Overlay */}
+        <div className={`fixed inset-0 bg-white z-[100] transform transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'} md:hidden`}>
+            <div className="flex justify-between items-center p-6 border-b">
+                 <span className="text-3xl font-bold text-primary font-heading">PREMIX</span>
+                 <button onClick={() => setMobileMenuOpen(false)} aria-label="Fechar menu">
+                     <XIcon className="w-8 h-8 text-neutral-dark" />
+                 </button>
+            </div>
+            <nav className="flex flex-col items-center justify-center h-full -mt-16 space-y-6">
+                {navItems.map(item => (
+                    <button key={item.page} onClick={() => handleNav(item.page)} className="text-2xl font-bold text-neutral-dark hover:text-primary transition-colors">{item.label}</button>
+                ))}
+                <div className="pt-8 w-full px-8 space-y-4">
+                    <button onClick={() => handleNav('portal')} className="w-full text-center text-primary border-2 border-primary font-bold py-3 rounded-lg text-lg">Login</button>
+                    <button onClick={() => handleNav('portal')} className={`${primaryButtonClasses} w-full py-3 text-lg`}>Cadastre-se</button>
+                </div>
+            </nav>
         </div>
-    </header>
-);
+    </>
+    );
+}
 
 const Footer: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }) => (
     <footer className="bg-neutral-dark text-neutral-light/70">
         <div className="container mx-auto px-6 py-12">
-            <div className="grid md:grid-cols-4 gap-8">
-                <div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div className="col-span-2 md:col-span-1">
                     <h4 className="text-2xl font-bold text-white font-heading mb-4">PREMIX</h4>
                     <p>Sua plataforma completa de arrecadação e entretenimento.</p>
                 </div>
                  <div>
                     <h5 className="font-bold text-white mb-4">Links</h5>
                     <ul className="space-y-2">
-                        <li><a href="#" className="hover:text-white">Sobre Nós</a></li>
+                        <li><button onClick={() => onNavigate('about')} className="hover:text-white text-left">Sobre Nós</button></li>
                         <li><a href="#" className="hover:text-white">Contato</a></li>
                         <li><button onClick={() => onNavigate('faq')} className="hover:text-white text-left">Como Funciona</button></li>
-                        <li><a href="#" className="hover:text-white">Privacidade</a></li>
+                        <li><button onClick={() => onNavigate('privacy')} className="hover:text-white text-left">Privacidade</button></li>
                     </ul>
                 </div>
                 <div>
@@ -846,8 +890,43 @@ const Footer: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }) 
     </footer>
 );
 
-const HomePage: FC<{ onNavigate: (page: 'portal' | 'faq' | 'homepage') => void }> = ({ onNavigate }) => {
-    
+const useAnimatedCounter = (target: number, duration = 2000) => {
+    const [count, setCount] = useState(0);
+    const ref = useRef<HTMLSpanElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    let start = 0;
+                    const end = target;
+                    if (start === end) return;
+
+                    const incrementTime = (duration / end) * 1;
+                    const timer = setInterval(() => {
+                        start += 1;
+                        setCount(start);
+                        if (start === end) clearInterval(timer);
+                    }, incrementTime);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.5 }
+        );
+
+        if (ref.current) {
+            observer.observe(ref.current);
+        }
+
+        return () => observer.disconnect();
+    }, [target, duration]);
+
+    return { count, ref };
+};
+
+
+const HomePage: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }) => {
+
     const HeroSection = () => (
          <section className="relative py-20 md:py-32 bg-white">
             <div className="absolute inset-0 opacity-50">
@@ -856,25 +935,63 @@ const HomePage: FC<{ onNavigate: (page: 'portal' | 'faq' | 'homepage') => void }
             <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent"></div>
 
             <div className="relative container mx-auto px-6 text-center">
-                <h2 className="text-4xl md:text-6xl font-extrabold text-neutral-dark font-heading leading-tight mb-6">
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-neutral-dark font-heading leading-tight mb-6">
                     A Sua Plataforma Completa de <br /><span className="bg-gradient-to-r from-primary to-primary-dark text-transparent bg-clip-text">Arrecadação e Entretenimento</span>
                 </h2>
                 <p className="text-lg text-neutral-dark/70 max-w-3xl mx-auto mb-10">
                     Crie vaquinhas, participe de rifas premiadas e divirta-se com nossos jogos exclusivos. Tudo em um só lugar, de forma transparente e segura.
                 </p>
-                <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} text-lg px-10 py-4`}>
-                    Comece Agora
-                </button>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} text-lg px-10 py-4`}>
+                        Comece Agora
+                    </button>
+                    <button onClick={() => onNavigate('faq')} className="font-bold text-neutral-dark hover:text-primary transition-colors text-lg px-10 py-4">
+                        Saiba Mais &rarr;
+                    </button>
+                </div>
             </div>
         </section>
     );
+
+    const StatsSection = () => {
+        const raisedCounter = useAnimatedCounter(1570);
+        const campaignsCounter = useAnimatedCounter(500);
+        const usersCounter = useAnimatedCounter(10000);
+    
+        return (
+            <section className="bg-white py-12 -mt-16 relative z-10">
+                <div className="container mx-auto px-6">
+                    <div className="bg-neutral-dark rounded-xl shadow-2xl p-8 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+                        <div>
+                            <h4 className="text-4xl lg:text-5xl font-bold text-white font-heading">
+                                R$ <span ref={raisedCounter.ref}>{raisedCounter.count}</span>K+
+                            </h4>
+                            <p className="text-primary mt-2 font-semibold">Arrecadados</p>
+                        </div>
+                        <div>
+                            <h4 className="text-4xl lg:text-5xl font-bold text-white font-heading">
+                                <span ref={campaignsCounter.ref}>{campaignsCounter.count}</span>+
+                            </h4>
+                            <p className="text-primary mt-2 font-semibold">Campanhas de Sucesso</p>
+                        </div>
+                        <div>
+                            <h4 className="text-4xl lg:text-5xl font-bold text-white font-heading">
+                                <span ref={usersCounter.ref}>{usersCounter.count}</span>+
+                            </h4>
+                            <p className="text-primary mt-2 font-semibold">Usuários Felizes</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+    };
 
     const FeaturesSection = () => (
         <section className="py-20 bg-neutral-light">
             <div className="container mx-auto px-6">
                 <div className="text-center mb-16">
                     <h3 className="text-3xl md:text-4xl font-bold text-neutral-dark font-heading">Tudo que você precisa em um só lugar</h3>
-                    <p className="text-neutral-dark/60 mt-4">Explore nossas principais funcionalidades.</p>
+                    <p className="text-neutral-dark/60 mt-4 max-w-2xl mx-auto">Explore nossas principais funcionalidades projetadas para seu sucesso e diversão.</p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-8">
                     <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-xl hover:-translate-y-2 transition-all">
@@ -931,7 +1048,7 @@ const HomePage: FC<{ onNavigate: (page: 'portal' | 'faq' | 'homepage') => void }
                 <div className="text-center mb-16">
                     <h3 className="text-3xl md:text-4xl font-bold text-neutral-dark font-heading">O que nossos usuários dizem</h3>
                 </div>
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <div className="bg-white p-8 rounded-xl shadow-md">
                         <div className="flex items-center mb-4">
                             <img className="w-12 h-12 rounded-full object-cover mr-4" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop" alt="Carla Mendes"/>
@@ -985,6 +1102,7 @@ const HomePage: FC<{ onNavigate: (page: 'portal' | 'faq' | 'homepage') => void }
         <div className="bg-neutral-light font-sans animate-fade-in">
             <main>
                 <HeroSection />
+                <StatsSection />
                 <FeaturesSection />
                 <HowItWorksSection />
                 <TestimonialsSection />
@@ -1089,8 +1207,85 @@ const FaqPage: FC<{ onNavigate: (page: 'portal' | 'homepage') => void }> = ({ on
     );
 }
 
+const AboutUsPage: FC = () => (
+    <div className="bg-white py-20 animate-fade-in">
+        <div className="container mx-auto px-6">
+            <div className="text-center mb-16">
+                <h1 className="text-4xl md:text-5xl font-bold text-neutral-dark font-heading">Sobre a PREMIX</h1>
+                <p className="text-neutral-dark/60 mt-4 max-w-3xl mx-auto text-lg">Conectando causas, sonhos e diversão em um só lugar.</p>
+            </div>
+            <div className="max-w-4xl mx-auto space-y-12 text-neutral-dark/80 text-lg leading-relaxed">
+                <p>A PREMIX nasceu da crença de que a tecnologia pode ser uma poderosa ferramenta para o bem. Vimos a necessidade de uma plataforma que não apenas facilitasse a arrecadação de fundos para causas nobres e projetos pessoais, mas que também oferecesse um ambiente seguro, transparente e engajador para todos os seus usuários. Mais do que uma ferramenta, somos uma comunidade.</p>
+                <div>
+                    <h2 className="text-3xl font-bold text-neutral-dark font-heading mb-4">Nossa Missão</h2>
+                    <p>Empoderar indivíduos e organizações a alcançarem seus objetivos, fornecendo uma plataforma robusta e intuitiva que integra vaquinhas, rifas e entretenimento, promovendo a solidariedade e a diversão de forma responsável.</p>
+                </div>
+                 <div>
+                    <h2 className="text-3xl font-bold text-neutral-dark font-heading mb-4">Nossos Valores</h2>
+                    <ul className="space-y-4">
+                        <li className="flex items-start"><ShieldCheckIcon className="w-7 h-7 text-primary mr-3 mt-1 flex-shrink-0"/><span><strong>Transparência:</strong> Acreditamos em relações claras e honestas. Todas as transações e regras são acessíveis para garantir a confiança de nossos usuários.</span></li>
+                        <li className="flex items-start"><UsersIcon className="w-7 h-7 text-primary mr-3 mt-1 flex-shrink-0"/><span><strong>Comunidade:</strong> Fomentamos um ambiente de apoio mútuo, onde cada campanha e participação contribuem para um ecossistema positivo.</span></li>
+                        <li className="flex items-start"><StarIcon className="w-7 h-7 text-primary mr-3 mt-1 flex-shrink-0"/><span><strong>Inovação:</strong> Estamos em constante busca por melhorias, implementando novas tecnologias para oferecer a melhor experiência possível.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+const PrivacyPolicyPage: FC = () => (
+    <div className="bg-neutral-light py-20 animate-fade-in">
+        <div className="container mx-auto px-6 max-w-4xl">
+             <div className="text-center mb-16">
+                <h1 className="text-4xl md:text-5xl font-bold text-neutral-dark font-heading">Política de Privacidade</h1>
+                <p className="text-neutral-dark/60 mt-4">Última atualização: {new Date().toLocaleDateString('pt-BR')}</p>
+            </div>
+            <div className="bg-white p-8 rounded-lg shadow-md space-y-6 text-neutral-dark/80 prose lg:prose-lg max-w-none">
+                <h2>1. Introdução</h2>
+                <p>Bem-vindo à PREMIX. Sua privacidade é de extrema importância para nós. Esta Política de Privacidade explica como coletamos, usamos, divulgamos e protegemos suas informações quando você utiliza nossa plataforma.</p>
+                
+                <h2>2. Informações que Coletamos</h2>
+                <p>Podemos coletar informações sobre você de várias maneiras, incluindo:</p>
+                <ul>
+                    <li><strong>Informações Pessoais de Identificação:</strong> Nome, endereço de e-mail, número de telefone, que você nos fornece ao se registrar.</li>
+                    <li><strong>Informações Financeiras:</strong> Dados de pagamento e transações, processados através de nossos gateways de pagamento seguros.</li>
+                    <li><strong>Dados de Uso:</strong> Informações sobre como você usa a plataforma, como páginas visitadas, campanhas criadas e jogos jogados.</li>
+                </ul>
+
+                <h2>3. Como Usamos Suas Informações</h2>
+                <p>Usamos as informações coletadas para:</p>
+                <ul>
+                    <li>Criar e gerenciar sua conta.</li>
+                    <li>Processar transações e enviar confirmações.</li>
+                    <li>Melhorar nossa plataforma e a experiência do usuário.</li>
+                    <li>Comunicar sobre promoções, eventos e atualizações.</li>
+                    <li>Garantir a segurança e prevenir fraudes.</li>
+                </ul>
+                
+                 <h2>4. Compartilhamento de Informações</h2>
+                <p>Não compartilhamos suas informações pessoais com terceiros, exceto nas seguintes situações:</p>
+                <ul>
+                    <li>Com seu consentimento explícito.</li>
+                    <li>Para cumprir com obrigações legais.</li>
+                    <li>Com provedores de serviços que atuam em nosso nome (ex: processadores de pagamento).</li>
+                </ul>
+
+                <h2>5. Segurança das Suas Informações</h2>
+                <p>Empregamos medidas de segurança administrativas, técnicas e físicas para ajudar a proteger suas informações pessoais. No entanto, nenhum sistema de segurança é impenetrável e não podemos garantir 100% de segurança.</p>
+
+                <h2>6. Seus Direitos</h2>
+                <p>Você tem o direito de acessar, corrigir ou excluir suas informações pessoais. Para exercer esses direitos, entre em contato conosco através dos nossos canais de suporte.</p>
+
+                 <h2>7. Contato</h2>
+                <p>Se você tiver alguma dúvida sobre esta Política de Privacidade, entre em contato conosco em [email de contato].</p>
+            </div>
+        </div>
+    </div>
+);
+
+
 const App = () => {
-    type View = 'homepage' | 'portal' | 'login' | 'register' | 'faq' | 'vaquinhas' | 'rifas' | 'slots' | 'cupons';
+    type View = PublicPage | 'login' | 'register';
     const [view, setView] = useState<View>('homepage');
     const [targetRole, setTargetRole] = useState<Role | null>(null);
     const [loggedInUser, setLoggedInUser] = useState<{ email: string, role: Role } | null>(null);
@@ -1128,6 +1323,7 @@ const App = () => {
     });
     
     const handleNavigate = (page: View) => {
+        window.scrollTo(0, 0);
         setView(page);
     }
 
@@ -1192,31 +1388,39 @@ const App = () => {
                 pageContent = <PortalPage onSelectRole={handleSelectRole} onBackToHome={() => setView('homepage')} />;
                 break;
             case 'faq':
-                pageContent = <FaqPage onNavigate={(page) => setView(page as 'portal' | 'homepage')} />;
+                pageContent = <FaqPage onNavigate={handleNavigate} />;
+                break;
+            case 'about':
+                pageContent = <AboutUsPage />;
+                break;
+            case 'privacy':
+                pageContent = <PrivacyPolicyPage />;
                 break;
             case 'vaquinhas':
-                pageContent = <PublicVaquinhasPage onNavigate={(page) => setView(page as 'portal')} />;
+                pageContent = <PublicVaquinhasPage onNavigate={handleNavigate} />;
                 break;
             case 'rifas':
-                pageContent = <PublicRifasPage onNavigate={(page) => setView(page as 'portal')} />;
+                pageContent = <PublicRifasPage onNavigate={handleNavigate} />;
                 break;
             case 'slots':
-                pageContent = <PublicSlotsPage onNavigate={(page) => setView(page as 'portal')} />;
+                pageContent = <PublicSlotsPage onNavigate={handleNavigate} />;
                 break;
             case 'cupons':
-                pageContent = <PublicCuponsPage onNavigate={(page) => setView(page as 'portal')} />;
+                pageContent = <PublicCuponsPage onNavigate={handleNavigate} />;
                 break;
             case 'homepage':
             default:
-                 pageContent = <HomePage onNavigate={(page) => setView(page)} />;
+                 pageContent = <HomePage onNavigate={handleNavigate} />;
                  break;
         }
         
+        const showHeaderFooter = !(view === 'portal' || view === 'login' || view === 'register');
+
         return (
             <>
-                {!(view === 'portal' || view === 'login' || view === 'register') && <Header onNavigate={handleNavigate} />}
+                {showHeaderFooter && <Header onNavigate={handleNavigate} />}
                 {pageContent}
-                {!(view === 'portal' || view === 'login' || view === 'register') && <Footer onNavigate={handleNavigate} />}
+                {showHeaderFooter && <Footer onNavigate={handleNavigate} />}
             </>
         )
     }
@@ -1225,7 +1429,7 @@ const App = () => {
         case 'admin': return <AdminDashboard onLogout={handleLogout} slotConfig={slotConfig} setSlotConfig={setSlotConfig} permissions={permissions} setPermissions={setPermissions} />;
         case 'manager': return <ManagerDashboard onLogout={handleLogout} slotConfig={slotConfig} permissions={permissions} />;
         case 'user': return <UserView onLogout={handleLogout} slotConfig={slotConfig} permissions={permissions.user} />;
-        default: return <HomePage onNavigate={(page) => setView(page)} />;
+        default: return <HomePage onNavigate={handleNavigate} />;
     }
 };
 
@@ -1321,17 +1525,26 @@ type DashboardLayoutProps = {
 };
 const DashboardLayout: FC<DashboardLayoutProps> = ({ children, onLogout }) => {
     const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
     const nav = children[0];
     const content = children[1];
 
     return (
         <div className="flex h-screen bg-neutral-light font-sans">
-            <aside className="w-64 bg-white flex flex-col shadow-lg">
-                <div className="h-16 flex items-center justify-center border-b"><h1 className="text-2xl font-bold text-primary font-heading">PREMIX</h1></div>
+            {/* Sidebar */}
+            <aside className={`absolute md:relative z-30 w-64 bg-white flex flex-col shadow-lg h-full transition-transform transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+                <div className="h-16 flex items-center justify-center border-b flex-shrink-0"><h1 className="text-2xl font-bold text-primary font-heading">PREMIX</h1></div>
                 {nav}
             </aside>
+            
+            {/* Overlay for mobile */}
+            {isSidebarOpen && <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-black/50 z-20 md:hidden"></div>}
+
             <div className="flex-1 flex flex-col">
-                <header className="h-16 bg-white shadow-md flex items-center justify-end px-6">
+                <header className="h-16 bg-white shadow-md flex items-center justify-between md:justify-end px-6 flex-shrink-0">
+                    <button className="md:hidden text-gray-500" onClick={() => setSidebarOpen(true)}>
+                        <MenuIcon className="w-6 h-6" />
+                    </button>
                     <div className="flex items-center space-x-4">
                         <BellIcon className="text-gray-500" />
                         <div className="relative">
