@@ -56,6 +56,157 @@ type Permissions = {
   };
 };
 
+// --- NEW USER VIEW COMPONENTS ---
+const BannerSlider: FC<{ onNavigate: (page: 'vaquinhas' | 'rifas' | 'slots') => void }> = ({ onNavigate }) => {
+    const slides = [
+        {
+            image: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=2070&auto=format&fit=crop',
+            title: 'Realize Sonhos, Apoie Causas',
+            subtitle: 'Crie ou participe de vaquinhas online para projetos que transformam vidas.',
+            cta: 'Ver Vaquinhas',
+            action: () => onNavigate('vaquinhas'),
+        },
+        {
+            image: 'https://images.unsplash.com/photo-1593697821252-9c91b172a16a?q=80&w=2070&auto=format&fit=crop',
+            title: 'Prêmios Incríveis Esperam por Você',
+            subtitle: 'Participe de nossas rifas e concorra a produtos fantásticos. A sorte está lançada!',
+            cta: 'Ver Rifas',
+            action: () => onNavigate('rifas'),
+        },
+        {
+            image: 'https://images.unsplash.com/photo-1542838223-3da3c6276a59?q=80&w=2070&auto=format&fit=crop',
+            title: 'Diversão e Fortuna nos Slots',
+            subtitle: 'Gire e ganhe em nossos jogos de slots exclusivos. A próxima grande vitória pode ser sua!',
+            cta: 'Jogar Agora',
+            action: () => onNavigate('slots'),
+        }
+    ];
+
+    const [current, setCurrent] = useState(0);
+
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            setCurrent(current === slides.length - 1 ? 0 : current + 1);
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, [current, slides.length]);
+
+    return (
+        <div className="relative w-full max-w-7xl mx-auto h-96 rounded-2xl overflow-hidden shadow-2xl animate-fade-in">
+            {slides.map((slide, index) => (
+                <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ${index === current ? 'opacity-100' : 'opacity-0'}`}>
+                    <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center p-4">
+                        <h2 className="text-4xl md:text-5xl font-extrabold text-white font-heading">{slide.title}</h2>
+                        <p className="text-lg text-white/90 mt-4 max-w-2xl">{slide.subtitle}</p>
+                        <button onClick={slide.action} className={`${primaryButtonClasses} mt-8 px-8 py-3 text-lg`}>{slide.cta}</button>
+                    </div>
+                </div>
+            ))}
+             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                {slides.map((_, index) => (
+                    <button key={index} onClick={() => setCurrent(index)} className={`w-3 h-3 rounded-full transition-colors ${index === current ? 'bg-white' : 'bg-white/50 hover:bg-white'}`}></button>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const UserVaquinhasPage: FC = () => {
+    const vaquinhas = [
+        { title: 'Ajude o abrigo Anjos de Patas', goal: 10000, raised: 7500, image: 'https://images.unsplash.com/photo-1598875184988-5e67b1a7ea95?q=80&w=2070&auto=format&fit=crop' },
+        { title: 'Cirurgia do pequeno Lucas', goal: 25000, raised: 12500, image: 'https://images.unsplash.com/photo-1519951838435-a6e29a55c6d3?q=80&w=2070&auto=format&fit=crop' },
+        { title: 'Reforma da creche Comunitária', goal: 50000, raised: 45000, image: 'https://images.unsplash.com/photo-1576765682692-05a7d74548f2?q=80&w=2070&auto=format&fit=crop' }
+    ];
+    return (
+        <div className="animate-fade-in">
+            <h2 className="text-3xl font-bold text-white mb-6">Vaquinhas em Destaque</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+                {vaquinhas.map(v => (
+                    <div key={v.title} className="bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:-translate-y-1 transition-transform">
+                        <img src={v.image} alt={v.title} className="w-full h-48 object-cover" />
+                        <div className="p-4">
+                            <h3 className="font-bold text-lg text-white">{v.title}</h3>
+                            <div className="mt-4">
+                                <div className="flex justify-between text-sm text-gray-400">
+                                    <span>R$ {v.raised.toFixed(2)}</span>
+                                    <span>Meta: R$ {v.goal.toFixed(2)}</span>
+                                </div>
+                                <div className="w-full bg-gray-700 rounded-full h-2.5 mt-1">
+                                    <div className="bg-primary h-2.5 rounded-full" style={{ width: `${(v.raised / v.goal) * 100}%` }}></div>
+                                </div>
+                            </div>
+                            <button className={`${primaryButtonClasses} w-full mt-4 py-2`}>Apoiar</button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const UserRifasPage: FC = () => {
+     const rifas = [
+        { prize: 'iPhone 15 Pro', ticketPrice: 5.00, image: 'https://images.unsplash.com/photo-1695026224700-9e65b0532292?q=80&w=1964&auto=format&fit=crop' },
+        { prize: 'Playstation 5', ticketPrice: 7.50, image: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?q=80&w=2070&auto=format&fit=crop' },
+        { prize: 'Viagem para Cancún', ticketPrice: 10.00, image: 'https://images.unsplash.com/photo-1541172626292-8097157b433c?q=80&w=2070&auto=format&fit=crop' }
+    ];
+    return (
+        <div className="animate-fade-in">
+            <h2 className="text-3xl font-bold text-white mb-6">Rifas Ativas</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+                {rifas.map(r => (
+                    <div key={r.prize} className="bg-gray-800 rounded-lg overflow-hidden shadow-lg text-center">
+                        <img src={r.image} alt={r.prize} className="w-full h-56 object-cover" />
+                        <div className="p-4">
+                            <h3 className="font-bold text-xl text-white">{r.prize}</h3>
+                            <p className="text-secondary font-bold text-2xl my-2">R$ {r.ticketPrice.toFixed(2)}</p>
+                            <p className="text-gray-400 text-sm">por bilhete</p>
+                            <button className={`${primaryButtonClasses} w-full mt-4 py-2`}>Participar</button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const UserSlotsPage: FC<{ slotConfig: SlotConfig; permissions: Permissions['user'] }> = ({ slotConfig, permissions }) => {
+    return (
+        <div className="animate-fade-in">
+             <FortunaFelizGame slotConfig={slotConfig} permissions={permissions} />
+        </div>
+    );
+};
+
+const UserCuponsPage: FC = () => {
+    const cupons = [
+        { code: 'BEMVINDO10', description: '10% de desconto na primeira compra de rifa.', expiry: '31/12/2024' },
+        { code: 'SLOTS5', description: '5 rodadas grátis no Fortuna Feliz.', expiry: '30/11/2024' }
+    ];
+    return (
+         <div className="animate-fade-in">
+            <h2 className="text-3xl font-bold text-white mb-6">Meus Cupons</h2>
+            <div className="space-y-4 max-w-2xl mx-auto">
+                {cupons.map(c => (
+                     <div key={c.code} className="bg-gray-800 rounded-lg p-4 flex items-center justify-between border-l-4 border-secondary">
+                        <div>
+                             <p className="text-sm text-gray-400">Código</p>
+                             <p className="text-white font-bold text-lg tracking-widest">{c.code}</p>
+                             <p className="text-gray-300 mt-1">{c.description}</p>
+                        </div>
+                        <div className="text-right">
+                             <p className="text-sm text-gray-400">Válido até</p>
+                             <p className="text-white font-semibold">{c.expiry}</p>
+                             <button className="text-primary hover:text-primary-light text-sm font-semibold mt-1">Usar Agora</button>
+                        </div>
+                     </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 
 // --- Page Components ---
 const ControlPanelPage = () => <div><h1 className="text-2xl font-semibold text-neutral-dark">Painel de Controle</h1></div>;
@@ -411,18 +562,60 @@ const RegistrationPage: FC<{
   );
 };
 
+type UserPage = 'inicio' | 'vaquinhas' | 'rifas' | 'slots' | 'cupons';
+const UserView: FC<{ onLogout: () => void; slotConfig: SlotConfig; permissions: Permissions['user'] }> = ({ onLogout, slotConfig, permissions }) => {
+    const [activePage, setActivePage] = useState<UserPage>('inicio');
 
-const UserView: FC<{ onLogout: () => void; slotConfig: SlotConfig; permissions: Permissions['user'] }> = ({ onLogout, slotConfig, permissions }) => (
-    <div className="min-h-screen bg-gray-900 text-white">
-         <header className="bg-gray-800 p-4 flex justify-between items-center">
-            <h1 className="text-xl font-bold text-yellow-300">Fortuna Feliz</h1>
-            <button onClick={onLogout} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded flex items-center">
-                <LogoutIcon className="w-5 h-5 mr-2"/> Sair
-            </button>
-        </header>
-        <main className="p-4"><FortunaFelizGame slotConfig={slotConfig} permissions={permissions} /></main>
-    </div>
-);
+    const navItems = [
+        { id: 'inicio' as UserPage, label: 'Início', icon: <DashboardIcon /> },
+        { id: 'vaquinhas' as UserPage, label: 'Vaquinhas', icon: <VaquinhaIcon /> },
+        { id: 'rifas' as UserPage, label: 'Rifas', icon: <RifaIcon /> },
+        { id: 'slots' as UserPage, label: 'Slots', icon: <GamesIcon /> },
+        { id: 'cupons' as UserPage, label: 'Cupons', icon: <CouponIcon /> },
+    ];
+    
+    const renderPage = () => {
+        switch(activePage) {
+            case 'inicio': return <BannerSlider onNavigate={(page) => setActivePage(page)} />;
+            case 'vaquinhas': return <UserVaquinhasPage />;
+            case 'rifas': return <UserRifasPage />;
+            case 'slots': return <UserSlotsPage slotConfig={slotConfig} permissions={permissions} />;
+            case 'cupons': return <UserCuponsPage />;
+            default: return <BannerSlider onNavigate={(page) => setActivePage(page)} />;
+        }
+    }
+    
+    return (
+        <div className="min-h-screen bg-neutral-dark text-white font-sans">
+            <header className="bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 p-4 flex justify-between items-center shadow-lg">
+                <h1 className="text-2xl font-bold text-primary font-heading">PREMIX</h1>
+                <div className="flex items-center space-x-4">
+                     <p>Bem-vindo, Usuário!</p>
+                     <button onClick={onLogout} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2 transition-colors">
+                        <LogoutIcon className="w-5 h-5"/> <span>Sair</span>
+                    </button>
+                </div>
+            </header>
+            
+            <nav className="bg-gray-800 p-2 flex justify-center space-x-2 md:space-x-8">
+                {navItems.map(item => (
+                    <button 
+                        key={item.id} 
+                        onClick={() => setActivePage(item.id)} 
+                        className={`flex flex-col md:flex-row items-center space-x-2 px-4 py-2 rounded-lg transition-colors font-semibold ${activePage === item.id ? 'bg-primary text-white' : 'text-gray-300 hover:bg-gray-700'}`}
+                    >
+                        {React.cloneElement(item.icon, { className: 'w-6 h-6' })}
+                        <span className="text-sm md:text-base">{item.label}</span>
+                    </button>
+                ))}
+            </nav>
+            
+            <main className="p-6 md:p-10">
+                {renderPage()}
+            </main>
+        </div>
+    );
+};
 
 const Header: FC<{ onNavigate: (page: 'homepage' | 'faq' | 'portal') => void }> = ({ onNavigate }) => (
     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
@@ -485,8 +678,13 @@ const Footer: FC<{ onNavigate: (page: 'homepage' | 'faq' | 'portal') => void }> 
 const HomePage: FC<{ onNavigate: (page: 'portal' | 'faq' | 'homepage') => void }> = ({ onNavigate }) => {
     
     const HeroSection = () => (
-        <section className="py-20 md:py-32 bg-white">
-            <div className="container mx-auto px-6 text-center">
+         <section className="relative py-20 md:py-32 bg-white">
+            <div className="absolute inset-0 opacity-50">
+                 <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=1949&auto=format&fit=crop" className="w-full h-full object-cover" alt="Community support"/>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent"></div>
+
+            <div className="relative container mx-auto px-6 text-center">
                 <h2 className="text-4xl md:text-6xl font-extrabold text-neutral-dark font-heading leading-tight mb-6">
                     A Sua Plataforma Completa de <br /><span className="bg-gradient-to-r from-primary to-primary-dark text-transparent bg-clip-text">Arrecadação e Entretenimento</span>
                 </h2>
@@ -565,7 +763,7 @@ const HomePage: FC<{ onNavigate: (page: 'portal' | 'faq' | 'homepage') => void }
                 <div className="grid md:grid-cols-3 gap-8">
                     <div className="bg-white p-8 rounded-xl shadow-md">
                         <div className="flex items-center mb-4">
-                            <div className="w-12 h-12 rounded-full bg-primary/20 mr-4"></div>
+                            <img className="w-12 h-12 rounded-full object-cover mr-4" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop" alt="Carla Mendes"/>
                             <div>
                                 <p className="font-bold text-neutral-dark">Carla Mendes</p>
                                 <div className="flex text-yellow-500"><StarIcon /><StarIcon /><StarIcon /><StarIcon /><StarIcon /></div>
@@ -575,7 +773,7 @@ const HomePage: FC<{ onNavigate: (page: 'portal' | 'faq' | 'homepage') => void }
                     </div>
                     <div className="bg-white p-8 rounded-xl shadow-md">
                         <div className="flex items-center mb-4">
-                            <div className="w-12 h-12 rounded-full bg-primary/20 mr-4"></div>
+                            <img className="w-12 h-12 rounded-full object-cover mr-4" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop" alt="João Ferreira"/>
                             <div>
                                 <p className="font-bold text-neutral-dark">João Ferreira</p>
                                 <div className="flex text-yellow-500"><StarIcon /><StarIcon /><StarIcon /><StarIcon /><StarIcon /></div>
@@ -585,7 +783,7 @@ const HomePage: FC<{ onNavigate: (page: 'portal' | 'faq' | 'homepage') => void }
                     </div>
                     <div className="bg-white p-8 rounded-xl shadow-md">
                         <div className="flex items-center mb-4">
-                            <div className="w-12 h-12 rounded-full bg-primary/20 mr-4"></div>
+                            <img className="w-12 h-12 rounded-full object-cover mr-4" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop" alt="Mariana Costa"/>
                             <div>
                                 <p className="font-bold text-neutral-dark">Mariana Costa</p>
                                 <div className="flex text-yellow-500"><StarIcon /><StarIcon /><StarIcon /><StarIcon /><StarIcon /></div>
