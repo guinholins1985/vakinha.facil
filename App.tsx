@@ -28,7 +28,11 @@ const UserIcon: FC<{ className?: string }> = ({ className = "w-16 h-16 mx-auto t
 const StarIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>;
 const CheckCircleIcon: FC<{ className?: string }> = ({ className = "w-8 h-8" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 const ArrowRightIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>;
+const ShieldCheckIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 20.944a11.955 11.955 0 019-2.944c.435 0 .86-.033 1.284-.096m6.143-4.873a5.976 5.976 0 00-8.243-7.53" /></svg>;
+const BookOpenIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
 
+
+const primaryButtonClasses = "bg-gradient-to-r from-primary-light to-primary text-white font-bold rounded-lg shadow-md hover:from-primary hover:to-primary-dark transition-all duration-300 transform hover:scale-105";
 
 // --- Types ---
 type Role = 'admin' | 'manager' | 'user';
@@ -40,6 +44,18 @@ type SlotConfig = {
   maxBet: number;
   defaultBet: number;
 };
+type Permissions = {
+  manager: {
+    canManageVaquinhas: boolean;
+    canManageRifas: boolean;
+    canManageSlots: boolean;
+  };
+  user: {
+    canPlaySlots: boolean;
+    maxBetAmount: number;
+  };
+};
+
 
 // --- Page Components ---
 const ControlPanelPage = () => <div><h1 className="text-2xl font-semibold text-neutral-dark">Painel de Controle</h1></div>;
@@ -50,7 +66,60 @@ const VaquinhasPage = () => <div><h1 className="text-2xl font-semibold text-neut
 const RifasPage = () => <div><h1 className="text-2xl font-semibold text-neutral-dark">Gerenciar Rifas</h1></div>;
 const UsersPage = () => <div><h1 className="text-2xl font-semibold text-neutral-dark">Usuários</h1></div>;
 
-const FortunaFelizGame: FC<{ slotConfig: SlotConfig; isAdminView?: boolean }> = ({ slotConfig, isAdminView = false }) => {
+const PermissionsPage: FC<{ permissions: Permissions, setPermissions: (p: Permissions) => void }> = ({ permissions, setPermissions }) => {
+    
+    const handleManagerChange = (key: keyof Permissions['manager'], value: boolean) => {
+        setPermissions({
+            ...permissions,
+            manager: { ...permissions.manager, [key]: value }
+        });
+    };
+
+    const handleUserChange = (key: keyof Permissions['user'], value: boolean | number) => {
+        setPermissions({
+            ...permissions,
+            user: { ...permissions.user, [key]: value }
+        });
+    };
+
+    const Toggle: FC<{ label: string, isEnabled: boolean, onToggle: (enabled: boolean) => void }> = ({ label, isEnabled, onToggle }) => (
+        <div className="flex items-center justify-between">
+            <span className="text-neutral-dark/80">{label}</span>
+            <button onClick={() => onToggle(!isEnabled)} className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${isEnabled ? 'bg-primary' : 'bg-gray-300'}`}>
+                <span className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${isEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+        </div>
+    );
+    
+    return (
+        <div className="space-y-8">
+            <h1 className="text-3xl font-bold text-neutral-dark">Gestão de Permissões</h1>
+
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h2 className="text-xl font-bold text-neutral-dark mb-4 border-b pb-2">Permissões do Gestor de Conteúdo</h2>
+                <div className="space-y-4">
+                    <Toggle label="Pode gerenciar Vaquinhas?" isEnabled={permissions.manager.canManageVaquinhas} onToggle={(val) => handleManagerChange('canManageVaquinhas', val)} />
+                    <Toggle label="Pode gerenciar Rifas?" isEnabled={permissions.manager.canManageRifas} onToggle={(val) => handleManagerChange('canManageRifas', val)} />
+                    <Toggle label="Pode gerenciar Slots?" isEnabled={permissions.manager.canManageSlots} onToggle={(val) => handleManagerChange('canManageSlots', val)} />
+                </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h2 className="text-xl font-bold text-neutral-dark mb-4 border-b pb-2">Permissões do Usuário</h2>
+                <div className="space-y-4">
+                    <Toggle label="Pode jogar Slots?" isEnabled={permissions.user.canPlaySlots} onToggle={(val) => handleUserChange('canPlaySlots', val)} />
+                    <div>
+                        <label className="block text-sm font-medium text-neutral-dark/90 mb-2" htmlFor="maxBetAmount">Aposta Máxima nos Slots (R$)</label>
+                        <input type="number" id="maxBetAmount" value={permissions.user.maxBetAmount} onChange={(e) => handleUserChange('maxBetAmount', Number(e.target.value))} className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+const FortunaFelizGame: FC<{ slotConfig: SlotConfig; permissions: Permissions['user']; isAdminView?: boolean }> = ({ slotConfig, permissions, isAdminView = false }) => {
     const symbols = ['🍊', '💰', '🧧', '🐯', '🎁'];
     const [balance, setBalance] = useState(9750.00);
     const [bet, setBet] = useState(slotConfig.defaultBet);
@@ -61,6 +130,10 @@ const FortunaFelizGame: FC<{ slotConfig: SlotConfig; isAdminView?: boolean }> = 
     const [spinning, setSpinning] = useState(false);
     const [message, setMessage] = useState('Bem-vindo ao Fortuna Feliz!');
     const [freeSpins, setFreeSpins] = useState(0);
+
+    if (!isAdminView && !permissions.canPlaySlots) {
+        return <div className="text-center p-10 bg-red-100 rounded-lg"><p className="text-red-700 font-bold">Acesso aos jogos de Slot está temporariamente desativado.</p></div>
+    }
 
     const spinReels = () => {
         if (spinning) return;
@@ -85,11 +158,10 @@ const FortunaFelizGame: FC<{ slotConfig: SlotConfig; isAdminView?: boolean }> = 
             const finalReels = reels.map(reel => reel.map(() => symbols[Math.floor(Math.random() * symbols.length)]));
             setReels(finalReels);
             
-            // Lógica de vitória controlada pelo admin
             const winSymbolsOnScreen = finalReels.flat().filter(s => s === slotConfig.winSymbol).length;
             let winAmount = 0;
 
-            if (winSymbolsOnScreen >= 3) { // Regra: 3 ou mais símbolos de vitória
+            if (winSymbolsOnScreen >= 3) {
                 winAmount = bet * slotConfig.payoutMultiplier;
                 const formattedMessage = slotConfig.winMessage.replace('{winAmount}', winAmount.toFixed(2));
                 setMessage(formattedMessage);
@@ -126,7 +198,7 @@ const FortunaFelizGame: FC<{ slotConfig: SlotConfig; isAdminView?: boolean }> = 
             <div className="mt-4 flex justify-center items-center space-x-4">
                 <button onClick={() => setBet(b => Math.max(slotConfig.minBet, b - 0.5))} disabled={spinning} className="px-4 py-2 font-bold text-white bg-yellow-600 rounded-full">-</button>
                 <button onClick={spinReels} disabled={spinning} className="px-8 py-4 text-xl font-bold text-red-900 bg-yellow-400 rounded-full">{spinning ? '...' : 'GIRAR'}</button>
-                <button onClick={() => setBet(b => Math.min(slotConfig.maxBet, b + 0.5))} disabled={spinning} className="px-4 py-2 font-bold text-white bg-yellow-600 rounded-full">+</button>
+                <button onClick={() => setBet(b => Math.min(isAdminView ? slotConfig.maxBet : permissions.maxBetAmount, b + 0.5))} disabled={spinning} className="px-4 py-2 font-bold text-white bg-yellow-600 rounded-full">+</button>
             </div>
         </div>
     );
@@ -177,7 +249,7 @@ const SlotConfigEditor: FC<{ config: SlotConfig, setConfig: (config: SlotConfig)
 };
 
 
-const GestaoSlotsPage: FC<{ slotConfig: SlotConfig, setSlotConfig: (config: SlotConfig) => void }> = ({ slotConfig, setSlotConfig }) => {
+const GestaoSlotsPage: FC<{ slotConfig: SlotConfig, setSlotConfig: (config: SlotConfig) => void; permissions: Permissions['user'] }> = ({ slotConfig, setSlotConfig, permissions }) => {
     const [activeTab, setActiveTab] = useState('Jogar Jogo');
     const tabs = ['Jogar Jogo', 'Configurações do Jogo', 'Visão Geral & Templates', 'Gestão de Slots', 'Gestão de Reservas', 'Relatórios & Análises'];
     return (
@@ -189,14 +261,14 @@ const GestaoSlotsPage: FC<{ slotConfig: SlotConfig, setSlotConfig: (config: Slot
                     ))}
                 </nav>
             </div>
-            {activeTab === 'Jogar Jogo' && <FortunaFelizGame slotConfig={slotConfig} isAdminView={true} />}
+            {activeTab === 'Jogar Jogo' && <FortunaFelizGame slotConfig={slotConfig} permissions={permissions} isAdminView={true} />}
             {activeTab === 'Configurações do Jogo' && <SlotConfigEditor config={slotConfig} setConfig={setSlotConfig} />}
             {activeTab === 'Visão Geral & Templates' && <div>Templates...</div>}
         </div>
     )
 }
 
-const PortalPage: FC<{ onSelectRole: (role: Role) => void }> = ({ onSelectRole }) => (
+const PortalPage: FC<{ onSelectRole: (role: Role) => void; onBackToHome: () => void; }> = ({ onSelectRole, onBackToHome }) => (
     <div className="min-h-screen bg-neutral-light flex flex-col items-center justify-center p-4 animate-fade-in">
         <h1 className="text-5xl font-extrabold text-primary font-heading mb-4">PREMIX</h1>
         <p className="text-neutral-dark/80 text-lg mb-12">Portal de Acesso</p>
@@ -205,20 +277,25 @@ const PortalPage: FC<{ onSelectRole: (role: Role) => void }> = ({ onSelectRole }
                 <AdminIcon />
                 <h2 className="text-2xl font-bold font-heading text-neutral-dark mb-2">Administrador</h2>
                 <p className="text-neutral-dark/60 mb-6">Controle total da plataforma, configurações e usuários.</p>
-                <button onClick={() => onSelectRole('admin')} className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors">Entrar</button>
+                <button onClick={() => onSelectRole('admin')} className={`w-full px-6 py-3 ${primaryButtonClasses}`}>Entrar</button>
             </div>
             <div className="bg-white p-8 rounded-xl shadow-lg text-center transform hover:scale-105 transition-transform">
                 <ManagerIcon />
                 <h2 className="text-2xl font-bold font-heading text-neutral-dark mb-2">Gestor de Conteúdo</h2>
                 <p className="text-neutral-dark/60 mb-6">Gerencie Vaquinhas, Rifas e Slots.</p>
-                <button onClick={() => onSelectRole('manager')} className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors">Entrar</button>
+                <button onClick={() => onSelectRole('manager')} className={`w-full px-6 py-3 ${primaryButtonClasses}`}>Entrar</button>
             </div>
             <div className="bg-white p-8 rounded-xl shadow-lg text-center transform hover:scale-105 transition-transform">
                 <UserIcon />
                 <h2 className="text-2xl font-bold font-heading text-neutral-dark mb-2">Usuário</h2>
                 <p className="text-neutral-dark/60 mb-6">Acesse os jogos e funcionalidades da plataforma.</p>
-                <button onClick={() => onSelectRole('user')} className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors">Entrar</button>
+                <button onClick={() => onSelectRole('user')} className={`w-full px-6 py-3 ${primaryButtonClasses}`}>Entrar</button>
             </div>
+        </div>
+         <div className="mt-12">
+            <button onClick={onBackToHome} className="text-neutral-dark/70 hover:text-neutral-dark transition-colors font-medium">
+                &larr; Voltar ao Início
+            </button>
         </div>
     </div>
 );
@@ -253,7 +330,7 @@ const LoginPage: FC<{
                     <label className="block text-neutral-dark/90 text-sm font-bold mb-2" htmlFor="password">Senha</label>
                     <input id="password" value={password} onChange={e => setPassword(e.target.value)} className="shadow appearance-none border rounded w-full py-2 px-3 text-neutral-dark/90 leading-tight focus:outline-none focus:shadow-outline" type="password" placeholder="Senha" />
                 </div>
-                <button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded transition-colors" type="submit">Entrar</button>
+                <button className={`w-full py-2 px-4 ${primaryButtonClasses}`} type="submit">Entrar</button>
                 <button onClick={onBack} className="w-full bg-gray-200 hover:bg-gray-300 text-neutral-dark/90 font-bold py-2 px-4 rounded mt-2 transition-colors" type="button">Voltar</button>
             </form>
              <p className="text-center text-neutral-dark/60 text-sm mt-6">
@@ -320,7 +397,8 @@ const RegistrationPage: FC<{
             <label className="block text-neutral-dark/90 text-sm font-bold mb-2" htmlFor="confirmPassword">Confirmar Senha</label>
             <input id="confirmPassword" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="shadow appearance-none border rounded w-full py-2 px-3 text-neutral-dark/90 leading-tight focus:outline-none focus:shadow-outline" type="password" placeholder="Confirmar Senha" />
           </div>
-          <button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded transition-colors" type="submit">Cadastrar</button>
+          <button className={`w-full py-2 px-4 ${primaryButtonClasses}`} type="submit">Cadastrar</button>
+           <button onClick={onSwitchToLogin} className="w-full bg-gray-200 hover:bg-gray-300 text-neutral-dark/90 font-bold py-2 px-4 rounded mt-2 transition-colors" type="button">Voltar</button>
         </form>
         <p className="text-center text-neutral-dark/60 text-sm mt-6">
           Já tem uma conta?{' '}
@@ -334,7 +412,7 @@ const RegistrationPage: FC<{
 };
 
 
-const UserView: FC<{ onLogout: () => void; slotConfig: SlotConfig }> = ({ onLogout, slotConfig }) => (
+const UserView: FC<{ onLogout: () => void; slotConfig: SlotConfig; permissions: Permissions['user'] }> = ({ onLogout, slotConfig, permissions }) => (
     <div className="min-h-screen bg-gray-900 text-white">
          <header className="bg-gray-800 p-4 flex justify-between items-center">
             <h1 className="text-xl font-bold text-yellow-300">Fortuna Feliz</h1>
@@ -342,39 +420,80 @@ const UserView: FC<{ onLogout: () => void; slotConfig: SlotConfig }> = ({ onLogo
                 <LogoutIcon className="w-5 h-5 mr-2"/> Sair
             </button>
         </header>
-        <main className="p-4"><FortunaFelizGame slotConfig={slotConfig} /></main>
+        <main className="p-4"><FortunaFelizGame slotConfig={slotConfig} permissions={permissions} /></main>
     </div>
 );
 
-const HomePage: FC<{ onNavigateToPortal: () => void }> = ({ onNavigateToPortal }) => {
-    const Header = () => (
-        <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-            <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-primary font-heading">PREMIX</h1>
-                <nav className="hidden md:flex space-x-8 items-center">
-                    <a href="#" className="text-neutral-dark/70 hover:text-primary transition-colors">Início</a>
-                    <a href="#" className="text-neutral-dark/70 hover:text-primary transition-colors">Vaquinhas</a>
-                    <a href="#" className="text-neutral-dark/70 hover:text-primary transition-colors">Rifas</a>
-                    <a href="#" className="text-neutral-dark/70 hover:text-primary transition-colors">Slots</a>
-                </nav>
-                <div className="flex items-center space-x-4">
-                    <button onClick={onNavigateToPortal} className="hidden md:block text-neutral-dark/80 font-semibold hover:text-primary transition-colors">Login</button>
-                    <button onClick={onNavigateToPortal} className="bg-primary text-white font-semibold px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">Cadastre-se</button>
+const Header: FC<{ onNavigate: (page: 'homepage' | 'faq' | 'portal') => void }> = ({ onNavigate }) => (
+    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+            <button onClick={() => onNavigate('homepage')} className="text-3xl font-bold text-primary font-heading">PREMIX</button>
+            <nav className="hidden md:flex space-x-8 items-center">
+                <button onClick={() => onNavigate('homepage')} className="text-neutral-dark/70 hover:text-primary transition-colors">Início</button>
+                <a href="#" className="text-neutral-dark/70 hover:text-primary transition-colors">Vaquinhas</a>
+                <a href="#" className="text-neutral-dark/70 hover:text-primary transition-colors">Rifas</a>
+                <a href="#" className="text-neutral-dark/70 hover:text-primary transition-colors">Slots</a>
+                <button onClick={() => onNavigate('faq')} className="text-neutral-dark/70 hover:text-primary transition-colors">Como Funciona</button>
+            </nav>
+            <div className="flex items-center space-x-4">
+                <button onClick={() => onNavigate('portal')} className="hidden md:block text-neutral-dark/80 font-semibold hover:text-primary transition-colors">Login</button>
+                <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} px-6 py-2`}>Cadastre-se</button>
+            </div>
+        </div>
+    </header>
+);
+
+const Footer: FC<{ onNavigate: (page: 'homepage' | 'faq' | 'portal') => void }> = ({ onNavigate }) => (
+    <footer className="bg-neutral-dark text-neutral-light/70">
+        <div className="container mx-auto px-6 py-12">
+            <div className="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h4 className="text-2xl font-bold text-white font-heading mb-4">PREMIX</h4>
+                    <p>Sua plataforma completa de arrecadação e entretenimento.</p>
+                </div>
+                 <div>
+                    <h5 className="font-bold text-white mb-4">Links</h5>
+                    <ul className="space-y-2">
+                        <li><a href="#" className="hover:text-white">Sobre Nós</a></li>
+                        <li><a href="#" className="hover:text-white">Contato</a></li>
+                        <li><button onClick={() => onNavigate('faq')} className="hover:text-white text-left">Como Funciona</button></li>
+                        <li><a href="#" className="hover:text-white">Privacidade</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 className="font-bold text-white mb-4">Recursos</h5>
+                    <ul className="space-y-2">
+                        <li><a href="#" className="hover:text-white">Criar Vaquinha</a></li>
+                        <li><a href="#" className="hover:text-white">Ver Rifas</a></li>
+                        <li><a href="#" className="hover:text-white">Jogar Slots</a></li>
+                    </ul>
+                </div>
+                <div>
+                     <h5 className="font-bold text-white mb-4">Siga-nos</h5>
+                     <div className="flex space-x-4">
+                        {/* Social Icons Placeholder */}
+                     </div>
                 </div>
             </div>
-        </header>
-    );
+            <div className="mt-12 border-t border-neutral-light/20 pt-8 text-center text-sm">
+                <p>&copy; {new Date().getFullYear()} PREMIX. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+);
 
+const HomePage: FC<{ onNavigate: (page: 'portal' | 'faq' | 'homepage') => void }> = ({ onNavigate }) => {
+    
     const HeroSection = () => (
         <section className="py-20 md:py-32 bg-white">
             <div className="container mx-auto px-6 text-center">
                 <h2 className="text-4xl md:text-6xl font-extrabold text-neutral-dark font-heading leading-tight mb-6">
-                    A Sua Plataforma Completa de <br /><span className="text-primary">Arrecadação e Entretenimento</span>
+                    A Sua Plataforma Completa de <br /><span className="bg-gradient-to-r from-primary to-primary-dark text-transparent bg-clip-text">Arrecadação e Entretenimento</span>
                 </h2>
                 <p className="text-lg text-neutral-dark/70 max-w-3xl mx-auto mb-10">
                     Crie vaquinhas, participe de rifas premiadas e divirta-se com nossos jogos exclusivos. Tudo em um só lugar, de forma transparente e segura.
                 </p>
-                <button onClick={onNavigateToPortal} className="bg-primary text-white font-bold text-lg px-10 py-4 rounded-lg hover:bg-primary/90 transition-transform transform hover:scale-105 shadow-lg">
+                <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} text-lg px-10 py-4`}>
                     Comece Agora
                 </button>
             </div>
@@ -486,55 +605,15 @@ const HomePage: FC<{ onNavigateToPortal: () => void }> = ({ onNavigateToPortal }
                  <p className="text-lg text-neutral-dark/70 max-w-2xl mx-auto mb-8">
                     Junte-se a milhares de usuários e transforme suas ideias em realidade.
                 </p>
-                 <button onClick={onNavigateToPortal} className="bg-primary text-white font-bold text-lg px-10 py-4 rounded-lg hover:bg-primary/90 transition-transform transform hover:scale-105 shadow-lg">
+                 <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} text-lg px-10 py-4`}>
                     Crie sua conta grátis
                 </button>
             </div>
         </section>
     );
     
-    const Footer = () => (
-        <footer className="bg-neutral-dark text-neutral-light/70">
-            <div className="container mx-auto px-6 py-12">
-                <div className="grid md:grid-cols-4 gap-8">
-                    <div>
-                        <h4 className="text-2xl font-bold text-white font-heading mb-4">PREMIX</h4>
-                        <p>Sua plataforma completa de arrecadação e entretenimento.</p>
-                    </div>
-                     <div>
-                        <h5 className="font-bold text-white mb-4">Links</h5>
-                        <ul className="space-y-2">
-                            <li><a href="#" className="hover:text-white">Sobre Nós</a></li>
-                            <li><a href="#" className="hover:text-white">Contato</a></li>
-                            <li><a href="#" className="hover:text-white">Termos de Serviço</a></li>
-                            <li><a href="#" className="hover:text-white">Privacidade</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h5 className="font-bold text-white mb-4">Recursos</h5>
-                        <ul className="space-y-2">
-                            <li><a href="#" className="hover:text-white">Criar Vaquinha</a></li>
-                            <li><a href="#" className="hover:text-white">Ver Rifas</a></li>
-                            <li><a href="#" className="hover:text-white">Jogar Slots</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                         <h5 className="font-bold text-white mb-4">Siga-nos</h5>
-                         <div className="flex space-x-4">
-                            {/* Social Icons Placeholder */}
-                         </div>
-                    </div>
-                </div>
-                <div className="mt-12 border-t border-neutral-light/20 pt-8 text-center text-sm">
-                    <p>&copy; {new Date().getFullYear()} PREMIX. Todos os direitos reservados.</p>
-                </div>
-            </div>
-        </footer>
-    );
-
     return (
         <div className="bg-neutral-light font-sans animate-fade-in">
-            <Header />
             <main>
                 <HeroSection />
                 <FeaturesSection />
@@ -542,17 +621,98 @@ const HomePage: FC<{ onNavigateToPortal: () => void }> = ({ onNavigateToPortal }
                 <TestimonialsSection />
                 <CTASection />
             </main>
-            <Footer />
         </div>
     );
 };
 
+const FaqPage: FC<{ onNavigate: (page: 'portal' | 'homepage') => void }> = ({ onNavigate }) => {
+    
+    const FaqItem: FC<{ q: string, a: string }> = ({ q, a }) => {
+        const [isOpen, setIsOpen] = useState(false);
+        return (
+            <div className="border-b">
+                <button onClick={() => setIsOpen(!isOpen)} className="w-full text-left py-4 flex justify-between items-center">
+                    <span className="font-semibold">{q}</span>
+                    <span className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+                </button>
+                {isOpen && <div className="pb-4 text-neutral-dark/80">{a}</div>}
+            </div>
+        );
+    }
+    
+    const FeatureCard: FC<{ icon: ReactNode, title: string, description: string }> = ({ icon, title, description }) => (
+        <div className="flex items-start space-x-4">
+            <div className="flex-shrink-0 w-12 h-12 bg-primary/10 text-primary rounded-lg flex items-center justify-center">{icon}</div>
+            <div>
+                <h3 className="text-xl font-bold text-neutral-dark">{title}</h3>
+                <p className="text-neutral-dark/70 mt-1">{description}</p>
+            </div>
+        </div>
+    );
+
+    return (
+        <div className="bg-neutral-light font-sans animate-fade-in">
+            <div className="relative h-64 md:h-80 bg-gradient-to-r from-primary to-green-400 flex items-center justify-center text-white">
+                <div className="text-center">
+                    <h1 className="text-4xl md:text-6xl font-extrabold font-heading">Como Funciona</h1>
+                    <p className="text-lg mt-2">Tudo o que você precisa saber sobre a PREMIX.</p>
+                </div>
+            </div>
+
+            <main className="container mx-auto px-6 py-16">
+                 {/* Seção de Features */}
+                <section className="mb-20">
+                     <h2 className="text-3xl font-bold text-center text-neutral-dark font-heading mb-12">Nossas Funcionalidades em Detalhes</h2>
+                     <div className="grid md:grid-cols-2 gap-12">
+                         <FeatureCard icon={<VaquinhaIcon className="w-6 h-6"/>} title="Vaquinhas Online" description="Arrecade dinheiro para qualquer objetivo. Crie sua página, defina uma meta e compartilhe com sua rede. Acompanhe as contribuições em tempo real com total transparência." />
+                         <FeatureCard icon={<RifaIcon className="w-6 h-6"/>} title="Rifas Premiadas" description="Crie ou participe de sorteios de forma fácil e segura. Defina o prêmio, o valor dos bilhetes e a data do sorteio. Nosso sistema garante a aleatoriedade e a lisura do resultado." />
+                         <FeatureCard icon={<GamesIcon className="w-6 h-6"/>} title="Slots Divertidos" description="Relaxe com nossos jogos de slot. As regras, prêmios e limites podem ser ajustados pelo administrador da plataforma para criar experiências únicas e promoções especiais." />
+                         <FeatureCard icon={<CouponIcon className="w-6 h-6"/>} title="Cupons de Desconto" description="Ofereça ou utilize cupons para obter descontos na compra de bilhetes de rifas ou em outras transações na plataforma, aumentando o engajamento e as oportunidades." />
+                     </div>
+                </section>
+
+                {/* Seção de FAQ */}
+                <section>
+                    <h2 className="text-3xl font-bold text-center text-neutral-dark font-heading mb-12">Perguntas Frequentes (FAQ)</h2>
+                    <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+                        <FaqItem q="Como funcionam os saques?" a="Você pode solicitar o saque do saldo disponível em sua carteira a qualquer momento. O valor será transferido para a sua conta bancária cadastrada em até 3 dias úteis. Aplicam-se taxas de processamento." />
+                        <FaqItem q="Quais são as taxas da plataforma?" a="Para vaquinhas, cobramos uma taxa de 5% sobre o valor total arrecadado. Para rifas, a taxa é de 10% sobre a receita. Não há taxas para jogar nos slots, apenas o valor da aposta." />
+                        <FaqItem q="É seguro usar a PREMIX?" a="Sim. Utilizamos gateways de pagamento seguros e criptografia de ponta a ponta para proteger suas informações. Todas as transações são monitoradas para prevenir fraudes." />
+                        <FaqItem q="Como sei que as rifas são justas?" a="Nosso sistema de sorteio é automatizado e auditável, garantindo que todos os participantes tenham chances iguais. O resultado é gerado de forma aleatória e transparente." />
+                        <FaqItem q="Posso criar mais de uma campanha ao mesmo tempo?" a="Sim, você pode gerenciar múltiplas vaquinhas e rifas simultaneamente através do seu painel de gestor." />
+                    </div>
+                </section>
+            </main>
+
+            <div className="bg-white py-16">
+                <div className="container mx-auto px-6 text-center">
+                    <h2 className="text-3xl font-bold text-neutral-dark font-heading mb-4">Ainda tem dúvidas?</h2>
+                    <p className="text-lg text-neutral-dark/70 mb-8">Nossa equipe de suporte está pronta para ajudar.</p>
+                    <button className={`${primaryButtonClasses} px-8 py-3`}>Entre em Contato</button>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 const App = () => {
-    const [view, setView] = useState<'homepage' | 'portal' | 'login' | 'register'>('homepage');
+    type View = 'homepage' | 'portal' | 'login' | 'register' | 'faq';
+    const [view, setView] = useState<View>('homepage');
     const [targetRole, setTargetRole] = useState<Role | null>(null);
     const [loggedInUser, setLoggedInUser] = useState<{ email: string, role: Role } | null>(null);
     const [authError, setAuthError] = useState<string | null>(null);
+    
+    const [permissions, setPermissions] = useState<Permissions>({
+        manager: {
+            canManageVaquinhas: true,
+            canManageRifas: true,
+            canManageSlots: true,
+        },
+        user: {
+            canPlaySlots: true,
+            maxBetAmount: 250,
+        }
+    });
 
     const [users, setUsers] = useState([
         { name: 'Admin User', email: 'admin01', password: 'a123', role: 'admin' as Role },
@@ -568,6 +728,10 @@ const App = () => {
         maxBet: 250,
         defaultBet: 2.50,
     });
+    
+    const handleNavigate = (page: View) => {
+        setView(page);
+    }
 
     const handleSelectRole = (role: Role) => {
         setTargetRole(role);
@@ -607,39 +771,55 @@ const App = () => {
     }
     
     if (!loggedInUser) {
+        let pageContent: ReactNode;
         switch (view) {
             case 'login':
-                return <LoginPage 
+                pageContent = <LoginPage 
                     role={targetRole!} 
                     onLogin={handleLogin} 
                     onBack={() => { setView('portal'); setAuthError(null); }}
                     onSwitchToRegister={() => { setView('register'); setAuthError(null); }}
                     error={authError}
                 />;
+                break;
             case 'register':
-                return <RegistrationPage 
+                pageContent = <RegistrationPage 
                     role={targetRole!} 
                     onRegister={handleRegister}
                     onSwitchToLogin={() => { setView('login'); setAuthError(null); }}
                     error={authError}
-                />
+                />;
+                break;
             case 'portal':
-                return <PortalPage onSelectRole={handleSelectRole} />;
+                pageContent = <PortalPage onSelectRole={handleSelectRole} onBackToHome={() => setView('homepage')} />;
+                break;
+            case 'faq':
+                pageContent = <FaqPage onNavigate={(page) => setView(page)} />;
+                break;
             case 'homepage':
             default:
-                return <HomePage onNavigateToPortal={() => setView('portal')} />;
+                 pageContent = <HomePage onNavigate={(page) => setView(page)} />;
+                 break;
         }
+        
+        return (
+            <>
+                {(view === 'homepage' || view === 'faq') && <Header onNavigate={handleNavigate} />}
+                {pageContent}
+                {(view === 'homepage' || view === 'faq') && <Footer onNavigate={handleNavigate} />}
+            </>
+        )
     }
 
     switch (loggedInUser.role) {
-        case 'admin': return <AdminDashboard onLogout={handleLogout} slotConfig={slotConfig} setSlotConfig={setSlotConfig} />;
-        case 'manager': return <ManagerDashboard onLogout={handleLogout} slotConfig={slotConfig} setSlotConfig={setSlotConfig} />;
-        case 'user': return <UserView onLogout={handleLogout} slotConfig={slotConfig} />;
-        default: return <HomePage onNavigateToPortal={() => setView('portal')} />;
+        case 'admin': return <AdminDashboard onLogout={handleLogout} slotConfig={slotConfig} setSlotConfig={setSlotConfig} permissions={permissions} setPermissions={setPermissions} />;
+        case 'manager': return <ManagerDashboard onLogout={handleLogout} slotConfig={slotConfig} permissions={permissions} />;
+        case 'user': return <UserView onLogout={handleLogout} slotConfig={slotConfig} permissions={permissions.user} />;
+        default: return <HomePage onNavigate={(page) => setView(page)} />;
     }
 };
 
-const AdminDashboard: FC<{ onLogout: () => void; slotConfig: SlotConfig; setSlotConfig: (config: SlotConfig) => void; }> = ({ onLogout, slotConfig, setSlotConfig }) => {
+const AdminDashboard: FC<{ onLogout: () => void; slotConfig: SlotConfig; setSlotConfig: (config: SlotConfig) => void; permissions: Permissions; setPermissions: (p: Permissions) => void; }> = ({ onLogout, slotConfig, setSlotConfig, permissions, setPermissions }) => {
     const [activeMenu, setActiveMenu] = useState('Painel de Controle');
     const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
 
@@ -650,10 +830,11 @@ const AdminDashboard: FC<{ onLogout: () => void; slotConfig: SlotConfig; setSlot
             case 'Vaquinhas': return <VaquinhasPage />;
             case 'Rifas': return <RifasPage />;
             case 'Configurações': return <SettingsPage />;
+            case 'Permissões': return <PermissionsPage permissions={permissions} setPermissions={setPermissions} />;
             case 'API de jogos': return <ApiGamesPage />;
             case 'Cupons de Desconto': return <CouponsPage />;
             case 'Usuários': return <UsersPage />;
-            case 'Gestão de Slots': return <GestaoSlotsPage slotConfig={slotConfig} setSlotConfig={setSlotConfig} />;
+            case 'Gestão de Slots': return <GestaoSlotsPage slotConfig={slotConfig} setSlotConfig={setSlotConfig} permissions={permissions.user} />;
             default: return <div><h1 className="text-2xl">{currentSelection}</h1></div>;
         }
     };
@@ -661,6 +842,7 @@ const AdminDashboard: FC<{ onLogout: () => void; slotConfig: SlotConfig; setSlot
     const navItems = [
         { name: 'Painel de Controle', icon: <DashboardIcon /> },
         { name: 'Configurações', icon: <SettingsIcon /> },
+        { name: 'Permissões', icon: <ShieldCheckIcon /> },
         { name: 'API de jogos', icon: <ApiIcon /> },
         { name: 'Gateway de Pagamentos', icon: <GatewayIcon /> },
         { name: 'Definições de Email', icon: <EmailIcon /> },
@@ -671,7 +853,7 @@ const AdminDashboard: FC<{ onLogout: () => void; slotConfig: SlotConfig; setSlot
     const gameItems = [ { name: 'Gestão de Slots', icon: <GamesIcon /> }, { name: 'Todas as Categorias', icon: <CategoryIcon /> }, { name: 'Todos os Provedores', icon: <ProviderIcon /> }, { name: 'Histórico de Partidas', icon: <HistoryIcon /> }, ];
 
     return (
-        <DashboardLayout onLogout={onLogout} activeMenu={activeMenu} setActiveMenu={setActiveMenu} activeSubMenu={activeSubMenu} setActiveSubMenu={setActiveSubMenu}>
+        <DashboardLayout onLogout={onLogout}>
             <nav className="flex-1 overflow-y-auto p-4 space-y-2">
                 {navItems.map(item => <NavItem key={item.name} icon={item.icon} label={item.name} isActive={activeMenu === item.name && !activeSubMenu} onClick={() => { setActiveMenu(item.name); setActiveSubMenu(null); }} />)}
                 <CollapsibleNavItem label="Marketing" isOpen={true} toggleOpen={()=>{}}>
@@ -689,25 +871,30 @@ const AdminDashboard: FC<{ onLogout: () => void; slotConfig: SlotConfig; setSlot
     );
 };
 
-const ManagerDashboard: FC<{ onLogout: () => void; slotConfig: SlotConfig; setSlotConfig: (config: SlotConfig) => void; }> = ({ onLogout, slotConfig, setSlotConfig }) => {
-    const [activeMenu, setActiveMenu] = useState('Gestão de Slots');
+const ManagerDashboard: FC<{ onLogout: () => void; slotConfig: SlotConfig; permissions: Permissions }> = ({ onLogout, slotConfig, permissions }) => {
+    const { canManageRifas, canManageSlots, canManageVaquinhas } = permissions.manager;
+    
+    const navItems = [
+        canManageVaquinhas && { name: 'Vaquinhas', icon: <VaquinhaIcon /> },
+        canManageRifas && { name: 'Rifas', icon: <RifaIcon /> },
+        canManageSlots && { name: 'Gestão de Slots', icon: <GamesIcon /> },
+    ].filter(Boolean) as { name: string, icon: ReactNode }[];
+    
+    const [activeMenu, setActiveMenu] = useState(navItems[0]?.name || 'Nenhum acesso');
+
     const renderContent = () => {
+        if (navItems.length === 0) return <div className="p-6"><h1 className="text-2xl text-neutral-dark">Você não tem permissão para acessar nenhuma funcionalidade.</h1><p className="text-neutral-dark/70">Entre em contato com o administrador.</p></div>
+
         switch (activeMenu) {
             case 'Vaquinhas': return <VaquinhasPage />;
             case 'Rifas': return <RifasPage />;
-            case 'Gestão de Slots': return <GestaoSlotsPage slotConfig={slotConfig} setSlotConfig={setSlotConfig} />;
+            case 'Gestão de Slots': return <GestaoSlotsPage slotConfig={slotConfig} setSlotConfig={() => {}} permissions={permissions.user} />;
             default: return <div><h1 className="text-2xl">{activeMenu}</h1></div>;
         }
     };
-    
-    const navItems = [
-        { name: 'Vaquinhas', icon: <VaquinhaIcon /> },
-        { name: 'Rifas', icon: <RifaIcon /> },
-        { name: 'Gestão de Slots', icon: <GamesIcon /> },
-    ];
 
     return (
-        <DashboardLayout onLogout={onLogout} activeMenu={activeMenu} setActiveMenu={setActiveMenu} activeSubMenu={null} setActiveSubMenu={() => {}}>
+        <DashboardLayout onLogout={onLogout}>
             <nav className="flex-1 overflow-y-auto p-4 space-y-2">
                 {navItems.map(item => <NavItem key={item.name} icon={item.icon} label={item.name} isActive={activeMenu === item.name} onClick={() => setActiveMenu(item.name)} />)}
             </nav>
@@ -718,10 +905,6 @@ const ManagerDashboard: FC<{ onLogout: () => void; slotConfig: SlotConfig; setSl
 
 type DashboardLayoutProps = {
     children: ReactNode[];
-    activeMenu: string;
-    setActiveMenu: (menu: string) => void;
-    activeSubMenu: string | null;
-    setActiveSubMenu: (subMenu: string | null) => void;
     onLogout: () => void;
 };
 const DashboardLayout: FC<DashboardLayoutProps> = ({ children, onLogout }) => {
@@ -740,7 +923,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children, onLogout }) => {
                     <div className="flex items-center space-x-4">
                         <BellIcon className="text-gray-500" />
                         <div className="relative">
-                           <button onClick={() => setProfileMenuOpen(!isProfileMenuOpen)} className="w-10 h-10 bg-primary text-white rounded-full font-bold flex items-center justify-center">A</button>
+                           <button onClick={() => setProfileMenuOpen(!isProfileMenuOpen)} className="w-10 h-10 bg-gradient-to-br from-primary-light to-primary text-white rounded-full font-bold flex items-center justify-center">A</button>
                            {isProfileMenuOpen && (
                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-xl z-10">
                                    <button onClick={onLogout} className="w-full text-left px-4 py-2 text-sm text-neutral-dark/90 hover:bg-gray-100 flex items-center"><LogoutIcon className="w-5 h-5 mr-2" />Sair</button>
