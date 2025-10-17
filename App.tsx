@@ -33,6 +33,7 @@ const BookOpenIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => 
 
 
 const primaryButtonClasses = "bg-gradient-to-r from-primary-light to-primary text-white font-bold rounded-lg shadow-md hover:from-primary hover:to-primary-dark transition-all duration-300 transform hover:scale-105";
+const navLinkClasses = "relative text-neutral-dark/70 font-medium after:content-[''] after:absolute after:left-0 after:bottom-[-2px] after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:text-primary hover:after:w-full";
 
 // --- Types ---
 type Role = 'admin' | 'manager' | 'user';
@@ -617,16 +618,164 @@ const UserView: FC<{ onLogout: () => void; slotConfig: SlotConfig; permissions: 
     );
 };
 
-const Header: FC<{ onNavigate: (page: 'homepage' | 'faq' | 'portal') => void }> = ({ onNavigate }) => (
+// --- New Public Landing Pages ---
+const PublicVaquinhasPage: FC<{ onNavigate: (page: 'portal') => void }> = ({ onNavigate }) => {
+    const vaquinhas = [
+        { title: 'Ajude o abrigo Anjos de Patas', goal: 10000, raised: 7500, image: 'https://images.unsplash.com/photo-1598875184988-5e67b1a7ea95?q=80&w=2070&auto=format&fit=crop' },
+        { title: 'Cirurgia do pequeno Lucas', goal: 25000, raised: 12500, image: 'https://images.unsplash.com/photo-1519951838435-a6e29a55c6d3?q=80&w=2070&auto=format&fit=crop' },
+        { title: 'Reforma da creche Comunitária', goal: 50000, raised: 45000, image: 'https://images.unsplash.com/photo-1576765682692-05a7d74548f2?q=80&w=2070&auto=format&fit=crop' }
+    ];
+    return (
+        <div className="bg-neutral-light py-20 animate-fade-in">
+            <div className="container mx-auto px-6">
+                <div className="text-center mb-16">
+                    <h1 className="text-4xl font-bold text-neutral-dark font-heading">Vaquinhas em Destaque</h1>
+                    <p className="text-neutral-dark/60 mt-4 max-w-3xl mx-auto">Veja algumas de nossas campanhas ativas. Junte-se a nós para apoiar causas nobres ou criar a sua própria vaquinha!</p>
+                </div>
+                <div className="grid md:grid-cols-3 gap-8">
+                     {vaquinhas.map(v => (
+                        <div key={v.title} className="bg-white rounded-lg overflow-hidden shadow-lg transform hover:-translate-y-1 transition-transform">
+                            <img src={v.image} alt={v.title} className="w-full h-48 object-cover" />
+                            <div className="p-6">
+                                <h3 className="font-bold text-lg text-neutral-dark">{v.title}</h3>
+                                <div className="mt-4">
+                                    <div className="flex justify-between text-sm text-neutral-dark/70">
+                                        <span>R$ {v.raised.toFixed(2)}</span>
+                                        <span>Meta: R$ {v.goal.toFixed(2)}</span>
+                                    </div>
+                                    <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                        <div className="bg-primary h-2.5 rounded-full" style={{ width: `${(v.raised / v.goal) * 100}%` }}></div>
+                                    </div>
+                                </div>
+                                <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} w-full mt-6 py-2`}>Apoiar</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <div className="text-center mt-16">
+                    <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} text-lg px-10 py-4`}>
+                        Ver Todas as Vaquinhas
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const PublicRifasPage: FC<{ onNavigate: (page: 'portal') => void }> = ({ onNavigate }) => {
+    const rifas = [
+        { prize: 'iPhone 15 Pro', ticketPrice: 5.00, image: 'https://images.unsplash.com/photo-1695026224700-9e65b0532292?q=80&w=1964&auto=format&fit=crop' },
+        { prize: 'Playstation 5', ticketPrice: 7.50, image: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?q=80&w=2070&auto=format&fit=crop' },
+        { prize: 'Viagem para Cancún', ticketPrice: 10.00, image: 'https://images.unsplash.com/photo-1541172626292-8097157b433c?q=80&w=2070&auto=format&fit=crop' }
+    ];
+    return (
+        <div className="bg-neutral-light py-20 animate-fade-in">
+            <div className="container mx-auto px-6">
+                 <div className="text-center mb-16">
+                    <h1 className="text-4xl font-bold text-neutral-dark font-heading">Rifas com Prêmios Incríveis</h1>
+                    <p className="text-neutral-dark/60 mt-4 max-w-3xl mx-auto">A sorte está ao seu lado! Participe de nossas rifas e concorra a prêmios fantásticos por um preço que cabe no seu bolso.</p>
+                </div>
+                <div className="grid md:grid-cols-3 gap-8">
+                     {rifas.map(r => (
+                        <div key={r.prize} className="bg-white rounded-lg overflow-hidden shadow-lg text-center transform hover:-translate-y-1 transition-transform">
+                            <img src={r.image} alt={r.prize} className="w-full h-56 object-cover" />
+                            <div className="p-6">
+                                <h3 className="font-bold text-xl text-neutral-dark">{r.prize}</h3>
+                                <p className="text-primary font-bold text-2xl my-2">R$ {r.ticketPrice.toFixed(2)}</p>
+                                <p className="text-neutral-dark/60 text-sm">por bilhete</p>
+                                <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} w-full mt-4 py-2`}>Participar</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                 <div className="text-center mt-16">
+                    <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} text-lg px-10 py-4`}>
+                        Ver Todas as Rifas
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const PublicSlotsPage: FC<{ onNavigate: (page: 'portal') => void }> = ({ onNavigate }) => {
+    return (
+        <div className="bg-white py-20 animate-fade-in">
+            <div className="container mx-auto px-6">
+                <div className="flex flex-col md:flex-row items-center gap-12">
+                    <div className="md:w-1/2">
+                        <h1 className="text-4xl font-bold text-neutral-dark font-heading">Diversão e Prêmios nos Slots!</h1>
+                        <p className="text-neutral-dark/60 mt-4 text-lg">Gire os rolos da sorte em nosso jogo exclusivo, Fortuna Feliz. Com prêmios customizáveis e uma jogabilidade viciante, a próxima grande vitória pode ser sua!</p>
+                        <ul className="mt-6 space-y-2 text-neutral-dark/80">
+                            <li className="flex items-center"><CheckCircleIcon className="w-6 h-6 text-primary mr-2" /> Jogabilidade simples e divertida.</li>
+                            <li className="flex items-center"><CheckCircleIcon className="w-6 h-6 text-primary mr-2" /> Prêmios e multiplicadores incríveis.</li>
+                            <li className="flex items-center"><CheckCircleIcon className="w-6 h-6 text-primary mr-2" /> Promoções e rodadas grátis.</li>
+                        </ul>
+                        <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} text-lg px-10 py-4 mt-8`}>
+                            Jogar Agora
+                        </button>
+                    </div>
+                    <div className="md:w-1/2">
+                         <img src="https://images.unsplash.com/photo-1542838223-3da3c6276a59?q=80&w=2070&auto=format&fit=crop" alt="Slot Machine" className="rounded-2xl shadow-2xl" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const PublicCuponsPage: FC<{ onNavigate: (page: 'portal') => void }> = ({ onNavigate }) => {
+    const cupons = [
+        { code: 'BEMVINDO10', description: '10% de desconto na primeira compra de rifa.', expiry: '31/12/2024' },
+        { code: 'SLOTS5', description: '5 rodadas grátis no Fortuna Feliz.', expiry: '30/11/2024' }
+    ];
+    return (
+         <div className="bg-neutral-light py-20 animate-fade-in">
+            <div className="container mx-auto px-6">
+                 <div className="text-center mb-16">
+                    <h1 className="text-4xl font-bold text-neutral-dark font-heading">Cupons e Ofertas Especiais</h1>
+                    <p className="text-neutral-dark/60 mt-4 max-w-3xl mx-auto">Aproveite descontos e bônus exclusivos para turbinar sua experiência na PREMIX.</p>
+                </div>
+                <div className="space-y-4 max-w-2xl mx-auto">
+                    {cupons.map(c => (
+                         <div key={c.code} className="bg-white rounded-lg p-6 flex items-center justify-between shadow-md border-l-4 border-secondary">
+                            <div>
+                                 <p className="text-sm text-gray-500">Código</p>
+                                 <p className="text-neutral-dark font-bold text-xl tracking-widest">{c.code}</p>
+                                 <p className="text-neutral-dark/80 mt-1">{c.description}</p>
+                            </div>
+                            <div className="text-right">
+                                 <p className="text-sm text-gray-500">Válido até</p>
+                                 <p className="text-neutral-dark font-semibold">{c.expiry}</p>
+                            </div>
+                         </div>
+                    ))}
+                </div>
+                <div className="text-center mt-16">
+                     <p className="text-neutral-dark/70 mb-4">Para usar estes e outros cupons, crie sua conta ou faça login.</p>
+                    <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} text-lg px-10 py-4`}>
+                        Resgatar Cupons
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+type PublicPage = 'homepage' | 'faq' | 'portal' | 'vaquinhas' | 'rifas' | 'slots' | 'cupons';
+
+const Header: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }) => (
     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
             <button onClick={() => onNavigate('homepage')} className="text-3xl font-bold text-primary font-heading">PREMIX</button>
             <nav className="hidden md:flex space-x-8 items-center">
-                <button onClick={() => onNavigate('homepage')} className="text-neutral-dark/70 hover:text-primary transition-colors">Início</button>
-                <a href="#" className="text-neutral-dark/70 hover:text-primary transition-colors">Vaquinhas</a>
-                <a href="#" className="text-neutral-dark/70 hover:text-primary transition-colors">Rifas</a>
-                <a href="#" className="text-neutral-dark/70 hover:text-primary transition-colors">Slots</a>
-                <button onClick={() => onNavigate('faq')} className="text-neutral-dark/70 hover:text-primary transition-colors">Como Funciona</button>
+                <button onClick={() => onNavigate('homepage')} className={navLinkClasses}>Início</button>
+                <button onClick={() => onNavigate('vaquinhas')} className={navLinkClasses}>Vaquinhas</button>
+                <button onClick={() => onNavigate('rifas')} className={navLinkClasses}>Rifas</button>
+                <button onClick={() => onNavigate('slots')} className={navLinkClasses}>Slots</button>
+                <button onClick={() => onNavigate('cupons')} className={navLinkClasses}>Cupons</button>
+                <button onClick={() => onNavigate('faq')} className={navLinkClasses}>Como Funciona</button>
             </nav>
             <div className="flex items-center space-x-4">
                 <button onClick={() => onNavigate('portal')} className="hidden md:block text-neutral-dark/80 font-semibold hover:text-primary transition-colors">Login</button>
@@ -636,7 +785,7 @@ const Header: FC<{ onNavigate: (page: 'homepage' | 'faq' | 'portal') => void }> 
     </header>
 );
 
-const Footer: FC<{ onNavigate: (page: 'homepage' | 'faq' | 'portal') => void }> = ({ onNavigate }) => (
+const Footer: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }) => (
     <footer className="bg-neutral-dark text-neutral-light/70">
         <div className="container mx-auto px-6 py-12">
             <div className="grid md:grid-cols-4 gap-8">
@@ -655,10 +804,10 @@ const Footer: FC<{ onNavigate: (page: 'homepage' | 'faq' | 'portal') => void }> 
                 </div>
                 <div>
                     <h5 className="font-bold text-white mb-4">Recursos</h5>
-                    <ul className="space-y-2">
-                        <li><a href="#" className="hover:text-white">Criar Vaquinha</a></li>
-                        <li><a href="#" className="hover:text-white">Ver Rifas</a></li>
-                        <li><a href="#" className="hover:text-white">Jogar Slots</a></li>
+                     <ul className="space-y-2">
+                        <li><button onClick={() => onNavigate('vaquinhas')} className="hover:text-white text-left">Criar Vaquinha</button></li>
+                        <li><button onClick={() => onNavigate('rifas')} className="hover:text-white text-left">Ver Rifas</button></li>
+                        <li><button onClick={() => onNavigate('slots')} className="hover:text-white text-left">Jogar Slots</button></li>
                     </ul>
                 </div>
                 <div>
@@ -894,7 +1043,7 @@ const FaqPage: FC<{ onNavigate: (page: 'portal' | 'homepage') => void }> = ({ on
 }
 
 const App = () => {
-    type View = 'homepage' | 'portal' | 'login' | 'register' | 'faq';
+    type View = 'homepage' | 'portal' | 'login' | 'register' | 'faq' | 'vaquinhas' | 'rifas' | 'slots' | 'cupons';
     const [view, setView] = useState<View>('homepage');
     const [targetRole, setTargetRole] = useState<Role | null>(null);
     const [loggedInUser, setLoggedInUser] = useState<{ email: string, role: Role } | null>(null);
@@ -994,6 +1143,18 @@ const App = () => {
             case 'faq':
                 pageContent = <FaqPage onNavigate={(page) => setView(page)} />;
                 break;
+            case 'vaquinhas':
+                pageContent = <PublicVaquinhasPage onNavigate={(page) => setView(page as 'portal')} />;
+                break;
+            case 'rifas':
+                pageContent = <PublicRifasPage onNavigate={(page) => setView(page as 'portal')} />;
+                break;
+            case 'slots':
+                pageContent = <PublicSlotsPage onNavigate={(page) => setView(page as 'portal')} />;
+                break;
+            case 'cupons':
+                pageContent = <PublicCuponsPage onNavigate={(page) => setView(page as 'portal')} />;
+                break;
             case 'homepage':
             default:
                  pageContent = <HomePage onNavigate={(page) => setView(page)} />;
@@ -1002,9 +1163,9 @@ const App = () => {
         
         return (
             <>
-                {(view === 'homepage' || view === 'faq') && <Header onNavigate={handleNavigate} />}
+                {!(view === 'portal' || view === 'login' || view === 'register') && <Header onNavigate={handleNavigate} />}
                 {pageContent}
-                {(view === 'homepage' || view === 'faq') && <Footer onNavigate={handleNavigate} />}
+                {!(view === 'portal' || view === 'login' || view === 'register') && <Footer onNavigate={handleNavigate} />}
             </>
         )
     }
