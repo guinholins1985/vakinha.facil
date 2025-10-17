@@ -33,6 +33,10 @@ const ShieldCheckIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex
 const BookOpenIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
 const MenuIcon: FC<{ className?: string }> = ({ className }) => <svg className={className} stroke="currentColor" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>;
 const XIcon: FC<{ className?: string }> = ({ className }) => <svg className={className} stroke="currentColor" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>;
+const QuoteIcon: FC<{ className?: string }> = ({ className = "w-12 h-12 text-primary/10 absolute top-0 left-0 -translate-x-3 -translate-y-3" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="currentColor" viewBox="0 0 24 24"><path d="M9.981 15.123c0 1.916-1.553 3.468-3.468 3.468s-3.468-1.552-3.468-3.468c0-1.915 1.552-3.468 3.468-3.468.958 0 1.82.389 2.452 1.021.282.282.664.438 1.058.438.825 0 1.493-.668 1.493-1.493 0-.394-.156-.776-.438-1.058C9.93 9.42 8.353 8.636 6.513 8.636c-3.021 0-5.468 2.447-5.468 5.468s2.447 5.468 5.468 5.468c3.02 0 5.468-2.447 5.468-5.468 0-1.289-.446-2.475-1.199-3.401l-1.339-1.583-1.34-1.584c-.4-.473-1.077-.63-1.682-.41L.42 7.712l1.624 1.378 1.34 1.583.821.968c.553.653.882 1.492.882 2.39v1.092h2.981c.825 0 1.493-.668 1.493-1.493v-1.99c0-.825-.668-1.493-1.493-1.493H6.513c-.412 0-.759-.286-.865-.684-.105-.398.069-.824.438-1.058.632-.389 1.493-.623 2.452-.623 1.915 0 3.468 1.553 3.468 3.468zm10.971 0c0 1.916-1.552 3.468-3.468 3.468s-3.468-1.552-3.468-3.468c0-1.915 1.552-3.468 3.468-3.468.958 0 1.82.389 2.452 1.021.282.282.664.438 1.058.438.825 0 1.493-.668 1.493-1.493 0-.394-.156-.776-.438-1.058-1.151-1.151-2.729-1.935-4.569-1.935-3.021 0-5.468 2.447-5.468 5.468s2.447 5.468 5.468 5.468c3.02 0 5.468-2.447 5.468-5.468 0-1.289-.446-2.475-1.199-3.401l-1.339-1.583-1.34-1.584c-.4-.473-1.077-.63-1.682-.41l-4.598 1.996 1.624 1.378 1.34 1.583.821.968c.553.653.882 1.492.882 2.39v1.092h2.981c.825 0 1.493-.668 1.493-1.493v-1.99c0-.825-.668-1.493-1.493-1.493h-1.014c-.412 0-.759-.286-.865-.684-.105-.398.069-.824.438-1.058.632-.389 1.493-.623 2.452-.623 1.915 0 3.468 1.553 3.468 3.468z"/></svg>;
+const FacebookIcon: FC<{ className?: string }> = ({ className = "w-6 h-6" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v2.385z"/></svg>;
+const TwitterIcon: FC<{ className?: string }> = ({ className = "w-6 h-6" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616v.064c0 2.298 1.634 4.212 3.793 4.649-.65.177-1.354.226-2.064.077.616 1.948 2.396 3.296 4.503 3.334-1.782 1.498-4.01 2.21-6.242 1.845 1.821 1.256 3.993 1.88 6.256 1.88 7.5 0 11.6-6.4 11.3-12.02.8-.58 1.48-1.3 2-2.12z"/></svg>;
+const InstagramIcon: FC<{ className?: string }> = ({ className = "w-6 h-6" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.012 3.584-.07 4.85c-.148 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.148-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.85s.012-3.584.07-4.85c.148-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.85-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.359 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072s3.667-.014 4.947-.072c4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.947s-.014-3.667-.072-4.947c-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z"/></svg>;
 
 
 const primaryButtonClasses = "bg-gradient-to-r from-primary-light to-primary text-white font-bold rounded-lg shadow-md hover:from-primary hover:to-primary-dark transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100";
@@ -853,34 +857,43 @@ const Header: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }) 
 const Footer: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }) => (
     <footer className="bg-neutral-dark text-neutral-light/70">
         <div className="container mx-auto px-6 py-12">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div className="col-span-2 md:col-span-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="col-span-1 lg:col-span-1">
                     <h4 className="text-2xl font-bold text-white font-heading mb-4">PREMIX</h4>
-                    <p>Sua plataforma completa de arrecadação e entretenimento.</p>
+                    <p className="text-sm">Sua plataforma completa de arrecadação e entretenimento.</p>
+                    <div className="flex space-x-4 mt-6">
+                       <a href="#" aria-label="Facebook" className="hover:text-white transition-colors"><FacebookIcon /></a>
+                       <a href="#" aria-label="Twitter" className="hover:text-white transition-colors"><TwitterIcon /></a>
+                       <a href="#" aria-label="Instagram" className="hover:text-white transition-colors"><InstagramIcon /></a>
+                    </div>
                 </div>
-                 <div>
-                    <h5 className="font-bold text-white mb-4">Links</h5>
-                    <ul className="space-y-2">
+                 <div className="col-span-1">
+                    <h5 className="font-bold text-white mb-4">Plataforma</h5>
+                    <ul className="space-y-2 text-sm">
                         <li><button onClick={() => onNavigate('about')} className="hover:text-white text-left">Sobre Nós</button></li>
                         <li><a href="#" className="hover:text-white">Contato</a></li>
                         <li><button onClick={() => onNavigate('faq')} className="hover:text-white text-left">Como Funciona</button></li>
                         <li><button onClick={() => onNavigate('privacy')} className="hover:text-white text-left">Privacidade</button></li>
                     </ul>
                 </div>
-                <div>
+                <div className="col-span-1">
                     <h5 className="font-bold text-white mb-4">Recursos</h5>
-                     <ul className="space-y-2">
+                     <ul className="space-y-2 text-sm">
                         <li><button onClick={() => onNavigate('vaquinhas')} className="hover:text-white text-left">Criar Vaquinha</button></li>
                         <li><button onClick={() => onNavigate('rifas')} className="hover:text-white text-left">Ver Rifas</button></li>
                         <li><button onClick={() => onNavigate('slots')} className="hover:text-white text-left">Jogar Slots</button></li>
                         <li><button onClick={() => onNavigate('cupons')} className="hover:text-white text-left">Ver Cupons</button></li>
                     </ul>
                 </div>
-                <div>
-                     <h5 className="font-bold text-white mb-4">Siga-nos</h5>
-                     <div className="flex space-x-4">
-                        {/* Social Icons Placeholder */}
-                     </div>
+                <div className="col-span-1 md:col-span-2 lg:col-span-1">
+                     <h5 className="font-bold text-white mb-4">Newsletter</h5>
+                     <p className="text-sm mb-4">Receba novidades e promoções exclusivas em seu e-mail.</p>
+                     <form className="flex">
+                        <input type="email" placeholder="Seu e-mail" className="w-full bg-neutral-dark/50 border border-neutral-light/20 rounded-l-md px-3 py-2 text-sm focus:outline-none focus:border-primary" />
+                        <button type="submit" className="bg-primary hover:bg-primary-dark text-white font-bold px-4 py-2 rounded-r-md text-sm transition-colors">
+                            Inscrever
+                        </button>
+                     </form>
                 </div>
             </div>
             <div className="mt-12 border-t border-neutral-light/20 pt-8 text-center text-sm">
@@ -914,11 +927,16 @@ const useAnimatedCounter = (target: number, duration = 2000) => {
             { threshold: 0.5 }
         );
 
-        if (ref.current) {
-            observer.observe(ref.current);
+        const currentRef = ref.current;
+        if (currentRef) {
+            observer.observe(currentRef);
         }
 
-        return () => observer.disconnect();
+        return () => {
+             if(currentRef) {
+                observer.unobserve(currentRef);
+             }
+        }
     }, [target, duration]);
 
     return { count, ref };
@@ -942,7 +960,7 @@ const HomePage: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }
                     Crie vaquinhas, participe de rifas premiadas e divirta-se com nossos jogos exclusivos. Tudo em um só lugar, de forma transparente e segura.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} text-lg px-10 py-4`}>
+                    <button onClick={() => onNavigate('portal')} className={`${primaryButtonClasses} text-lg px-10 py-4 animate-pulse-subtle`}>
                         Comece Agora
                     </button>
                     <button onClick={() => onNavigate('faq')} className="font-bold text-neutral-dark hover:text-primary transition-colors text-lg px-10 py-4">
@@ -994,17 +1012,17 @@ const HomePage: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }
                     <p className="text-neutral-dark/60 mt-4 max-w-2xl mx-auto">Explore nossas principais funcionalidades projetadas para seu sucesso e diversão.</p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-8">
-                    <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-xl hover:-translate-y-2 transition-all">
+                    <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-xl hover:-translate-y-2 transition-all group">
                         <VaquinhaIcon className="w-12 h-12 mx-auto text-primary mb-4" />
                         <h4 className="text-2xl font-bold font-heading text-neutral-dark mb-2">Vaquinhas Online</h4>
                         <p className="text-neutral-dark/60">Arrecade fundos para suas causas e projetos de forma simples e eficiente, com total transparência.</p>
                     </div>
-                    <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-xl hover:-translate-y-2 transition-all">
+                    <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-xl hover:-translate-y-2 transition-all group">
                         <RifaIcon className="w-12 h-12 mx-auto text-primary mb-4" />
                         <h4 className="text-2xl font-bold font-heading text-neutral-dark mb-2">Rifas Premiadas</h4>
                         <p className="text-neutral-dark/60">Crie e participe de rifas com prêmios incríveis. A sorte pode estar ao seu lado!</p>
                     </div>
-                    <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-xl hover:-translate-y-2 transition-all">
+                    <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-xl hover:-translate-y-2 transition-all group">
                         <GamesIcon className="w-12 h-12 mx-auto text-primary mb-4" />
                         <h4 className="text-2xl font-bold font-heading text-neutral-dark mb-2">Slots Divertidos</h4>
                         <p className="text-neutral-dark/60">Relaxe e divirta-se com nossa seleção de jogos de slot, com regras customizáveis pelo admin.</p>
@@ -1021,19 +1039,20 @@ const HomePage: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }
                     <h3 className="text-3xl md:text-4xl font-bold text-neutral-dark font-heading">Como Funciona?</h3>
                     <p className="text-neutral-dark/60 mt-4">Comece em apenas 3 passos simples.</p>
                 </div>
-                <div className="flex flex-col md:flex-row justify-center items-center gap-12">
-                    <div className="text-center max-w-xs">
-                        <div className="flex items-center justify-center bg-primary/10 text-primary w-16 h-16 rounded-full mx-auto mb-4 font-bold text-2xl">1</div>
+                <div className="flex flex-col md:flex-row justify-center items-start md:items-center gap-12 md:gap-4 relative">
+                    <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gray-200" style={{ transform: 'translateY(-50%)', zIndex: 0}}></div>
+                    <div className="relative text-center max-w-xs z-10">
+                        <div className="flex items-center justify-center bg-primary/10 text-primary w-20 h-20 rounded-full mx-auto mb-4 font-bold text-2xl border-4 border-white">1</div>
                         <h4 className="text-xl font-bold mb-2">Cadastre-se</h4>
                         <p className="text-neutral-dark/60">Crie sua conta gratuitamente em menos de um minuto.</p>
                     </div>
-                     <div className="text-center max-w-xs">
-                        <div className="flex items-center justify-center bg-primary/10 text-primary w-16 h-16 rounded-full mx-auto mb-4 font-bold text-2xl">2</div>
+                     <div className="relative text-center max-w-xs z-10">
+                        <div className="flex items-center justify-center bg-primary/10 text-primary w-20 h-20 rounded-full mx-auto mb-4 font-bold text-2xl border-4 border-white">2</div>
                         <h4 className="text-xl font-bold mb-2">Escolha ou Crie</h4>
                         <p className="text-neutral-dark/60">Crie sua própria campanha ou escolha um jogo para participar.</p>
                     </div>
-                     <div className="text-center max-w-xs">
-                        <div className="flex items-center justify-center bg-primary/10 text-primary w-16 h-16 rounded-full mx-auto mb-4 font-bold text-2xl">3</div>
+                     <div className="relative text-center max-w-xs z-10">
+                        <div className="flex items-center justify-center bg-primary/10 text-primary w-20 h-20 rounded-full mx-auto mb-4 font-bold text-2xl border-4 border-white">3</div>
                         <h4 className="text-xl font-bold mb-2">Participe e Divirta-se</h4>
                         <p className="text-neutral-dark/60">Contribua, compre bilhetes, jogue e acompanhe tudo em tempo real.</p>
                     </div>
@@ -1049,35 +1068,38 @@ const HomePage: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }
                     <h3 className="text-3xl md:text-4xl font-bold text-neutral-dark font-heading">O que nossos usuários dizem</h3>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div className="bg-white p-8 rounded-xl shadow-md">
-                        <div className="flex items-center mb-4">
+                    <div className="bg-white p-8 rounded-xl shadow-md relative">
+                        <QuoteIcon />
+                        <div className="flex items-center mb-4 relative z-10">
                             <img className="w-12 h-12 rounded-full object-cover mr-4" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop" alt="Carla Mendes"/>
                             <div>
                                 <p className="font-bold text-neutral-dark">Carla Mendes</p>
                                 <div className="flex text-yellow-500"><StarIcon /><StarIcon /><StarIcon /><StarIcon /><StarIcon /></div>
                             </div>
                         </div>
-                        <p className="text-neutral-dark/70">"A plataforma é incrível! Consegui arrecadar o valor para a cirurgia do meu pet em uma semana com a vaquinha. Super recomendo!"</p>
+                        <p className="text-neutral-dark/70 relative z-10">"A plataforma é incrível! Consegui arrecadar o valor para a cirurgia do meu pet em uma semana com a vaquinha. Super recomendo!"</p>
                     </div>
-                    <div className="bg-white p-8 rounded-xl shadow-md">
-                        <div className="flex items-center mb-4">
+                    <div className="bg-white p-8 rounded-xl shadow-md relative">
+                        <QuoteIcon />
+                        <div className="flex items-center mb-4 relative z-10">
                             <img className="w-12 h-12 rounded-full object-cover mr-4" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop" alt="João Ferreira"/>
                             <div>
                                 <p className="font-bold text-neutral-dark">João Ferreira</p>
                                 <div className="flex text-yellow-500"><StarIcon /><StarIcon /><StarIcon /><StarIcon /><StarIcon /></div>
                             </div>
                         </div>
-                        <p className="text-neutral-dark/70">"Participei de uma rifa e ganhei um prêmio fantástico! O processo foi todo transparente e seguro. E os jogos são bem divertidos."</p>
+                        <p className="text-neutral-dark/70 relative z-10">"Participei de uma rifa e ganhei um prêmio fantástico! O processo foi todo transparente e seguro. E os jogos são bem divertidos."</p>
                     </div>
-                    <div className="bg-white p-8 rounded-xl shadow-md">
-                        <div className="flex items-center mb-4">
+                    <div className="bg-white p-8 rounded-xl shadow-md relative">
+                        <QuoteIcon />
+                        <div className="flex items-center mb-4 relative z-10">
                             <img className="w-12 h-12 rounded-full object-cover mr-4" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop" alt="Mariana Costa"/>
                             <div>
                                 <p className="font-bold text-neutral-dark">Mariana Costa</p>
                                 <div className="flex text-yellow-500"><StarIcon /><StarIcon /><StarIcon /><StarIcon /><StarIcon /></div>
                             </div>
                         </div>
-                        <p className="text-neutral-dark/70">"Fácil de usar, design moderno e cumpre o que promete. Uso tanto para criar campanhas quanto para me divertir nos slots."</p>
+                        <p className="text-neutral-dark/70 relative z-10">"Fácil de usar, design moderno e cumpre o que promete. Uso tanto para criar campanhas quanto para me divertir nos slots."</p>
                     </div>
                 </div>
             </div>
