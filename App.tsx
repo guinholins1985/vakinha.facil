@@ -33,7 +33,7 @@ const BookOpenIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => 
 
 
 const primaryButtonClasses = "bg-gradient-to-r from-primary-light to-primary text-white font-bold rounded-lg shadow-md hover:from-primary hover:to-primary-dark transition-all duration-300 transform hover:scale-105";
-const navLinkClasses = "relative text-neutral-dark/70 font-medium after:content-[''] after:absolute after:left-0 after:bottom-[-2px] after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:text-primary hover:after:w-full";
+const navLinkClasses = "py-2 relative text-neutral-dark font-semibold after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:h-[3px] after:w-0 after:bg-primary after:rounded-full after:transition-all after:duration-300 hover:text-primary hover:after:w-full";
 
 // --- Types ---
 type Role = 'admin' | 'manager' | 'user';
@@ -50,9 +50,13 @@ type Permissions = {
     canManageVaquinhas: boolean;
     canManageRifas: boolean;
     canManageSlots: boolean;
+    canManageCoupons: boolean;
   };
   user: {
+    canParticipateInVaquinhas: boolean;
+    canParticipateInRifas: boolean;
     canPlaySlots: boolean;
+    canUseCoupons: boolean;
     maxBetAmount: number;
   };
 };
@@ -235,7 +239,7 @@ const PermissionsPage: FC<{ permissions: Permissions, setPermissions: (p: Permis
     };
 
     const Toggle: FC<{ label: string, isEnabled: boolean, onToggle: (enabled: boolean) => void }> = ({ label, isEnabled, onToggle }) => (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between py-2 border-b last:border-b-0">
             <span className="text-neutral-dark/80">{label}</span>
             <button onClick={() => onToggle(!isEnabled)} className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${isEnabled ? 'bg-primary' : 'bg-gray-300'}`}>
                 <span className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${isEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
@@ -248,19 +252,23 @@ const PermissionsPage: FC<{ permissions: Permissions, setPermissions: (p: Permis
             <h1 className="text-3xl font-bold text-neutral-dark">Gestão de Permissões</h1>
 
             <div className="bg-white p-6 rounded-lg shadow-lg">
-                <h2 className="text-xl font-bold text-neutral-dark mb-4 border-b pb-2">Permissões do Gestor de Conteúdo</h2>
-                <div className="space-y-4">
-                    <Toggle label="Pode gerenciar Vaquinhas?" isEnabled={permissions.manager.canManageVaquinhas} onToggle={(val) => handleManagerChange('canManageVaquinhas', val)} />
-                    <Toggle label="Pode gerenciar Rifas?" isEnabled={permissions.manager.canManageRifas} onToggle={(val) => handleManagerChange('canManageRifas', val)} />
-                    <Toggle label="Pode gerenciar Slots?" isEnabled={permissions.manager.canManageSlots} onToggle={(val) => handleManagerChange('canManageSlots', val)} />
+                <h2 className="text-xl font-bold text-neutral-dark mb-4 border-b pb-2">Permissões do Criador / Gestor</h2>
+                <div className="space-y-2">
+                    <Toggle label="Gerenciar Vaquinhas" isEnabled={permissions.manager.canManageVaquinhas} onToggle={(val) => handleManagerChange('canManageVaquinhas', val)} />
+                    <Toggle label="Gerenciar Rifas" isEnabled={permissions.manager.canManageRifas} onToggle={(val) => handleManagerChange('canManageRifas', val)} />
+                    <Toggle label="Gerenciar Slots" isEnabled={permissions.manager.canManageSlots} onToggle={(val) => handleManagerChange('canManageSlots', val)} />
+                    <Toggle label="Gerenciar Cupons" isEnabled={permissions.manager.canManageCoupons} onToggle={(val) => handleManagerChange('canManageCoupons', val)} />
                 </div>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-lg">
-                <h2 className="text-xl font-bold text-neutral-dark mb-4 border-b pb-2">Permissões do Usuário</h2>
-                <div className="space-y-4">
-                    <Toggle label="Pode jogar Slots?" isEnabled={permissions.user.canPlaySlots} onToggle={(val) => handleUserChange('canPlaySlots', val)} />
-                    <div>
+                <h2 className="text-xl font-bold text-neutral-dark mb-4 border-b pb-2">Permissões do Participante / Usuário</h2>
+                <div className="space-y-2">
+                    <Toggle label="Participar de Vaquinhas" isEnabled={permissions.user.canParticipateInVaquinhas} onToggle={(val) => handleUserChange('canParticipateInVaquinhas', val)} />
+                    <Toggle label="Participar de Rifas" isEnabled={permissions.user.canParticipateInRifas} onToggle={(val) => handleUserChange('canParticipateInRifas', val)} />
+                    <Toggle label="Jogar Slots" isEnabled={permissions.user.canPlaySlots} onToggle={(val) => handleUserChange('canPlaySlots', val)} />
+                    <Toggle label="Usar Cupons" isEnabled={permissions.user.canUseCoupons} onToggle={(val) => handleUserChange('canUseCoupons', val)} />
+                     <div className="pt-4">
                         <label className="block text-sm font-medium text-neutral-dark/90 mb-2" htmlFor="maxBetAmount">Aposta Máxima nos Slots (R$)</label>
                         <input type="number" id="maxBetAmount" value={permissions.user.maxBetAmount} onChange={(e) => handleUserChange('maxBetAmount', Number(e.target.value))} className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary" />
                     </div>
@@ -569,19 +577,32 @@ const UserView: FC<{ onLogout: () => void; slotConfig: SlotConfig; permissions: 
 
     const navItems = [
         { id: 'inicio' as UserPage, label: 'Início', icon: <DashboardIcon /> },
-        { id: 'vaquinhas' as UserPage, label: 'Vaquinhas', icon: <VaquinhaIcon /> },
-        { id: 'rifas' as UserPage, label: 'Rifas', icon: <RifaIcon /> },
-        { id: 'slots' as UserPage, label: 'Slots', icon: <GamesIcon /> },
-        { id: 'cupons' as UserPage, label: 'Cupons', icon: <CouponIcon /> },
-    ];
+        permissions.canParticipateInVaquinhas && { id: 'vaquinhas' as UserPage, label: 'Vaquinhas', icon: <VaquinhaIcon /> },
+        permissions.canParticipateInRifas && { id: 'rifas' as UserPage, label: 'Rifas', icon: <RifaIcon /> },
+        permissions.canPlaySlots && { id: 'slots' as UserPage, label: 'Slots', icon: <GamesIcon /> },
+        permissions.canUseCoupons && { id: 'cupons' as UserPage, label: 'Cupons', icon: <CouponIcon /> },
+    ].filter(Boolean) as { id: UserPage, label: string, icon: ReactNode }[];
+
+    React.useEffect(() => {
+        if (!navItems.find(item => item.id === activePage)) {
+            setActivePage('inicio');
+        }
+    }, [permissions, activePage, navItems]);
     
     const renderPage = () => {
+        const PermissionGate: FC<{ hasPermission: boolean; children: ReactNode }> = ({ hasPermission, children }) => {
+            if (!hasPermission) {
+                return <div className="text-center p-10 bg-red-900/50 rounded-lg"><p className="text-red-300 font-bold">Você não tem permissão para acessar esta funcionalidade.</p></div>;
+            }
+            return <>{children}</>;
+        };
+
         switch(activePage) {
             case 'inicio': return <BannerSlider onNavigate={(page) => setActivePage(page)} />;
-            case 'vaquinhas': return <UserVaquinhasPage />;
-            case 'rifas': return <UserRifasPage />;
-            case 'slots': return <UserSlotsPage slotConfig={slotConfig} permissions={permissions} />;
-            case 'cupons': return <UserCuponsPage />;
+            case 'vaquinhas': return <PermissionGate hasPermission={permissions.canParticipateInVaquinhas}><UserVaquinhasPage /></PermissionGate>;
+            case 'rifas': return <PermissionGate hasPermission={permissions.canParticipateInRifas}><UserRifasPage /></PermissionGate>;
+            case 'slots': return <PermissionGate hasPermission={permissions.canPlaySlots}><UserSlotsPage slotConfig={slotConfig} permissions={permissions} /></PermissionGate>;
+            case 'cupons': return <PermissionGate hasPermission={permissions.canUseCoupons}><UserCuponsPage /></PermissionGate>;
             default: return <BannerSlider onNavigate={(page) => setActivePage(page)} />;
         }
     }
@@ -605,7 +626,7 @@ const UserView: FC<{ onLogout: () => void; slotConfig: SlotConfig; permissions: 
                         onClick={() => setActivePage(item.id)} 
                         className={`flex flex-col md:flex-row items-center space-x-2 px-4 py-2 rounded-lg transition-colors font-semibold ${activePage === item.id ? 'bg-primary text-white' : 'text-gray-300 hover:bg-gray-700'}`}
                     >
-                        {React.cloneElement(item.icon, { className: 'w-6 h-6' })}
+                        {React.cloneElement(item.icon as React.ReactElement, { className: 'w-6 h-6' })}
                         <span className="text-sm md:text-base">{item.label}</span>
                     </button>
                 ))}
@@ -808,6 +829,7 @@ const Footer: FC<{ onNavigate: (page: PublicPage) => void }> = ({ onNavigate }) 
                         <li><button onClick={() => onNavigate('vaquinhas')} className="hover:text-white text-left">Criar Vaquinha</button></li>
                         <li><button onClick={() => onNavigate('rifas')} className="hover:text-white text-left">Ver Rifas</button></li>
                         <li><button onClick={() => onNavigate('slots')} className="hover:text-white text-left">Jogar Slots</button></li>
+                        <li><button onClick={() => onNavigate('cupons')} className="hover:text-white text-left">Ver Cupons</button></li>
                     </ul>
                 </div>
                 <div>
@@ -974,15 +996,19 @@ const HomePage: FC<{ onNavigate: (page: 'portal' | 'faq' | 'homepage') => void }
 
 const FaqPage: FC<{ onNavigate: (page: 'portal' | 'homepage') => void }> = ({ onNavigate }) => {
     
-    const FaqItem: FC<{ q: string, a: string }> = ({ q, a }) => {
-        const [isOpen, setIsOpen] = useState(false);
+    const FaqItem: FC<{ q: string, a: string, isOpenDefault?: boolean }> = ({ q, a, isOpenDefault = false }) => {
+        const [isOpen, setIsOpen] = useState(isOpenDefault);
         return (
-            <div className="border-b">
-                <button onClick={() => setIsOpen(!isOpen)} className="w-full text-left py-4 flex justify-between items-center">
-                    <span className="font-semibold">{q}</span>
-                    <span className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+            <div className="border-b border-gray-200">
+                <button onClick={() => setIsOpen(!isOpen)} className="w-full text-left py-5 px-2 flex justify-between items-center text-neutral-dark hover:bg-gray-50 transition-colors">
+                    <span className="font-semibold text-lg">{q}</span>
+                    <span className={`transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+                        <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </span>
                 </button>
-                {isOpen && <div className="pb-4 text-neutral-dark/80">{a}</div>}
+                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-screen' : 'max-h-0'}`}>
+                    <div className="pb-5 px-2 text-neutral-dark/80" dangerouslySetInnerHTML={{ __html: a }}></div>
+                </div>
             </div>
         );
     }
@@ -997,20 +1023,28 @@ const FaqPage: FC<{ onNavigate: (page: 'portal' | 'homepage') => void }> = ({ on
         </div>
     );
 
+    const FaqSection: FC<{ title: string, children: ReactNode }> = ({ title, children }) => (
+        <section className="mb-16">
+            <h2 className="text-3xl font-bold text-center text-neutral-dark font-heading mb-12">{title}</h2>
+            <div className="max-w-4xl mx-auto bg-white p-4 sm:p-8 rounded-2xl shadow-lg">
+                {children}
+            </div>
+        </section>
+    );
+
     return (
         <div className="bg-neutral-light font-sans animate-fade-in">
             <div className="relative h-64 md:h-80 bg-gradient-to-r from-primary to-green-400 flex items-center justify-center text-white">
-                <div className="text-center">
+                <div className="text-center p-4">
                     <h1 className="text-4xl md:text-6xl font-extrabold font-heading">Como Funciona</h1>
                     <p className="text-lg mt-2">Tudo o que você precisa saber sobre a PREMIX.</p>
                 </div>
             </div>
 
             <main className="container mx-auto px-6 py-16">
-                 {/* Seção de Features */}
                 <section className="mb-20">
                      <h2 className="text-3xl font-bold text-center text-neutral-dark font-heading mb-12">Nossas Funcionalidades em Detalhes</h2>
-                     <div className="grid md:grid-cols-2 gap-12">
+                     <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
                          <FeatureCard icon={<VaquinhaIcon className="w-6 h-6"/>} title="Vaquinhas Online" description="Arrecade dinheiro para qualquer objetivo. Crie sua página, defina uma meta e compartilhe com sua rede. Acompanhe as contribuições em tempo real com total transparência." />
                          <FeatureCard icon={<RifaIcon className="w-6 h-6"/>} title="Rifas Premiadas" description="Crie ou participe de sorteios de forma fácil e segura. Defina o prêmio, o valor dos bilhetes e a data do sorteio. Nosso sistema garante a aleatoriedade e a lisura do resultado." />
                          <FeatureCard icon={<GamesIcon className="w-6 h-6"/>} title="Slots Divertidos" description="Relaxe com nossos jogos de slot. As regras, prêmios e limites podem ser ajustados pelo administrador da plataforma para criar experiências únicas e promoções especiais." />
@@ -1018,17 +1052,30 @@ const FaqPage: FC<{ onNavigate: (page: 'portal' | 'homepage') => void }> = ({ on
                      </div>
                 </section>
 
-                {/* Seção de FAQ */}
-                <section>
-                    <h2 className="text-3xl font-bold text-center text-neutral-dark font-heading mb-12">Perguntas Frequentes (FAQ)</h2>
-                    <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-                        <FaqItem q="Como funcionam os saques?" a="Você pode solicitar o saque do saldo disponível em sua carteira a qualquer momento. O valor será transferido para a sua conta bancária cadastrada em até 3 dias úteis. Aplicam-se taxas de processamento." />
-                        <FaqItem q="Quais são as taxas da plataforma?" a="Para vaquinhas, cobramos uma taxa de 5% sobre o valor total arrecadado. Para rifas, a taxa é de 10% sobre a receita. Não há taxas para jogar nos slots, apenas o valor da aposta." />
-                        <FaqItem q="É seguro usar a PREMIX?" a="Sim. Utilizamos gateways de pagamento seguros e criptografia de ponta a ponta para proteger suas informações. Todas as transações são monitoradas para prevenir fraudes." />
-                        <FaqItem q="Como sei que as rifas são justas?" a="Nosso sistema de sorteio é automatizado e auditável, garantindo que todos os participantes tenham chances iguais. O resultado é gerado de forma aleatória e transparente." />
-                        <FaqItem q="Posso criar mais de uma campanha ao mesmo tempo?" a="Sim, você pode gerenciar múltiplas vaquinhas e rifas simultaneamente através do seu painel de gestor." />
-                    </div>
-                </section>
+                <FaqSection title="Perguntas Gerais">
+                    <FaqItem q="Como crio uma conta?" a="Clique em 'Cadastre-se' no canto superior direito, escolha seu tipo de perfil (Usuário ou Gestor), preencha seus dados e pronto! É rápido, fácil e gratuito." isOpenDefault={true}/>
+                    <FaqItem q="É seguro usar a PREMIX?" a="Sim. Utilizamos gateways de pagamento seguros e criptografia de ponta a ponta para proteger suas informações. Todas as transações são monitoradas para prevenir fraudes." />
+                    <FaqItem q="Existem taxas na plataforma?" a="Sim. Para vaquinhas, cobramos uma taxa de <strong>5%</strong> sobre o valor total arrecadado. Para rifas, a taxa é de <strong>10%</strong> sobre a receita. Não há taxas para jogar nos slots, apenas o valor da aposta. As taxas nos ajudam a manter a plataforma segura e funcional." />
+                    <FaqItem q="Como funcionam os saques?" a="Você pode solicitar o saque do saldo disponível em sua carteira a qualquer momento. O valor será transferido para a sua conta bancária cadastrada em até 3 dias úteis. Aplicam-se taxas de processamento." />
+                </FaqSection>
+                
+                <FaqSection title="Sobre Vaquinhas">
+                    <FaqItem q="Quem pode criar uma vaquinha?" a="Qualquer pessoa com uma conta de Gestor pode criar uma vaquinha. Ideal para causas pessoais, projetos comunitários, eventos, startups e muito mais." />
+                    <FaqItem q="O que acontece se eu não atingir a meta da minha vaquinha?" a="Não se preocupe! Na PREMIX, você recebe todo o valor arrecadado, independentemente de ter atingido a meta ou não (exceto as taxas da plataforma)." />
+                    <FaqItem q="Como posso divulgar minha campanha?" a="Oferecemos ferramentas fáceis para compartilhar sua vaquinha nas redes sociais, por e-mail ou WhatsApp. Uma boa divulgação é a chave para o sucesso!" />
+                </FaqSection>
+
+                <FaqSection title="Sobre Rifas">
+                    <FaqItem q="Como sei que os sorteios das rifas são justos?" a="Nosso sistema de sorteio é 100% automatizado e auditável, garantindo que todos os participantes tenham chances iguais. O resultado é gerado de forma aleatória e transparente, sem intervenção manual." />
+                    <FaqItem q="Como recebo meu prêmio se eu ganhar?" a="O organizador da rifa entrará em contato com você através dos dados cadastrados em sua conta para combinar a entrega do prêmio. A PREMIX facilita essa comunicação." />
+                    <FaqItem q="Posso pedir reembolso de um bilhete de rifa?" a="Geralmente, a compra de bilhetes de rifa não é reembolsável. Em caso de cancelamento da rifa pelo organizador, o valor será estornado para sua carteira na plataforma." />
+                </FaqSection>
+
+                <FaqSection title="Sobre Slots e Cupons">
+                    <FaqItem q="Os jogos de slot são justos?" a="Sim. Nossos jogos utilizam um Gerador de Números Aleatórios (RNG) para garantir resultados imparciais e justos em cada rodada." />
+                    <FaqItem q="Como consigo e uso cupons de desconto?" a="Os cupons são distribuídos em promoções especiais pela plataforma ou por gestores. Você pode ver seus cupons na sua página de perfil e aplicá-los na tela de pagamento ao comprar bilhetes de rifa." />
+                </FaqSection>
+
             </main>
 
             <div className="bg-white py-16">
@@ -1054,9 +1101,13 @@ const App = () => {
             canManageVaquinhas: true,
             canManageRifas: true,
             canManageSlots: true,
+            canManageCoupons: true,
         },
         user: {
+            canParticipateInVaquinhas: true,
+            canParticipateInRifas: true,
             canPlaySlots: true,
+            canUseCoupons: true,
             maxBetAmount: 250,
         }
     });
@@ -1141,7 +1192,7 @@ const App = () => {
                 pageContent = <PortalPage onSelectRole={handleSelectRole} onBackToHome={() => setView('homepage')} />;
                 break;
             case 'faq':
-                pageContent = <FaqPage onNavigate={(page) => setView(page)} />;
+                pageContent = <FaqPage onNavigate={(page) => setView(page as 'portal' | 'homepage')} />;
                 break;
             case 'vaquinhas':
                 pageContent = <PublicVaquinhasPage onNavigate={(page) => setView(page as 'portal')} />;
@@ -1231,12 +1282,13 @@ const AdminDashboard: FC<{ onLogout: () => void; slotConfig: SlotConfig; setSlot
 };
 
 const ManagerDashboard: FC<{ onLogout: () => void; slotConfig: SlotConfig; permissions: Permissions }> = ({ onLogout, slotConfig, permissions }) => {
-    const { canManageRifas, canManageSlots, canManageVaquinhas } = permissions.manager;
+    const { canManageRifas, canManageSlots, canManageVaquinhas, canManageCoupons } = permissions.manager;
     
     const navItems = [
         canManageVaquinhas && { name: 'Vaquinhas', icon: <VaquinhaIcon /> },
         canManageRifas && { name: 'Rifas', icon: <RifaIcon /> },
         canManageSlots && { name: 'Gestão de Slots', icon: <GamesIcon /> },
+        canManageCoupons && { name: 'Cupons de Desconto', icon: <CouponIcon /> },
     ].filter(Boolean) as { name: string, icon: ReactNode }[];
     
     const [activeMenu, setActiveMenu] = useState(navItems[0]?.name || 'Nenhum acesso');
@@ -1248,6 +1300,7 @@ const ManagerDashboard: FC<{ onLogout: () => void; slotConfig: SlotConfig; permi
             case 'Vaquinhas': return <VaquinhasPage />;
             case 'Rifas': return <RifasPage />;
             case 'Gestão de Slots': return <GestaoSlotsPage slotConfig={slotConfig} setSlotConfig={() => {}} permissions={permissions.user} />;
+            case 'Cupons de Desconto': return <CouponsPage />;
             default: return <div><h1 className="text-2xl">{activeMenu}</h1></div>;
         }
     };
