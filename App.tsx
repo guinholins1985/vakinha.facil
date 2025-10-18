@@ -36,6 +36,21 @@ const ArrowLeftIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) =>
 const GuideIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
 const MapIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 16.382V5.618a1 1 0 00-1.447-.894L15 7m-6 10v-5.5m6 5.5v-5.5m0 0l-6-3m6 3l6-3" /></svg>;
 const ClassifiedsIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5a2 2 0 012 2v5a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zm0 0v18m0-18h10a2 2 0 012 2v5a2 2 0 01-2 2h-1m-1-4l-4 4m0 0l4 4m-4-4h4" /></svg>;
+const ProductIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5a2 2 0 012 2v5a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zm0 0v18m0-18h10a2 2 0 012 2v5a2 2 0 01-2 2h-1m-1-4l-4 4m0 0l4 4m-4-4h4" /></svg>;
+const OrderIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>;
+const StoreIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>;
+const SwapIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>;
+const StarIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>;
+const ChatBubbleIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>;
+const MegaphoneIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5.882V4.5a1.5 1.5 0 013 0v1.382a1.5 1.5 0 01-3 0zM11.382 5.882a2 2 0 00-1.156.453l-4.502 3.152a1 1 0 00-.324.79v3.43a1 1 0 00.324.79l4.502 3.152a2 2 0 001.156.453h1.118a2 2 0 001.5-2.828l-.044-.088a2 2 0 00-3.356-1.172l-.043-.03-2.5-1.75a1 1 0 010-1.58l2.5-1.75.043-.03a2 2 0 003.356-1.172l.044-.088A2 2 0 0012.5 5.882h-1.118z" /></svg>;
+const UsersGroupIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>;
+const HeartIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>;
+const CalendarIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
+const AcademicCapIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 14l9-5-9-5-9 5 9 5z" /><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222 4 2.222V20M1 12v7a2 2 0 002 2h18a2 2 0 002-2v-7" /></svg>;
+const BookOpenIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
+const TicketIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5z" /></svg>;
+const MicrophoneIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>;
+const PaintBrushIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" /></svg>;
 
 // --- App Structure & Types ---
 type Page =
@@ -43,7 +58,11 @@ type Page =
     | 'Definições de Email' | 'Banners' | 'Customização' | 'Usuários' | 'Carteiras'
     | 'Depósitos' | 'Saques'
     | 'Rifa Solidária' | 'Vaquinha Online para Projetos Locais' | 'Cupom de Desconto em Parcerias Locais'
-    | 'Guia de Serviços Locais' | 'Mapa Interativo' | 'Classificados Locais';
+    | 'Guia de Serviços Locais' | 'Mapa Interativo' | 'Classificados Locais'
+    | 'Produtos' | 'Pedidos' | 'Produtores' | 'Troca Solidária' | 'Clube de Vantagens'
+    | 'Fórum de Discussões' | 'Sistema de Denúncias' | 'Grupos por Bairro' | 'Voluntariado Local' | 'Eventos Comunitários'
+    | 'Cursos e Oficinas' | 'Biblioteca Digital' | 'Agenda Cultural' | 'Contadores de Histórias' | 'Arte nas Ruas';
+
 
 type NavItem = { name: Page; icon: FC<{ className?: string }> };
 
@@ -52,6 +71,10 @@ type User = { id: number; name: string; email: string; saldo: number; data: stri
 type Wallet = { id: number; usuario: string; saldo: number; saldo_saque: number; bonus: number; saldo_b_rol: number };
 type Deposit = { id: string; user: string; valor: number; tipo: 'pix'; status: 'Aprovado' | 'Pendente'; created_at: string; };
 type Withdrawal = { id: number; nome: string; valor: number; tipo: 'Telefone'; chave_pix: string; status: 'Aprovado' | 'Pendente' | 'Recusado'; data: string; };
+type Product = { id: number; name: string; image: string; price: number; seller: string; stock: number; category: string; };
+type Order = { id: string; customer: string; date: string; total: number; status: 'Pendente' | 'Processando' | 'Enviado' | 'Entregue' | 'Cancelado'; items: number; };
+type Producer = { id: number; name: string; category: string; products: number; rating: number; memberSince: string; };
+
 
 const navItems: { title?: string; items: NavItem[] }[] = [
     { items: [{ name: "Painel de Controle", icon: DashboardIcon }] },
@@ -64,12 +87,42 @@ const navItems: { title?: string; items: NavItem[] }[] = [
         ]
     },
     {
+        title: "Economia e Sustentabilidade",
+        items: [
+            { name: "Produtos", icon: ProductIcon },
+            { name: "Pedidos", icon: OrderIcon },
+            { name: "Produtores", icon: StoreIcon },
+            { name: "Troca Solidária", icon: SwapIcon },
+        ]
+    },
+    {
         title: "Rifas, Vaquinhas e Cupoms",
         items: [
             { name: "Vaquinha Online para Projetos Locais", icon: VaquinhaIcon },
             { name: "Rifa Solidária", icon: RifaIcon },
             { name: "Cupom de Desconto em Parcerias Locais", icon: CouponIcon },
+            { name: "Clube de Vantagens", icon: StarIcon },
             { name: "Banners", icon: BannersIcon },
+        ]
+    },
+    {
+        title: "Engajamento Comunitário",
+        items: [
+            { name: "Fórum de Discussões", icon: ChatBubbleIcon },
+            { name: "Sistema de Denúncias", icon: MegaphoneIcon },
+            { name: "Grupos por Bairro", icon: UsersGroupIcon },
+            { name: "Voluntariado Local", icon: HeartIcon },
+            { name: "Eventos Comunitários", icon: CalendarIcon },
+        ]
+    },
+    {
+        title: "Educação e Cultura",
+        items: [
+            { name: "Cursos e Oficinas", icon: AcademicCapIcon },
+            { name: "Biblioteca Digital", icon: BookOpenIcon },
+            { name: "Agenda Cultural", icon: TicketIcon },
+            { name: "Contadores de Histórias", icon: MicrophoneIcon },
+            { name: "Arte nas Ruas", icon: PaintBrushIcon },
         ]
     },
     {
@@ -823,6 +876,158 @@ const CuponsPage = () => {
     );
 };
 
+// --- E-COMMERCE SECTION ---
+const initialProducts: Product[] = [
+    { id: 1, name: 'Doce de Leite Artesanal', image: 'https://i.imgur.com/example1.png', price: 15.00, seller: 'Sítio do Sabor', stock: 30, category: 'Alimentos' },
+    { id: 2, name: 'Bolsa de Couro Feita à Mão', image: 'https://i.imgur.com/example2.png', price: 120.00, seller: 'Arte em Couro', stock: 10, category: 'Artesanato' },
+    { id: 3, name: 'Geleia de Morango Orgânica', image: 'https://i.imgur.com/example3.png', price: 12.50, seller: 'Sítio do Sabor', stock: 50, category: 'Alimentos' },
+];
+const initialOrders: Order[] = [
+    { id: 'ORD-2024-001', customer: 'João Silva', date: '2024-07-20', total: 120.00, status: 'Entregue', items: 1 },
+    { id: 'ORD-2024-002', customer: 'Maria Oliveira', date: '2024-07-21', total: 27.50, status: 'Enviado', items: 2 },
+    { id: 'ORD-2024-003', customer: 'Carlos Pereira', date: '2024-07-22', total: 15.00, status: 'Pendente', items: 1 },
+];
+const initialProducers: Producer[] = [
+    { id: 1, name: 'Sítio do Sabor', category: 'Alimentos', products: 15, rating: 4.8, memberSince: '2023-01-10' },
+    { id: 2, name: 'Arte em Couro', category: 'Artesanato', products: 8, rating: 4.9, memberSince: '2022-11-05' },
+];
+
+const ProdutosPage = () => {
+    const [products, setProducts] = useState<Product[]>(initialProducts);
+    // Modal states can be added here for full functionality
+    return (
+        <div className="animate-fade-in">
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Produtos</h1>
+                <Button>+ Novo Produto</Button>
+            </header>
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" className="px-6 py-3">Produto</th>
+                                <th scope="col" className="px-6 py-3">Produtor</th>
+                                <th scope="col" className="px-6 py-3">Preço</th>
+                                <th scope="col" className="px-6 py-3">Estoque</th>
+                                <th scope="col" className="px-6 py-3">Categoria</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {products.map(p => (
+                                <tr key={p.id} className="bg-white border-b hover:bg-gray-50 align-middle">
+                                    <td className="px-6 py-4 font-bold text-gray-800 flex items-center space-x-3">
+                                        {/* <img src={p.image} alt={p.name} className="w-12 h-12 object-cover rounded-md" /> */}
+                                        <span>{p.name}</span>
+                                    </td>
+                                    <td className="px-6 py-4">{p.seller}</td>
+                                    <td className="px-6 py-4 font-semibold">R$ {p.price.toFixed(2)}</td>
+                                    <td className="px-6 py-4">{p.stock}</td>
+                                    <td className="px-6 py-4">{p.category}</td>
+                                    <td className="px-6 py-4 text-center">
+                                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon/></button>
+                                        <button className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon/></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    );
+};
+
+const PedidosPage = () => {
+    const [orders, setOrders] = useState<Order[]>(initialOrders);
+    const statusClasses: Record<Order['status'], string> = {
+        Pendente: 'bg-yellow-100 text-yellow-800',
+        Processando: 'bg-blue-100 text-blue-800',
+        Enviado: 'bg-indigo-100 text-indigo-800',
+        Entregue: 'bg-green-100 text-green-800',
+        Cancelado: 'bg-red-100 text-red-800',
+    };
+    return (
+        <div className="animate-fade-in">
+            <h1 className="text-3xl font-extrabold text-gray-800 font-heading mb-6">Pedidos</h1>
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500">
+                         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" className="px-6 py-3">ID Pedido</th>
+                                <th scope="col" className="px-6 py-3">Cliente</th>
+                                <th scope="col" className="px-6 py-3">Data</th>
+                                <th scope="col" className="px-6 py-3">Valor Total</th>
+                                <th scope="col" className="px-6 py-3">Status</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {orders.map(o => (
+                                <tr key={o.id} className="bg-white border-b hover:bg-gray-50">
+                                    <td className="px-6 py-4 font-mono text-xs font-bold text-gray-700">{o.id}</td>
+                                    <td className="px-6 py-4">{o.customer}</td>
+                                    <td className="px-6 py-4">{new Date(o.date).toLocaleDateString()}</td>
+                                    <td className="px-6 py-4 font-semibold">R$ {o.total.toFixed(2)}</td>
+                                    <td className="px-6 py-4"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusClasses[o.status]}`}>{o.status}</span></td>
+                                    <td className="px-6 py-4 text-center">
+                                        <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"><DetailsIcon /></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    );
+};
+
+const ProdutoresPage = () => {
+    const [producers, setProducers] = useState<Producer[]>(initialProducers);
+    return (
+        <div className="animate-fade-in">
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Produtores Locais</h1>
+                <Button>+ Novo Produtor</Button>
+            </header>
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500">
+                         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" className="px-6 py-3">Nome do Produtor</th>
+                                <th scope="col" className="px-6 py-3">Categoria</th>
+                                <th scope="col" className="px-6 py-3">Nº de Produtos</th>
+                                <th scope="col" className="px-6 py-3">Avaliação</th>
+                                <th scope="col" className="px-6 py-3">Membro Desde</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {producers.map(p => (
+                                <tr key={p.id} className="bg-white border-b hover:bg-gray-50">
+                                    <td className="px-6 py-4 font-bold text-gray-800">{p.name}</td>
+                                    <td className="px-6 py-4">{p.category}</td>
+                                    <td className="px-6 py-4 text-center">{p.products}</td>
+                                    <td className="px-6 py-4 font-semibold text-amber-500">{p.rating.toFixed(1)} ★</td>
+                                    <td className="px-6 py-4">{new Date(p.memberSince).toLocaleDateString()}</td>
+                                    <td className="px-6 py-4 text-center">
+                                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon/></button>
+                                        <button className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon/></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    );
+};
+
 // --- GESTÃO DE JOGOS SECTION ---
 
 // MOCK DATA
@@ -1101,7 +1306,7 @@ const UserDetailPage = ({ user, onBack }: { user: User; onBack: () => void; }) =
 // --- Admin Panel Component ---
 const AdminPanel: FC<{ onLogout: () => void }> = ({ onLogout }) => {
     const [activePage, setActivePage] = useState<Page>('Painel de Controle');
-    const [openMenus, setOpenMenus] = useState<string[]>(['Utilidades do Dia a Dia', 'Rifas, Vaquinhas e Cupoms', 'Gestão da Plataforma']);
+    const [openMenus, setOpenMenus] = useState<string[]>(['Utilidades do Dia a Dia', 'Rifas, Vaquinhas e Cupoms', 'Gestão da Plataforma', 'Economia e Sustentabilidade', 'Engajamento Comunitário', 'Educação e Cultura']);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     const handleMenuToggle = (title: string) => {
@@ -1124,21 +1329,38 @@ const AdminPanel: FC<{ onLogout: () => void }> = ({ onLogout }) => {
             case 'Guia de Serviços Locais': return <PlaceholderPage title={activePage} />;
             case 'Mapa Interativo': return <PlaceholderPage title={activePage} />;
             case 'Classificados Locais': return <PlaceholderPage title={activePage} />;
-            // Configs & Gestão
+            // E-commerce
+            case 'Produtos': return <ProdutosPage />;
+            case 'Pedidos': return <PedidosPage />;
+            case 'Produtores': return <ProdutoresPage />;
+            case 'Troca Solidária': return <PlaceholderPage title={activePage} />;
+            // Arrecadação
+            case 'Rifa Solidária': return <RifasPage />;
+            case 'Vaquinha Online para Projetos Locais': return <VaquinhasPage />;
+            case 'Cupom de Desconto em Parcerias Locais': return <CuponsPage />;
+            case 'Clube de Vantagens': return <PlaceholderPage title={activePage} />;
+            // Engajamento
+            case 'Fórum de Discussões': return <PlaceholderPage title={activePage} />;
+            case 'Sistema de Denúncias': return <PlaceholderPage title={activePage} />;
+            case 'Grupos por Bairro': return <PlaceholderPage title={activePage} />;
+            case 'Voluntariado Local': return <PlaceholderPage title={activePage} />;
+            case 'Eventos Comunitários': return <PlaceholderPage title={activePage} />;
+             // Educação e Cultura
+            case 'Cursos e Oficinas': return <PlaceholderPage title={activePage} />;
+            case 'Biblioteca Digital': return <PlaceholderPage title={activePage} />;
+            case 'Agenda Cultural': return <PlaceholderPage title={activePage} />;
+            case 'Contadores de Histórias': return <PlaceholderPage title={activePage} />;
+            case 'Arte nas Ruas': return <PlaceholderPage title={activePage} />;
+            // Gestão da Plataforma
+            case 'Usuários': return <UsuariosPage onNavigateToUser={setSelectedUser} />;
+            case 'Carteiras': return <CarteirasPage />;
+            case 'Depósitos': return <DepositosPage />;
+            case 'Saques': return <SaquesPage />;
             case 'Configurações': return <ConfiguracoesPage />;
             case 'Gateway de Pagamentos': return <GatewayPagamentosPage />;
             case 'Definições de Email': return <DefinicoesEmailPage />;
             case 'Banners': return <BannersPage />;
             case 'Customização': return <CustomizacaoPage />;
-            // Arrecadação
-            case 'Rifa Solidária': return <RifasPage />;
-            case 'Vaquinha Online para Projetos Locais': return <VaquinhasPage />;
-            case 'Cupom de Desconto em Parcerias Locais': return <CuponsPage />;
-            // Gestão de Usuários
-            case 'Usuários': return <UsuariosPage onNavigateToUser={setSelectedUser} />;
-            case 'Carteiras': return <CarteirasPage />;
-            case 'Depósitos': return <DepositosPage />;
-            case 'Saques': return <SaquesPage />;
             default: return <PlaceholderPage title={activePage} />;
         }
     };

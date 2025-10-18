@@ -1,12 +1,6 @@
-Este projeto é uma plataforma de engajamento comunitário focada em:
+# Alagoinhas Conecta - Plano de Projeto
 
-1.  **Rifa Solidária** - Sorteio de prêmios com a renda revertida para causas sociais.
-2.  **Vaquinha Online para Projetos Locais** - Plataforma para arrecadação de fundos para projetos comunitários.
-3.  **Cupom de Desconto em Parcerias Locais** - Descontos exclusivos para participantes em comércios parceiros.
-
-O objetivo é fornecer ferramentas para que a comunidade possa se organizar, arrecadar fundos e apoiar o comércio local de forma simples e eficaz.inremente as seguinte funcionalidades e mescle na estrutura:
-2.1 PILAR 1: UTILIDADES DO DIA A DIA
----
+## 2.1 PILAR 1: UTILIDADES DO DIA A DIA
 | Ferramenta                  | Descrição                                                                                     | Monetização                                                                                     |
 |-----------------------------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
 | Guia de Serviços Locais     | Lista de profissionais (médicos, encanadores, advogados) com avaliações e contatos.            | Taxa mensal para profissionais (R$20/mês).                                                   |
@@ -16,9 +10,7 @@ O objetivo é fornecer ferramentas para que a comunidade possa se organizar, arr
 | Banco de Talentos           | Cadastro de profissionais autônomos (pedreiros, costureiras, professores particulares).      | Comissão de 10% sobre serviços contratados.                                                  |
 | SOS Emergencial             | Lista de contatos de emergência (bombeiros, polícia, SAMU) e botão de pânico para denúncias. | Parcerias com seguros ou empresas de segurança.                                               |
 
----
-2.2 PILAR 2: ECONOMIA E SUSTENTABILIDADE
----
+## 2.2 PILAR 2: ECONOMIA E SUSTENTABILIDADE
 | Ferramenta                  | Descrição                                                                                     | Monetização                                                                                     |
 |-----------------------------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
 | Troca Solidária             | Plataforma para troca de roupas, livros, móveis, brinquedos, etc.                              | Taxa simbólica para divulgar itens (R$2 por anúncio).                                         |
@@ -27,9 +19,7 @@ O objetivo é fornecer ferramentas para que a comunidade possa se organizar, arr
 | Carona Solidária            | Sistema de caronas compartilhadas para idosos, estudantes e trabalhadores.                   | Taxa opcional para motoristas (R$1 por corrida).                                               |
 | Energia e Água              | Dicas para economizar energia/água e calculadora de consumo.                                  | Patrocínio de empresas de utilidades (ex: Coelba, Embasa).                                    |
 
----
-2.3 PILAR 3: RIFAS, VAQUINHAS E CUPOMS
----
+## 2.3 PILAR 3: RIFAS, VAQUINHAS E CUPOMS
 | Ferramenta                  | Descrição                                                                                     | Monetização                                                                                     |
 |-----------------------------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
 | Rifas Online                | Criação e participação em rifas de prêmios doados por parceiros.                              | Taxa de 15% sobre o valor arrecadado.                                                          |
@@ -38,9 +28,7 @@ O objetivo é fornecer ferramentas para que a comunidade possa se organizar, arr
 | Cashback Local              | Devolução de parte do valor gasto em comércios parceiros.                                      | Taxa paga pelos comércios (3-5% do valor do cashback).                                         |
 | Clube de Vantagens          | Assinatura mensal com descontos exclusivos, acesso a rifas VIP e eventos.                     | Assinatura mensal (R$10/mês).                                                                 |
 
----
-2.4 PILAR 4: ENGAJAMENTO COMUNITÁRIO
----
+## 2.4 PILAR 4: ENGAJAMENTO COMUNITÁRIO
 | Ferramenta                  | Descrição                                                                                     | Monetização                                                                                     |
 |-----------------------------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
 | Fórum de Discussões         | Espaço para discutir problemas e soluções para Alagoinhas.                                    | Parcerias com prefeitura para resolver demandas.                                               |
@@ -49,9 +37,7 @@ O objetivo é fornecer ferramentas para que a comunidade possa se organizar, arr
 | Voluntariado Local          | Plataforma para conectar voluntários a projetos sociais.                                     | Parcerias com ONGs e empresas para programas de voluntariado corporativo.                     |
 | Eventos Comunitários        | Divulgação de feiras, shows, oficinas e mutirões.                                             | Taxa para divulgar eventos privados (R$50/evento).                                            |
 
----
-2.5 PILAR 5: EDUCAÇÃO E CULTURA
----
+## 2.5 PILAR 5: EDUCAÇÃO E CULTURA
 | Ferramenta                  | Descrição                                                                                     | Monetização                                                                                     |
 |-----------------------------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
 | Cursos e Oficinas           | Oferecer cursos online/presenciais (culinária, artesanato, inglês, informática).                  | Venda de certificados ou aulas avançadas (R$50/curso).                                       |
@@ -60,9 +46,7 @@ O objetivo é fornecer ferramentas para que a comunidade possa se organizar, arr
 | Contadores de Histórias     | Sessões de contação de histórias para crianças e adultos.                                     | Cobrança por sessões privadas (ex: R$100/sessão).                                              |
 | Arte nas Ruas               | Mapa de grafites, murais e intervenções artísticas na cidade.                                 | Parcerias com artistas e galeria de arte.                                                     |
 
----
-3. MODELO DE MONETIZAÇÃO CONSOLIDADO
----
+## 3. MODELO DE MONETIZAÇÃO CONSOLIDADO
 | Fonte de Renda               | Como Funciona                                                                                     | Potencial Mensal (Estimativa)               |
 |------------------------------|---------------------------------------------------------------------------------------------------|--------------------------------------------|
 | Taxas em Rifas               | 15% sobre o valor arrecadado em cada rifa.                                                       | R$1.500 - R$5.000                          |
@@ -75,10 +59,8 @@ O objetivo é fornecer ferramentas para que a comunidade possa se organizar, arr
 | Parcerias com Comércios     | Comissão por vendas geradas ou publicidade.                                                     | R$3.000 - R$10.000                         |
 | **Total Estimado**           |                                                                                                   | **R$13.000 - R$38.500/mês**                |
 
----
-4. PLANO DE IMPLEMENTAÇÃO
----
-4.1 FASE 1: LANÇAMENTO (0-3 MESES)
+## 4. PLANO DE IMPLEMENTAÇÃO
+### 4.1 FASE 1: LANÇAMENTO (0-3 MESES)
 - Desenvolver um MVP (site ou app) com:
   - Guia de Serviços Locais.
   - Rifas Online.
@@ -88,7 +70,7 @@ O objetivo é fornecer ferramentas para que a comunidade possa se organizar, arr
 - Firmar parcerias com comércios, prefeitura e líderes comunitários.
 - Campanha de lançamento nas redes sociais e rádio local.
 
-4.2 FASE 2: EXPANSÃO (3-6 MESES)
+### 4.2 FASE 2: EXPANSÃO (3-6 MESES)
 - Adicionar:
   - Cupons de Desconto.
   - Clube de Vantagens.
@@ -97,7 +79,7 @@ O objetivo é fornecer ferramentas para que a comunidade possa se organizar, arr
 - Programa de afiliados para moradores indicarem o projeto.
 - Eventos presenciais para engajar a comunidade.
 
-4.3 FASE 3: SUSTENTABILIDADE (6-12 MESES)
+### 4.3 FASE 3: SUSTENTABILIDADE (6-12 MESES)
 - Implementar:
   - Cashback Local.
   - Cursos e Oficinas.
@@ -105,26 +87,99 @@ O objetivo é fornecer ferramentas para que a comunidade possa se organizar, arr
 - Buscar patrocínios e editais para projetos sociais.
 - Expansão para cidades vizinhas.
 
----
-5. BENEFÍCIOS PARA ALAGOINHAS
----
+## 5. BENEFÍCIOS PARA ALAGOINHAS
 - Moradores: Acesso fácil a serviços, economia, engajamento e cultura.
 - Comerciantes: Mais visibilidade, clientes e vendas.
 - Prefeitura: Dados para melhorar a cidade e resolver problemas rapidamente.
 - Projeto: Sustentabilidade financeira e impacto social positivo.
 
----
-6. PRÓXIMOS PASSOS
----
+## 6. PRÓXIMOS PASSOS
 1. Escolha 3-5 ferramentas para começar (ex: Guia de Serviços, Rifas, Mapa Interativo).
 2. Desenvolva um MVP (versão mínima do site/app).
 3. Divulgue para a comunidade (redes sociais, parcerias com líderes locais).
 4. Mensure os resultados e ajuste conforme a demanda.
 
----
-7. CONTATO E PARCERIAS
----
+## 7. CONTATO E PARCERIAS
 - Para mais informações ou parcerias, entre em contato:
   - E-mail: contato@alagoinhasconecta.com.br
   - WhatsApp: (XX) XXXXX-XXXX
   - Instagram: @alagoinhasconecta
+
+---
+# Recursos Necessários e Plano de Desenvolvimento
+
+## 1. Tecnologias e Ferramentas
+
+### Frontend:
+- **HTML, CSS, JavaScript**: Estrutura base.
+- **Frameworks**: React, Vue.js ou Angular (para aplicações mais dinâmicas).
+
+### Backend:
+- **Linguagens**: Python (Django/Flask), PHP (Laravel), Node.js ou Ruby on Rails.
+- **Banco de Dados**: MySQL, PostgreSQL ou MongoDB.
+
+### Autenticação e Segurança:
+- **Bibliotecas**: Firebase Authentication, Auth0 ou JWT (JSON Web Tokens).
+- **Criptografia**: SSL/TLS.
+
+### Pagamentos:
+- **Gateways**: PagSeguro, Mercado Pago, PayPal ou Stripe.
+- **APIs de Pagamento Recorrente**.
+
+### Hospedagem:
+- **Servidores**: AWS, Google Cloud, Azure ou hospedagem compartilhada.
+
+### Ferramentas Adicionais:
+- **E-mails Transacionais**: SendGrid, Mailgun ou Amazon SES.
+- **Gerenciamento de Assinaturas**: Chargebee ou Recurly.
+
+## 2. Funcionalidades do Sistema
+
+### a) Cadastro de Usuários
+- **Campos**: Nome completo, e-mail, senha, telefone (opcional), endereço (opcional), aceite dos termos.
+
+### b) Login
+- **Autenticação**: E-mail/senha, recuperação de senha, login social (opcional).
+
+### c) Plano de Assinaturas
+- **Tipos de Planos**:
+  - **Gratuito**: Acesso básico.
+  - **Premium (R$10/mês)**: Cupons exclusivos, rifas VIP.
+  - **Empresarial (R$50/mês)**: Destaque para comércios.
+- **Gerenciamento**: Painel do usuário para upgrades, downgrades e cancelamentos.
+
+## Prompt para Desenvolvimento do Sistema de Assinaturas, Cadastro e Login
+
+### CONTEXTO:
+Desenvolvimento da plataforma "Alagoinhas Conecta" com foco no sistema de cadastro, login e assinaturas para monetização de recursos premium.
+
+### REQUISITOS TÉCNICOS:
+1.  **CADASTRO DE USUÁRIOS**: Página com campos obrigatórios (nome, e-mail, senha, aceite de termos) e opcionais (telefone, endereço). Validação de e-mail e envio de confirmação.
+2.  **LOGIN**: Página de login com e-mail/senha, recuperação de senha e proteção contra força bruta.
+3.  **SISTEMA DE ASSINATURAS**: Três planos (Gratuito, Premium, Empresarial) com integração a gateway de pagamento (Mercado Pago/PagSeguro) para cobranças recorrentes. Painel de usuário para gerenciamento completo.
+4.  **SEGURANÇA**: Criptografia de senhas (bcrypt), SSL/TLS, proteção contra CSRF/XSS.
+5.  **BANCO DE DADOS**: Armazenamento seguro de dados de usuários e logs, com backups diários.
+6.  **INTEGRAÇÕES**: APIs de pagamento e serviços de e-mail transacional.
+
+### FLUXO DE USUÁRIO:
+1.  Cadastro e confirmação por e-mail.
+2.  Login.
+3.  Seleção de plano de assinatura.
+4.  Redirecionamento para pagamento (se plano pago).
+5.  Confirmação e acesso aos recursos do plano.
+6.  Gerenciamento da assinatura no painel do usuário.
+
+### ENTREGÁVEIS:
+- Páginas de cadastro/login funcionais.
+- Sistema de assinaturas com pagamento integrado.
+- Painel de gerenciamento de assinatura.
+- Notificações automáticas por e-mail.
+- Documentação técnica.
+
+### TECNOLOGIAS SUGERIDAS:
+- **Frontend**: React.js ou Vue.js.
+- **Backend**: Node.js (Express) ou Python (Django).
+- **Banco de Dados**: PostgreSQL ou MongoDB.
+- **Autenticação**: JWT.
+- **Pagamentos**: API do Mercado Pago ou PagSeguro.
+- **Hospedagem**: AWS ou Google Cloud.
