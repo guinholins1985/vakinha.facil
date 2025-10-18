@@ -33,13 +33,17 @@ const DetailsIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <
 const CheckCircleIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>;
 const XCircleIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg>;
 const ArrowLeftIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>;
+const GuideIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
+const MapIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 16.382V5.618a1 1 0 00-1.447-.894L15 7m-6 10v-5.5m6 5.5v-5.5m0 0l-6-3m6 3l6-3" /></svg>;
+const ClassifiedsIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5a2 2 0 012 2v5a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zm0 0v18m0-18h10a2 2 0 012 2v5a2 2 0 01-2 2h-1m-1-4l-4 4m0 0l4 4m-4-4h4" /></svg>;
 
 // --- App Structure & Types ---
 type Page =
     | 'Painel de Controle' | 'Configurações' | 'Gateway de Pagamentos'
     | 'Definições de Email' | 'Banners' | 'Customização' | 'Usuários' | 'Carteiras'
     | 'Depósitos' | 'Saques'
-    | 'Rifa Solidária' | 'Vaquinha Online para Projetos Locais' | 'Cupom de Desconto em Parcerias Locais';
+    | 'Rifa Solidária' | 'Vaquinha Online para Projetos Locais' | 'Cupom de Desconto em Parcerias Locais'
+    | 'Guia de Serviços Locais' | 'Mapa Interativo' | 'Classificados Locais';
 
 type NavItem = { name: Page; icon: FC<{ className?: string }> };
 
@@ -52,6 +56,23 @@ type Withdrawal = { id: number; nome: string; valor: number; tipo: 'Telefone'; c
 const navItems: { title?: string; items: NavItem[] }[] = [
     { items: [{ name: "Painel de Controle", icon: DashboardIcon }] },
     {
+        title: "Utilidades do Dia a Dia",
+        items: [
+            { name: "Guia de Serviços Locais", icon: GuideIcon },
+            { name: "Mapa Interativo", icon: MapIcon },
+            { name: "Classificados Locais", icon: ClassifiedsIcon },
+        ]
+    },
+    {
+        title: "Rifas, Vaquinhas e Cupoms",
+        items: [
+            { name: "Vaquinha Online para Projetos Locais", icon: VaquinhaIcon },
+            { name: "Rifa Solidária", icon: RifaIcon },
+            { name: "Cupom de Desconto em Parcerias Locais", icon: CouponIcon },
+            { name: "Banners", icon: BannersIcon },
+        ]
+    },
+    {
         title: "Gestão da Plataforma",
         items: [
             { name: "Usuários", icon: UsersIcon },
@@ -62,15 +83,6 @@ const navItems: { title?: string; items: NavItem[] }[] = [
             { name: "Gateway de Pagamentos", icon: GatewayIcon },
             { name: "Definições de Email", icon: EmailIcon },
             { name: "Customização", icon: CustomizeIcon },
-        ]
-    },
-    {
-        title: "Marketing & Arrecadação",
-        items: [
-            { name: "Vaquinha Online para Projetos Locais", icon: VaquinhaIcon },
-            { name: "Rifa Solidária", icon: RifaIcon },
-            { name: "Cupom de Desconto em Parcerias Locais", icon: CouponIcon },
-            { name: "Banners", icon: BannersIcon },
         ]
     },
 ];
@@ -1089,7 +1101,7 @@ const UserDetailPage = ({ user, onBack }: { user: User; onBack: () => void; }) =
 // --- Admin Panel Component ---
 const AdminPanel: FC<{ onLogout: () => void }> = ({ onLogout }) => {
     const [activePage, setActivePage] = useState<Page>('Painel de Controle');
-    const [openMenus, setOpenMenus] = useState<string[]>(['Gestão da Plataforma', 'Marketing & Arrecadação']);
+    const [openMenus, setOpenMenus] = useState<string[]>(['Utilidades do Dia a Dia', 'Rifas, Vaquinhas e Cupoms', 'Gestão da Plataforma']);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     const handleMenuToggle = (title: string) => {
@@ -1108,13 +1120,17 @@ const AdminPanel: FC<{ onLogout: () => void }> = ({ onLogout }) => {
         
         switch (activePage) {
             case 'Painel de Controle': return <DashboardPage />;
-            // Configs
+            // Utilidades
+            case 'Guia de Serviços Locais': return <PlaceholderPage title={activePage} />;
+            case 'Mapa Interativo': return <PlaceholderPage title={activePage} />;
+            case 'Classificados Locais': return <PlaceholderPage title={activePage} />;
+            // Configs & Gestão
             case 'Configurações': return <ConfiguracoesPage />;
             case 'Gateway de Pagamentos': return <GatewayPagamentosPage />;
             case 'Definições de Email': return <DefinicoesEmailPage />;
             case 'Banners': return <BannersPage />;
             case 'Customização': return <CustomizacaoPage />;
-            // Marketing
+            // Arrecadação
             case 'Rifa Solidária': return <RifasPage />;
             case 'Vaquinha Online para Projetos Locais': return <VaquinhasPage />;
             case 'Cupom de Desconto em Parcerias Locais': return <CuponsPage />;
@@ -1220,8 +1236,8 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
         }
     ];
 
-    const initiativeCategories = navItems.filter(section => section.title && section.items.length > 0);
-    const [activeCategory, setActiveCategory] = useState(initiativeCategories[0].title);
+    const initiativeCategories = navItems.filter(section => section.title && section.title !== 'Gestão da Plataforma');
+    const [activeCategory, setActiveCategory] = useState(initiativeCategories[0]?.title || '');
     
     const [currentSlide, setCurrentSlide] = useState(0);
 
