@@ -4,25 +4,23 @@
     <meta charset="UTF--vsc" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vakinha Fácil - Vaquinhas Coletivas Automatizadas</title>
+    <title>PREMIX - Sua Plataforma de Jogos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
           extend: {
             colors: {
               primary: {
-                light: '#34D399', // emerald-400
-                DEFAULT: '#10B981', // emerald-500
-                dark: '#059669', // emerald-600
+                DEFAULT: '#2563EB', // blue-600
+                dark: '#1D4ED8', // blue-700
               },
-              secondary: '#F59E0B', // amber-500
               neutral: {
-                dark: '#1A1A2E',
-                light: '#F8F9FA'
+                dark: '#0F172A', // slate-900
+                light: '#F1F5F9' // slate-100
               },
             },
             fontFamily: {
@@ -31,18 +29,12 @@
             },
             keyframes: {
               fadeIn: {
-                '0%': { opacity: '0' },
-                '100%': { opacity: '1' },
-              },
-              pulse: {
-                '50%': {
-                  opacity: '.85',
-                },
+                '0%': { opacity: '0', transform: 'translateY(-10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
               },
             },
             animation: {
-              'fade-in': 'fadeIn 0.5s ease-in-out',
-              'pulse-subtle': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'fade-in': 'fadeIn 0.3s ease-out',
             },
           },
         },
@@ -59,7 +51,7 @@
 }
 </script>
 </head>
-  <body>
+  <body class="bg-gray-50">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

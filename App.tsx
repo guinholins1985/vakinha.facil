@@ -1,520 +1,1400 @@
-import React, { useState, FC, ReactNode } from 'react';
+import React, { useState, FC, ReactNode, ChangeEvent, FormEvent, useEffect, useRef } from 'react';
 
 // --- Ícones SVG ---
-const DashboardIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>;
-const SettingsIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
-const ApiIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>;
-const GatewayIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>;
-const EmailIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>;
-const BannersIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" /></svg>;
-const CustomizeIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20v-6m0 0V4m0 6h10m-10 0H0" /></svg>;
-const UsersIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197m0 0A5.975 5.975 0 0112 13a5.975 5.975 0 016 2.803M15 21a9 9 0 00-9-5.197" /></svg>;
-const WalletIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>;
-const MoneyIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01M12 6v-1.667a1.667 1.667 0 01.9-1.499m-1.8 0A1.667 1.667 0 0010.333 3v1.667m-3.93.833A9 9 0 0112 3.5a9 9 0 018.667 4.833m0 0A9 9 0 0112 20.5a9 9 0 01-8.667-11.167m0 0A9 9 0 003.333 12a9 9 0 008.667-7.167" /></svg>;
-const RaffleIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h3a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" /></svg>;
-const NewUsersIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>;
-const VaquinhaIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.125-1.274-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.125-1.274.356-1.857m0 0a5.002 5.002 0 019.288 0M12 14a4 4 0 100-8 4 4 0 000 8z" /></svg>;
-const GamesIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 12l2-2m0 0l2-2 2 2 2-2 2 2M6 12v6a2 2 0 002 2h8a2 2 0 002-2v-6M6 12H4m16 0h-2" /></svg>;
+const DashboardIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>;
+const SettingsIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
+const ApiIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>;
+const GatewayIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>;
+const EmailIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>;
+const BannersIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" /></svg>;
+const CustomizeIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2v10m0-10h4m-4 0H8m4 10h4m-4 0H8m4-14a2 2 0 100-4 2 2 0 000 4zm0 14a2 2 0 100-4 2 2 0 000 4z" /></svg>;
+const UsersIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197m0 0A5.975 5.975 0 0112 13a5.975 5.975 0 016 2.803M15 21a9 9 0 00-9-5.197" /></svg>;
+const WalletIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>;
+const AffiliateIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>;
+const DepositIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>;
+const WithdrawIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8v1a3 3 0 003 3h10a3 3 0 003-3V8m-4 8l-4-4m0 0l-4 4m4-4v8" /></svg>;
+const CategoryIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v2m14 0h-2M5 11H3" /></svg>;
+const ProviderIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.657 7.343A8 8 0 0118.657 17.657c-1.577 1.577-5.32 2.634-7.314 1.071C9.36 17.5 9 16 9 14c2 1 4.343.343 5.657-1.343z" /></svg>;
+const AllGamesIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+const HistoryIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+const ChevronDownIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>;
+const ChevronRightIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+const LogoutIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>;
+const XIcon: FC<{ className?: string }> = ({ className = "w-6 h-6" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>;
 const PencilIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" /></svg>;
 const TrashIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>;
-const CheckCircleIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
-const ClockIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
-const ShareIcon: FC<{ className?: string }> = ({ className = "w-5 h-5 flex-shrink-0" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" /></svg>;
-const ChevronDownIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>;
-const LogoutIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>;
+const SearchIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>;
+const UpArrowIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>;
+const DownArrowIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>;
+const SpinnerIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+    <svg className={`animate-spin ${className}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+);
+const VaquinhaIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H9a2 2 0 00-2 2v2m10 4h-2a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2zM7 9V7a2 2 0 012-2h2" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13H9m6 0a2 2 0 012 2v2a2 2 0 01-2 2H9a2 2 0 01-2-2v-2a2 2 0 012-2h6z" /></svg>;
+const RifaIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5z" /></svg>;
+const CouponIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5l-7 7 7 7" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15l-3-3m0 0l3-3m-3 3h12a2 2 0 002-2V8a2 2 0 00-2-2H9" /></svg>;
+const DetailsIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fillRule="evenodd" d="M.458 10C3.732 4.943 7.523 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-7.064 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>;
+const CheckCircleIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>;
+const XCircleIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg>;
+const ArrowLeftIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>;
+const ShieldCheckIcon: FC<{ className?: string }> = ({ className = "w-8 h-8" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>;
+const GiftIcon: FC<{ className?: string }> = ({ className = "w-8 h-8" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V6a2 2 0 00-2 2h2zm0 13l-4-4m4 4l4-4m-4-4v-7a2 2 0 012-2h2a2 2 0 012 2v7m-4 4h.01" /></svg>;
+const LightningBoltIcon: FC<{ className?: string }> = ({ className = "w-8 h-8" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>;
 
-// --- App Structure ---
-type NavItem = { name: string; icon: FC<{ className?: string }> };
-type UserRole = 'Administrador' | 'Gestor/Criador' | 'Usuário' | 'Jogos';
+// --- App Structure & Types ---
+type Page =
+    | 'Painel de Controle' | 'Configurações' | 'API de jogos' | 'Gateway de Pagamentos'
+    | 'Definições de Email' | 'Banners' | 'Customização' | 'Usuários' | 'Carteiras'
+    | 'Saques de Afiliados' | 'Depósitos' | 'Saques' | 'Todas As Categorias'
+    | 'Todos Os Provedores' | 'Todos Os Jogos' | 'Histórico de Partidas'
+    | 'Vaquinhas' | 'Rifas' | 'Cupons de Desconto';
 
-const navItems: { title: string; items: NavItem[] }[] = [
-  { title: "GERAL", items: [{ name: "Dashboard", icon: DashboardIcon }] },
-  { title: "GESTÃO", items: [{ name: "Vaquinhas", icon: VaquinhaIcon }, { name: "Rifas", icon: RaffleIcon }, { name: "Jogos", icon: GamesIcon }, { name: "Usuários", icon: UsersIcon }, { name: "Financeiro", icon: WalletIcon }] },
-  { title: "CONFIGURAÇÕES", items: [{ name: "Geral", icon: SettingsIcon }, { name: "API", icon: ApiIcon }, { name: "Gateways", icon: GatewayIcon }, { name: "E-mails", icon: EmailIcon }, { name: "Banners", icon: BannersIcon }, { name: "Customização", icon: CustomizeIcon }] },
+type NavItem = { name: Page; icon: FC<{ className?: string }> };
+
+// --- Mock Data & Types ---
+type User = { id: number; name: string; email: string; saldo: number; data: string; status: 'Ativo' | 'Banido'; influencer: boolean; };
+type Wallet = { id: number; usuario: string; saldo: number; saldo_saque: number; bonus: number; saldo_b_rol: number };
+type Deposit = { id: string; user: string; valor: number; tipo: 'pix'; status: 'Aprovado' | 'Pendente'; created_at: string; };
+type Withdrawal = { id: number; nome: string; valor: number; tipo: 'Telefone'; chave_pix: string; status: 'Aprovado' | 'Pendente' | 'Recusado'; data: string; };
+type Category = { id: number; nome: string; descricao: string; slug: string; };
+type Provider = { id: number; nome: string; status: 'Ativo' | 'Inativo'; };
+type GameHistory = { id: number; usuario: string; jogo: string; tipo: 'Ganho' | 'Perda'; pagamento: string; valor: number; provedor: string; };
+
+const navItems: { title?: string; items: NavItem[] }[] = [
+    { items: [{ name: "Painel de Controle", icon: DashboardIcon }] },
+    {
+        title: "Configurações",
+        items: [
+            { name: "Configurações", icon: SettingsIcon },
+            { name: "API de jogos", icon: ApiIcon },
+            { name: "Gateway de Pagamentos", icon: GatewayIcon },
+            { name: "Definições de Email", icon: EmailIcon },
+            { name: "Banners", icon: BannersIcon },
+            { name: "Customização", icon: CustomizeIcon },
+        ]
+    },
+    {
+        title: "Arrecadação & Marketing",
+        items: [
+            { name: "Vaquinhas", icon: VaquinhaIcon },
+            { name: "Rifas", icon: RifaIcon },
+            { name: "Cupons de Desconto", icon: CouponIcon },
+        ]
+    },
+    {
+        title: "Gestão de Jogos",
+        items: [
+            { name: "Usuários", icon: UsersIcon },
+            { name: "Carteiras", icon: WalletIcon },
+            { name: "Saques de Afiliados", icon: AffiliateIcon },
+            { name: "Depósitos", icon: DepositIcon },
+            { name: "Saques", icon: WithdrawIcon },
+            { name: "Todas As Categorias", icon: CategoryIcon },
+            { name: "Todos Os Provedores", icon: ProviderIcon },
+            { name: "Todos Os Jogos", icon: AllGamesIcon },
+            { name: "Histórico de Partidas", icon: HistoryIcon },
+        ]
+    },
 ];
 
-const LoginPage: FC<{ onLogin: (role: UserRole) => void }> = ({ onLogin }) => {
-    const [activeTab, setActiveTab] = useState<UserRole>('Administrador');
-    const tabs: UserRole[] = ['Administrador', 'Gestor/Criador', 'Usuário', 'Jogos'];
+// --- Reusable Components ---
+const Modal: FC<{ isOpen: boolean; onClose: () => void; title: string; children: ReactNode; maxWidth?: string }> = ({ isOpen, onClose, title, children, maxWidth = "max-w-2xl" }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center backdrop-blur-sm" aria-modal="true" role="dialog">
+            <div className={`bg-white rounded-xl shadow-2xl w-full ${maxWidth} max-h-[95vh] flex flex-col animate-fade-in border border-gray-200`}>
+                <header className="flex justify-between items-center p-5 border-b border-gray-200">
+                    <h3 className="text-xl font-extrabold text-gray-800 font-heading">{title}</h3>
+                    <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-200 rounded-full transition-colors" aria-label="Fechar modal">
+                        <XIcon className="w-5 h-5" />
+                    </button>
+                </header>
+                <main className="p-6 overflow-y-auto">{children}</main>
+            </div>
+        </div>
+    );
+};
 
-    const handleLogin = (e: React.FormEvent) => {
+const ConfirmationModal: FC<{ isOpen: boolean; onClose: () => void; onConfirm: () => void; title: string; message: string; }> = ({ isOpen, onClose, onConfirm, title, message }) => {
+    if (!isOpen) return null;
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} title={title}>
+            <p className="text-gray-600 mb-6">{message}</p>
+            <footer className="flex justify-end items-center pt-4 space-x-4">
+                <Button onClick={onClose} className="bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</Button>
+                <Button onClick={onConfirm} className="bg-red-600 hover:bg-red-700">Confirmar</Button>
+            </footer>
+        </Modal>
+    );
+};
+
+const ToggleSwitch: FC<{ checked: boolean; onChange: (checked: boolean) => void }> = ({ checked, onChange }) => (
+    <label className="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="sr-only peer" />
+        <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+    </label>
+);
+
+const Button: FC<{ onClick?: () => void; children: ReactNode; className?: string; type?: 'button' | 'submit' | 'reset'; disabled?: boolean }> = ({ onClick, children, className = '', type = 'button', disabled = false }) => (
+    <button type={type} onClick={onClick} disabled={disabled} className={`bg-blue-600 text-white font-semibold py-2.5 px-5 rounded-lg shadow-md hover:bg-blue-700 transition-all duration-200 flex items-center justify-center space-x-2 disabled:bg-gray-400 disabled:cursor-not-allowed ${className}`}>
+        {children}
+    </button>
+);
+
+const Input: FC<{ label: string; placeholder?: string; type?: string; value: string | number; onChange: (e: ChangeEvent<HTMLInputElement>) => void; name: string; required?: boolean; className?: string; step?: string }> = ({ label, placeholder, type = 'text', value, onChange, name, required = false, className = '', step }) => (
+    <div className={`w-full ${className}`}>
+        <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">{label}{required && <span className="text-red-500 ml-1">*</span>}</label>
+        <input
+            id={name}
+            type={type}
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            required={required}
+            step={step}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        />
+    </div>
+);
+
+const Textarea: FC<{ label: string; placeholder?: string; value: string; onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void; name: string; rows?: number; className?: string }> = ({ label, placeholder, value, onChange, name, rows = 4, className = '' }) => (
+    <div className={`w-full ${className}`}>
+        <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        <textarea
+            id={name}
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            rows={rows}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        />
+    </div>
+);
+
+
+const Select: FC<{ label: string; value: string | number; onChange: (e: ChangeEvent<HTMLSelectElement>) => void; name: string; children: ReactNode; required?: boolean; className?: string }> = ({ label, value, onChange, name, children, required = false, className = '' }) => (
+    <div className={`w-full ${className}`}>
+        <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">{label}{required && <span className="text-red-500 ml-1">*</span>}</label>
+        <select
+            id={name}
+            name={name}
+            value={value}
+            onChange={onChange}
+            required={required}
+            className="w-full px-3 py-2 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none"
+        >
+            {children}
+        </select>
+    </div>
+);
+
+const ColorInput: FC<{ label: string; value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; name: string; required?: boolean; className?: string }> = ({ label, value, onChange, name, required = false, className = '' }) => (
+    <div className={`w-full ${className}`}>
+        <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">{label}{required && <span className="text-red-500 ml-1">*</span>}</label>
+        <div className="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition">
+            <input
+                type="color"
+                value={value}
+                onChange={onChange}
+                name={name}
+                className="w-10 h-10 p-1 bg-white border-none cursor-pointer rounded-l-md"
+            />
+            <input
+                type="text"
+                id={name}
+                name={name}
+                value={value}
+                onChange={onChange}
+                required={required}
+                className="w-full px-3 py-2 border-none focus:outline-none rounded-r-lg"
+            />
+        </div>
+    </div>
+);
+
+const getBreadcrumbs = (page: Page, subPage?: string): (string | { name: string, page: Page })[] => {
+    if (page === 'Configurações') return ['Configurações', 'Padrão'];
+    
+    for (const section of navItems) {
+        const foundItem = section.items.find(item => item.name === page);
+        if (foundItem) {
+            const basePath = section.title ? [section.title, { name: page, page: page }] : [{ name: page, page: page }];
+            if (subPage) {
+                return [...basePath, subPage];
+            }
+            return basePath;
+        }
+    }
+    return [page];
+};
+
+const Breadcrumbs: FC<{ page: Page; subPage?: string; onNavigate: (page: Page) => void; }> = ({ page, subPage, onNavigate }) => {
+    const path = getBreadcrumbs(page, subPage);
+    return (
+        <nav className="flex items-center text-sm text-gray-500 font-medium">
+            {path.map((p, index) => (
+                <React.Fragment key={index}>
+                    {typeof p === 'object' ? (
+                         <a href="#" onClick={(e) => { e.preventDefault(); onNavigate(p.page); }} className="hover:text-blue-600 transition-colors">{p.name}</a>
+                    ) : (
+                        <span className={index === path.length - 1 ? "text-gray-800 font-semibold" : ""}>{p}</span>
+                    )}
+                   
+                    {index < path.length - 1 && <ChevronRightIcon className="mx-1.5 w-4 h-4 text-gray-400" />}
+                </React.Fragment>
+            ))}
+        </nav>
+    );
+};
+
+const Accordion: FC<{ title: string; subtitle: string; children: ReactNode; isOpen: boolean; onToggle: () => void; }> = ({ title, subtitle, children, isOpen, onToggle }) => (
+    <div className="border border-gray-200 rounded-xl overflow-hidden">
+        <button onClick={onToggle} className="w-full flex justify-between items-center p-5 bg-white hover:bg-gray-50 transition">
+            <div>
+                <h3 className="text-lg font-bold text-gray-800 text-left">{title}</h3>
+                <p className="text-sm text-gray-500 text-left">{subtitle}</p>
+            </div>
+            <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+        <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className="p-6 bg-gray-50/50 border-t border-gray-200">
+                {children}
+            </div>
+        </div>
+    </div>
+);
+
+const ProgressBar: FC<{ value: number; max: number }> = ({ value, max }) => {
+    const percentage = max > 0 ? (value / max) * 100 : 0;
+    return (
+        <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${percentage}%` }}></div>
+        </div>
+    );
+};
+
+// --- Pages ---
+const PlaceholderPage: FC<{ title: string }> = ({ title }) => (
+    <div className="animate-fade-in bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+        <h1 className="text-3xl font-extrabold text-gray-800 font-heading">{title}</h1>
+        <p className="mt-4 text-gray-600">Funcionalidade para <span className="font-semibold">{title}</span> em desenvolvimento.</p>
+    </div>
+);
+
+const StatCard: FC<{ title: string; value: string; subtext: string; trend: 'up' | 'down'; icon: ReactNode }> = ({ title, value, subtext, trend, icon }) => (
+    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center transition-all hover:shadow-md hover:-translate-y-1">
+        <div>
+            <p className="text-sm text-gray-500 font-medium">{title}</p>
+            <p className="text-3xl font-bold text-gray-800 mt-1">{value}</p>
+            <div className="flex items-center text-xs text-gray-500 mt-2">
+                {trend === 'up' ? <UpArrowIcon className="text-green-500 mr-1" /> : <DownArrowIcon className="text-red-500 mr-1" />}
+                <span>{subtext}</span>
+            </div>
+        </div>
+        <div className="bg-gray-100 p-3 rounded-full">
+            {icon}
+        </div>
+    </div>
+);
+
+const DashboardPage = () => (
+    <div className="animate-fade-in space-y-8">
+        <div>
+            <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Painel de Controle</h1>
+            <p className="text-gray-500 mt-1">Olá, Admin! Seja muito bem-vindo ao seu painel.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <StatCard title="Comissão CPA" value="R$ 0,00" subtext="Comissão Cpa" trend="up" icon={<UsersIcon className="text-gray-600" />} />
+            <StatCard title="Comissão Revshare" value="R$ 0,00" subtext="Comissão revshare" trend="down" icon={<WalletIcon className="text-gray-600" />} />
+            <StatCard title="Perdas" value="R$ 0,00" subtext="Perdas dos indicados" trend="down" icon={<DownArrowIcon className="text-gray-600" />} />
+            <StatCard title="Depósitos" value="R$ 10,00" subtext="Total de Depósitos" trend="up" icon={<DepositIcon className="text-gray-600" />} />
+            <StatCard title="Saques" value="R$ 0,00" subtext="Total de saques" trend="up" icon={<WithdrawIcon className="text-gray-600" />} />
+            <StatCard title="Revshare" value="R$ 16,00" subtext="Ganhos da Plataforma" trend="up" icon={<WalletIcon className="text-gray-600" />} />
+            <StatCard title="Saldo dos Players" value="R$ 0,00" subtext="Saldo dos players" trend="up" icon={<UsersIcon className="text-gray-600" />} />
+            <StatCard title="Total Ganhos" value="R$ 170,42" subtext="Ganhos dos usuários" trend="up" icon={<UpArrowIcon className="text-gray-600" />} />
+        </div>
+    </div>
+);
+
+// --- CONFIGURAÇÕES SECTION ---
+const ConfiguracoesPage = () => (
+    <div className="animate-fade-in">
+        <h1 className="text-3xl font-extrabold text-gray-800 font-heading mb-2">Padrão</h1>
+        <p className="text-gray-500 mb-8">Ajustes da plataforma</p>
+        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 max-w-4xl">
+            <h2 className="text-xl font-bold text-gray-800 mb-1">Ajuste Visual</h2>
+            <p className="text-gray-500 mb-6">Formulário ajustar o visual da plataforma</p>
+            <form className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Input name="name" label="Nome" value="betbezz.online" onChange={() => {}} required />
+                    <Input name="description" label="Descrição" value="- Plataforma de Apostas | Slots e Cassino Online |Auto" onChange={() => {}} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Input name="favicon" label="Favicon" value="C:\\fakepath\\favicon.ico" onChange={() => {}} />
+                    <Input name="logo_white" label="Logo Branca" value="C:\\fakepath\\logo-white.png" onChange={() => {}} />
+                    <Input name="logo_dark" label="Logo Escura" value="C:\\fakepath\\logo-dark.png" onChange={() => {}} />
+                </div>
+                <div className="pt-4 flex justify-start">
+                    <Button type="submit">Salvar Informações</Button>
+                </div>
+            </form>
+        </div>
+    </div>
+);
+
+const ApiJogosPage = () => {
+    const [apiSettings, setApiSettings] = useState({
+        agent_secret: '13e9d08a-1060-4d57-a95a-2f4cd9d94652',
+        agent_code: 'Betbuzz',
+        agent_token: '0978f715a-d89f-4070-8fd5-23bdda5f4692',
+        rtp: '65',
+    });
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setApiSettings(prev => ({ ...prev, [name]: value }));
+    };
+    
+    const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        onLogin(activeTab);
+        setIsSaving(true);
+        setSaveSuccess(false);
+
+        console.log("Salvando dados da API:", apiSettings);
+        setTimeout(() => {
+            setIsSaving(false);
+            setSaveSuccess(true);
+            setTimeout(() => setSaveSuccess(false), 2500);
+        }, 1500);
+    };
+
+     return (
+        <div className="animate-fade-in">
+            <h1 className="text-3xl font-extrabold text-gray-800 font-heading mb-8">API de Jogos</h1>
+            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 max-w-4xl">
+                <h2 className="text-xl font-bold text-gray-800 mb-6">Credenciais da API</h2>
+                <form className="space-y-6" onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input name="agent_secret" label="Agent Secret" value={apiSettings.agent_secret} onChange={handleChange} />
+                        <Input name="agent_code" label="Agent Code" value={apiSettings.agent_code} onChange={handleChange} />
+                    </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input name="agent_token" label="Agent Token" value={apiSettings.agent_token} onChange={handleChange} />
+                        <Input name="rtp" label="RTP dos usuário 10 a 95" value={apiSettings.rtp} onChange={handleChange} type="number"/>
+                    </div>
+                    <div className="pt-4 flex items-center">
+                        <Button type="submit" disabled={isSaving} className="w-40">
+                            {isSaving ? <SpinnerIcon /> : 'Atualizar dados'}
+                        </Button>
+                         {saveSuccess && <p className="ml-4 text-green-600 font-semibold animate-fade-in">Dados salvos com sucesso!</p>}
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+const GatewayPagamentosPage = () => {
+    type Gateway = {
+        name: string;
+        logo: string;
+        isActive: boolean;
+        credentials: Record<string, string>;
+    };
+
+    const initialGateways: Gateway[] = [
+        { name: 'PicPay', logo: 'https://i.imgur.com/kPsvb2D.png', isActive: true, credentials: { client_id: '', client_secret: '' } },
+        { name: 'Stripe', logo: 'https://i.imgur.com/22nCUS1.png', isActive: false, credentials: { public_key: '', secret_key: '' } },
+        { name: 'Mercado Pago', logo: 'https://i.imgur.com/gGjO32d.png', isActive: true, credentials: { access_token: '' } },
+        { name: 'PagSeguro', logo: 'https://i.imgur.com/a4wBfB2.png', isActive: false, credentials: { email: '', token: '' } },
+        { name: 'Inter', logo: 'https://i.imgur.com/fplC2bV.png', isActive: false, credentials: {} },
+        { name: 'Nubank', logo: 'https://i.imgur.com/l6T8tGj.png', isActive: false, credentials: {} },
+        { name: 'SumUp', logo: 'https://i.imgur.com/tYjL9jV.png', isActive: false, credentials: {} },
+        { name: 'Ton', logo: 'https://i.imgur.com/c4YnI0j.png', isActive: false, credentials: {} },
+    ];
+
+    const [gateways, setGateways] = useState<Gateway[]>(initialGateways);
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [selectedGateway, setSelectedGateway] = useState<Gateway | null>(null);
+
+    const handleToggle = (name: string) => {
+        setGateways(gateways.map(g => g.name === name ? { ...g, isActive: !g.isActive } : g));
+    };
+
+    const handleConfigure = (gateway: Gateway) => {
+        setSelectedGateway(gateway);
+        setModalOpen(true);
+    };
+
+    const handleSaveConfig = () => {
+        // Lógica para salvar as credenciais do selectedGateway
+        console.log("Salvando configuração para:", selectedGateway);
+        setModalOpen(false);
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
-            <div className="absolute top-0 left-0 w-full h-full z-0"></div>
-            <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-primary/10 rounded-full filter blur-3xl animate-pulse-subtle"></div>
-            <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-secondary/10 rounded-full filter blur-3xl animate-pulse-subtle"></div>
-            
-            <div className="w-full max-w-md z-10">
-                <div className="text-center mb-8">
-                    <h1 className="text-5xl font-bold font-heading text-neutral-dark">PREMIX</h1>
-                    <p className="text-gray-500 mt-2">Bem-vindo de volta! Acesse sua conta.</p>
-                </div>
-
-                <div className="bg-white rounded-xl shadow-2xl p-8">
-                    <div className="mb-6 border-b border-gray-200">
-                        <ul className="flex flex-wrap -mb-px text-sm font-medium text-center">
-                            {tabs.map(tab => (
-                                <li className="mr-2" key={tab}>
-                                    <button
-                                        onClick={() => setActiveTab(tab)}
-                                        className={`inline-block p-4 rounded-t-lg border-b-2 transition-colors duration-300 ${
-                                            activeTab === tab 
-                                            ? 'text-primary border-primary' 
-                                            : 'text-gray-500 hover:text-gray-700 hover:border-gray-300 border-transparent'
-                                        }`}
-                                    >
-                                        {tab}
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <form onSubmit={handleLogin}>
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Email</label>
-                                <input type="email" required className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary" defaultValue="admin@premix.com" />
-                            </div>
-                            <div>
-                                <div className="flex justify-between items-center">
-                                    <label className="block text-sm font-medium text-gray-700">Senha</label>
-                                    <a href="#" className="text-sm text-primary hover:underline">Esqueceu a senha?</a>
-                                </div>
-                                <input type="password" required className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary" defaultValue="password" />
-                            </div>
-                            <button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2">
-                                <span>Entrar como {activeTab}</span>
-                            </button>
-                        </div>
-                    </form>
-                    <p className="text-center text-sm text-gray-500 mt-8">
-                        Não tem uma conta? <a href="#" className="font-semibold text-primary hover:underline">Cadastre-se</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-
-// --- Páginas de Conteúdo (Dashboard, Vaquinhas, etc.) ---
-const StatCard: FC<{ title: string; value: string; icon: FC<{className?: string}>; color: string }> = ({ title, value, icon: Icon, color }) => (
-  <div className="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-    <div className={`p-4 rounded-full ${color}`}>
-      <Icon className="w-8 h-8 text-white" />
-    </div>
-    <div>
-      <p className="text-sm text-gray-500 font-semibold uppercase">{title}</p>
-      <p className="text-3xl font-bold text-neutral-dark font-heading">{value}</p>
-    </div>
-  </div>
-);
-
-const DashboardPage = () => {
-    const chartData = [
-        { name: 'Jan', value: 4000 }, { name: 'Fev', value: 3000 }, { name: 'Mar', value: 5000 },
-        { name: 'Abr', value: 4500 }, { name: 'Mai', value: 6000 }, { name: 'Jun', value: 5500 }
-    ];
-    const maxValue = Math.max(...chartData.map(d => d.value));
-    const recentActivities = [
-        { id: 1, user: 'Ana Paula', action: 'criou a vaquinha "Ajuda para o Hospital"', time: '2h atrás' },
-        { id: 2, user: 'Carlos Silva', action: 'comprou 10 bilhetes na rifa "iPhone 15"', time: '3h atrás' },
-        { id: 3, user: 'Mariana Costa', action: 'fez uma doação de R$ 50,00', time: '5h atrás' },
-        { id: 4, user: 'Admin', action: 'aprovou o saque de R$ 1.200,00', time: '8h atrás' },
-    ];
-
-    return (
         <div className="animate-fade-in">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <StatCard title="Total Arrecadado" value="R$ 125.643" icon={MoneyIcon} color="bg-primary" />
-                <StatCard title="Rifas Ativas" value="34" icon={RaffleIcon} color="bg-secondary" />
-                <StatCard title="Novos Usuários (Mês)" value="+1.204" icon={NewUsersIcon} color="bg-blue-500" />
-            </div>
-            <div className="mt-8 grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3 bg-white p-6 rounded-xl shadow-md">
-                    <h3 className="text-xl font-bold font-heading text-neutral-dark mb-4">Arrecadação Mensal</h3>
-                    <div className="h-64 flex items-end justify-around space-x-2 pt-4">
-                        {chartData.map(item => (
-                            <div key={item.name} className="flex flex-col items-center flex-1">
-                                <div 
-                                    className="w-full bg-primary/20 hover:bg-primary/40 rounded-t-lg transition-all" 
-                                    style={{ height: `${(item.value / maxValue) * 100}%` }}
-                                    title={`R$ ${item.value.toLocaleString('pt-BR')}`}
-                                ></div>
-                                <span className="text-xs font-semibold text-gray-500 mt-2">{item.name}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
-                    <h3 className="text-xl font-bold font-heading text-neutral-dark mb-4">Atividade Recente</h3>
-                    <ul className="space-y-4">
-                        {recentActivities.map(activity => (
-                             <li key={activity.id} className="flex items-start space-x-3">
-                                <div className="bg-gray-100 rounded-full p-2 mt-1">
-                                    <UsersIcon className="w-4 h-4 text-gray-500" />
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-800">
-                                        <span className="font-bold">{activity.user}</span> {activity.action}.
-                                    </p>
-                                    <p className="text-xs text-gray-500">{activity.time}</p>
-                                </div>
-                             </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const VaquinhasPage = () => {
-    const dummyVaquinhas = [
-        { id: 1, nome: "Ajuda para o Hospital Central", meta: 50000, arrecadado: 35200, status: "Ativa" },
-        { id: 2, nome: "Construção da nova creche", meta: 120000, arrecadado: 89500, status: "Ativa" },
-        { id: 3, nome: "Campanha do Agasalho 2024", meta: 15000, arrecadado: 15000, status: "Finalizada" },
-        { id: 4, nome: "Tratamento do cão Rex", meta: 8000, arrecadado: 2500, status: "Pendente" },
-    ];
-    return (
-        <div className="animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold font-heading text-neutral-dark">Gestão de Vaquinhas</h1>
-                <button className="bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-                    + Criar Nova Vaquinha
-                </button>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow-md">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-500">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                            <tr>
-                                <th scope="col" className="px-6 py-3">Nome da Campanha</th>
-                                <th scope="col" className="px-6 py-3">Meta</th>
-                                <th scope="col" className="px-6 py-3">Arrecadado</th>
-                                <th scope="col" className="px-6 py-3">Status</th>
-                                <th scope="col" className="px-6 py-3">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {dummyVaquinhas.map((item) => (
-                                <tr key={item.id} className="bg-white border-b hover:bg-gray-50">
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{item.nome}</th>
-                                    <td className="px-6 py-4">R$ {item.meta.toLocaleString('pt-BR')}</td>
-                                    <td className="px-6 py-4">R$ {item.arrecadado.toLocaleString('pt-BR')}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 font-semibold leading-tight text-xs rounded-full ${
-                                            item.status === 'Ativa' ? 'bg-green-100 text-green-800' :
-                                            item.status === 'Finalizada' ? 'bg-gray-200 text-gray-700' :
-                                            'bg-yellow-100 text-yellow-800'
-                                        }`}>{item.status}</span>
-                                    </td>
-                                    <td className="px-6 py-4"><a href="#" className="font-medium text-primary hover:underline">Editar</a></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const RifasPage = () => {
-    const dummyRifas = [
-        { id: 1, nome: "Rifa de um iPhone 15 Pro", premio: "iPhone 15 Pro", preco: 10, vendidos: 352, total: 500, status: "Ativa" },
-        { id: 2, nome: "Cesta de Café da Manhã Especial", premio: "Cesta de Café", preco: 5, vendidos: 120, total: 200, status: "Ativa" },
-        { id: 3, nome: "Rifa de uma Smart TV 55 polegadas", premio: "Smart TV 55\"", preco: 25, vendidos: 400, total: 400, status: "Finalizada" },
-    ];
-    return (
-        <div className="animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold font-heading text-neutral-dark">Gestão de Rifas</h1>
-                <button className="bg-secondary hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-                    + Criar Nova Rifa
-                </button>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow-md">
-                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-500">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                            <tr>
-                                <th scope="col" className="px-6 py-3">Nome da Rifa</th>
-                                <th scope="col" className="px-6 py-3">Prêmio</th>
-                                <th scope="col" className="px-6 py-3">Preço (R$)</th>
-                                <th scope="col" className="px-6 py-3">Bilhetes (Vendidos/Total)</th>
-                                <th scope="col" className="px-6 py-3">Status</th>
-                                <th scope="col" className="px-6 py-3">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {dummyRifas.map((item) => (
-                                <tr key={item.id} className="bg-white border-b hover:bg-gray-50">
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{item.nome}</th>
-                                    <td className="px-6 py-4">{item.premio}</td>
-                                    <td className="px-6 py-4">R$ {item.preco.toLocaleString('pt-BR')}</td>
-                                    <td className="px-6 py-4">{item.vendidos} / {item.total}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 font-semibold leading-tight text-xs rounded-full ${
-                                            item.status === 'Ativa' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700'
-                                        }`}>{item.status}</span>
-                                    </td>
-                                    <td className="px-6 py-4"><a href="#" className="font-medium text-primary hover:underline">Ver Bilhetes</a></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const JogosPage = () => {
-    const dummyJogos = [
-        { id: 1, nome: "Tesouros do Faraó", provedor: "Gem Slots", status: "Ativo", img: "https://placehold.co/400x300/1A1A2E/FFFFFF/png?text=Fara%C3%B3" },
-        { id: 2, nome: "Frutas da Sorte 777", provedor: "Lucky Games", status: "Ativo", img: "https://placehold.co/400x300/F59E0B/FFFFFF/png?text=Frutas" },
-        { id: 3, nome: "Dragões de Fogo", provedor: "Gem Slots", status: "Inativo", img: "https://placehold.co/400x300/DC2626/FFFFFF/png?text=Drag%C3%A3o" },
-        { id: 4, nome: "Explosão Estelar", provedor: "AstroPlay", status: "Ativo", img: "https://placehold.co/400x300/8B5CF6/FFFFFF/png?text=Estrela" },
-    ];
-    return (
-        <div className="animate-fade-in">
-             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold font-heading text-neutral-dark">Gestão de Jogos</h1>
-                <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-                    + Adicionar Novo Jogo
-                </button>
-            </div>
+            <h1 className="text-3xl font-extrabold text-gray-800 font-heading mb-2">Gateways de Pagamento</h1>
+            <p className="text-gray-500 mb-8">Ative, desative e configure seus gateways de pagamento.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {dummyJogos.map(jogo => (
-                    <div key={jogo.id} className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                        <img src={jogo.img} alt={jogo.nome} className="w-full h-40 object-cover" />
-                        <div className="p-4">
-                            <h3 className="font-bold text-lg text-neutral-dark">{jogo.nome}</h3>
-                            <p className="text-sm text-gray-500">Provedor: {jogo.provedor}</p>
-                            <div className="mt-4 flex justify-between items-center">
-                                <span className={`px-2 py-1 font-semibold leading-tight text-xs rounded-full ${
-                                    jogo.status === 'Ativo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                }`}>{jogo.status}</span>
-                                <button className="text-sm font-medium text-primary hover:underline">Configurar</button>
-                            </div>
+                {gateways.map((gateway) => (
+                    <div key={gateway.name} className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col items-start justify-between">
+                        <div className="flex justify-between items-start w-full">
+                            <img src={gateway.logo} alt={gateway.name} className="h-8 object-contain" />
+                            <ToggleSwitch checked={gateway.isActive} onChange={() => handleToggle(gateway.name)} />
+                        </div>
+                        <div className="mt-4 w-full">
+                            <h3 className="font-bold text-lg text-gray-800">{gateway.name}</h3>
+                            <button onClick={() => handleConfigure(gateway)} className="mt-3 w-full text-sm font-semibold text-blue-600 bg-blue-100 hover:bg-blue-200 py-2 rounded-lg transition">
+                                Configurar
+                            </button>
                         </div>
                     </div>
                 ))}
             </div>
+            <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} title={`Configurar ${selectedGateway?.name}`}>
+                {selectedGateway ? (
+                    <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleSaveConfig(); }}>
+                        <p className="text-gray-600">Insira as credenciais para o gateway {selectedGateway.name}.</p>
+                        {Object.keys(selectedGateway.credentials).length > 0 ? (
+                            Object.keys(selectedGateway.credentials).map(key => (
+                                <Input key={key} name={key} label={key.replace(/_/g, ' ').toUpperCase()} value={selectedGateway.credentials[key]} onChange={() => {}} />
+                            ))
+                        ) : (
+                            <p className="text-center text-gray-500 bg-gray-100 p-4 rounded-lg">Este gateway não requer configuração de credenciais aqui.</p>
+                        )}
+                        <footer className="flex justify-end items-center pt-4 space-x-4">
+                            <Button type="button" onClick={() => setModalOpen(false)} className="bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</Button>
+                            <Button type="submit">Salvar</Button>
+                        </footer>
+                    </form>
+                ) : null}
+            </Modal>
         </div>
     );
 };
 
-const UsuariosPage = () => {
-    const dummyUsers = [
-        { id: 1, name: 'Alice Braga', email: 'alice.braga@example.com', role: 'Admin', lastLogin: '2024-07-20 10:30', status: 'Ativo', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704a' },
-        { id: 2, name: 'Bruno Gomes', email: 'bruno.gomes@example.com', role: 'Usuário', lastLogin: '2024-07-20 09:15', status: 'Ativo', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704b' },
-        { id: 3, name: 'Carla Dias', email: 'carla.dias@example.com', role: 'Usuário', lastLogin: '2024-07-19 18:00', status: 'Inativo', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704c' },
-        { id: 4, name: 'Daniel Alves', email: 'daniel.alves@example.com', role: 'Usuário', lastLogin: '2024-07-20 11:00', status: 'Pendente', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' },
-    ];
+const DefinicoesEmailPage = () => (
+     <div className="animate-fade-in">
+        <h1 className="text-3xl font-extrabold text-gray-800 font-heading mb-8">Configurações de E-mail</h1>
+        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 max-w-4xl">
+            <h2 className="text-xl font-bold text-gray-800 mb-1">SMTP</h2>
+            <p className="text-gray-500 mb-6">Ajustes de credenciais para o servidor de e-mail.</p>
+            <form className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <Input name="mailer" label="Mailer" value="smtp" onChange={() => {}} />
+                    <Input name="host" label="Host" value="smtp.hostinger.com" onChange={() => {}} />
+                    <Input name="port" label="Porta" value="465" onChange={() => {}} />
+                    <Input name="user" label="Usuário" value="suporte@brber7k.bet" onChange={() => {}} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <Input name="password" label="Senha" value="Resident4557#" onChange={() => {}} type="password" />
+                    <Input name="encryption" label="Encryption" value="Digite a criptografia" onChange={() => {}} />
+                    <Input name="email_header" label="E-mail Cabeçalho" value="suporte@brber7k.bet" onChange={() => {}} />
+                    <Input name="name_header" label="Nome Cabeçalho" value="BET7K" onChange={() => {}} />
+                </div>
+                <div className="pt-4 flex justify-start">
+                    <Button type="submit">Atualizar dados</Button>
+                </div>
+            </form>
+        </div>
+    </div>
+);
+
+type Banner = { id: number; image: string; link: string; type: 'home' | 'carousel' };
+const initialBanners: Banner[] = [
+    { id: 1, image: 'https://i.ibb.co/L5BQNfQ/fortune-snake-banner.png', link: '/games/play/1190/1879752', type: 'home' },
+    { id: 2, image: 'https://i.ibb.co/yQjK2P5/zeus-banner.png', link: '/games/play/250/vs20olympgate', type: 'home' },
+    { id: 3, image: 'https://i.ibb.co/qN9gXN5/cassino-banner.png', link: '/', type: 'carousel' },
+];
+
+const BannersPage = () => {
+    const [banners, setBanners] = useState<Banner[]>(initialBanners);
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
+    const [formState, setFormState] = useState<Partial<Banner>>({});
+
+    const handleEdit = (banner: Banner) => {
+        setEditingBanner(banner);
+        setFormState(banner);
+        setModalOpen(true);
+    };
+
+    const handleCreate = () => {
+        setEditingBanner(null);
+        setFormState({ link: '', image: '', type: 'home' });
+        setModalOpen(true);
+    };
+    
+    const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormState(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleFormSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        if (editingBanner) {
+            setBanners(banners.map(b => b.id === editingBanner.id ? { ...b, ...formState } as Banner : b));
+        } else {
+            const newBanner: Banner = { id: Date.now(), ...formState } as Banner;
+            setBanners(prev => [newBanner, ...prev]);
+        }
+        setModalOpen(false);
+    };
+
     return (
         <div className="animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold font-heading text-neutral-dark">Gestão de Usuários</h1>
-                <button className="bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2">
-                    <NewUsersIcon className="w-5 h-5" />
-                    <span>Adicionar Usuário</span>
-                </button>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow-md">
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Banners</h1>
+                <Button onClick={handleCreate}>+ Novo Banner</Button>
+            </header>
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                 <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500">
+                         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" className="p-4"><input type="checkbox" className="rounded border-gray-300" /></th>
+                                <th scope="col" className="px-6 py-3">Imagem</th>
+                                <th scope="col" className="px-6 py-3">Link</th>
+                                <th scope="col" className="px-6 py-3">Tipo</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {banners.map(banner => (
+                                <tr key={banner.id} className="bg-white border-b hover:bg-gray-50 align-middle">
+                                    <td className="w-4 p-4"><input type="checkbox" className="rounded border-gray-300" /></td>
+                                    <td className="px-6 py-2"><img src={banner.image} alt={`Banner ${banner.id}`} className="h-10 object-contain rounded" /></td>
+                                    <td className="px-6 py-4 font-mono text-xs text-gray-600">{banner.link}</td>
+                                    <td className="px-6 py-4"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${banner.type === 'home' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>{banner.type}</span></td>
+                                    <td className="px-6 py-4 text-center">
+                                         <button onClick={() => handleEdit(banner)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-full transition-colors" aria-label={`Editar ${banner.id}`}><PencilIcon /></button>
+                                         <button onClick={() => setBanners(banners.filter(b => b.id !== banner.id))} className="p-2 text-red-600 hover:bg-red-100 rounded-full transition-colors" aria-label={`Excluir ${banner.id}`}><TrashIcon /></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+            <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} title={editingBanner ? "Editar Banner" : "Criar Novo Banner"}>
+                 <form onSubmit={handleFormSubmit} className="space-y-6">
+                    <Input name="image" label="URL da Imagem" value={formState.image || ''} onChange={handleFormChange} required />
+                    <Input name="link" label="Link de destino" value={formState.link || ''} onChange={handleFormChange} required />
+                    <Select name="type" label="Tipo" value={formState.type || 'home'} onChange={handleFormChange} required>
+                        <option value="home">Home</option>
+                        <option value="carousel">Carousel</option>
+                    </Select>
+                    <footer className="flex justify-end items-center pt-4 space-x-4">
+                        <Button type="button" onClick={() => setModalOpen(false)} className="bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</Button>
+                        <Button type="submit">Salvar Alterações</Button>
+                    </footer>
+                </form>
+            </Modal>
+        </div>
+    );
+};
+
+const CustomizacaoPage = () => {
+    const [openAccordion, setOpenAccordion] = useState<string | null>('layout');
+    const handleToggle = (id: string) => setOpenAccordion(prev => prev === id ? null : id);
+    
+    return (
+        <div className="animate-fade-in">
+            <h1 className="text-3xl font-extrabold text-gray-800 font-heading mb-8">Customização do Layout</h1>
+            <div className="space-y-4 max-w-6xl">
+                 <Accordion title="Layout Custom" subtitle="Personalize a aparência do seu cassino" isOpen={openAccordion === 'layout'} onToggle={() => handleToggle('layout')}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <ColorInput label="Cor do topo e botão" name="color_top_button" value="#0071ff" onChange={()=>{}} required />
+                        <ColorInput label="Cor da barra do logo" name="color_logo_bar" value="#00004f" onChange={()=>{}} required />
+                        <ColorInput label="Cor do icone do presente" name="color_gift_icon" value="#0071ff" onChange={()=>{}} required />
+                        <ColorInput label="Cor do menu lateral" name="color_sidebar_menu" value="#020d2b" onChange={()=>{}} required />
+                        <ColorInput label="Cor de fundo do cassino" name="color_casino_bg" value="#020d2b" onChange={()=>{}} required />
+                        <ColorInput label="Cor de fundo do icone" name="color_icon_bg" value="#04274a" onChange={()=>{}} required />
+                        <Input label="Link do Facebook" name="link_facebook" value="https://facebook.com/" onChange={()=>{}} />
+                        <Input label="Link do Telegram" name="link_telegram" value="https://t.me/" onChange={()=>{}} />
+                    </div>
+                </Accordion>
+                 <Accordion title="Sidebar & Navbar & Footer" subtitle="Personalize a aparência do seu site, conferindo-lhe uma identidade única." isOpen={openAccordion === 'nav'} onToggle={() => handleToggle('nav')}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <ColorInput label="Sidebar" name="color_sidebar" value="#e8e8e8" onChange={()=>{}} required />
+                        <ColorInput label="Sidebar (Dark)" name="color_sidebar_dark" value="#24262B" onChange={()=>{}} required />
+                        <ColorInput label="Navtop" name="color_navtop" value="#bdbdbd" onChange={()=>{}} required />
+                        <ColorInput label="Navtop (Dark)" name="color_navtop_dark" value="#1E2024" onChange={()=>{}} required />
+                    </div>
+                </Accordion>
+                <Accordion title="Customização no Código HTML BASE" subtitle="Customize seu CSS, JS, ou adicione conteúdo no corpo da sua página" isOpen={openAccordion === 'code'} onToggle={() => handleToggle('code')}>
+                     <div className="space-y-6">
+                        <Textarea name="custom_css" label="Customização do CSS" value=".clear-button { all: revert; }" onChange={()=>{}} rows={6} />
+                        <Textarea name="custom_js" label="Customização do JS" value="" onChange={()=>{}} rows={6} />
+                    </div>
+                </Accordion>
+            </div>
+             <div className="pt-6 flex justify-start">
+                <Button type="submit">Atualizar dados</Button>
+            </div>
+        </div>
+    );
+};
+
+// --- ARRECADAÇÃO & MARKETING ---
+type Vaquinha = { id: number; title: string; goal: number; current: number; status: 'Ativa' | 'Finalizada' | 'Pendente'; creator: string; endDate: string; };
+const VaquinhasPage = () => {
+    const [vaquinhas, setVaquinhas] = useState<Vaquinha[]>([
+        { id: 1, title: 'Ajuda para o Abrigo de Animais', goal: 5000, current: 3750, status: 'Ativa', creator: 'Ana Silva', endDate: '2024-08-30' },
+        { id: 2, title: 'Campanha do Agasalho 2024', goal: 2000, current: 2000, status: 'Finalizada', creator: 'Carlos Souza', endDate: '2024-06-15' },
+    ]);
+    return (
+         <div className="animate-fade-in">
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Vaquinhas</h1>
+                <Button>+ Nova Vaquinha</Button>
+            </header>
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500">
+                         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" className="px-6 py-3">Título</th>
+                                <th scope="col" className="px-6 py-3">Criador</th>
+                                <th scope="col" className="px-6 py-3">Meta</th>
+                                <th scope="col" className="px-6 py-3">Progresso</th>
+                                <th scope="col" className="px-6 py-3">Status</th>
+                                <th scope="col" className="px-6 py-3">Data Final</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {vaquinhas.map(v => (
+                                <tr key={v.id} className="bg-white border-b hover:bg-gray-50 align-middle">
+                                    <td className="px-6 py-4 font-bold text-gray-800">{v.title}</td>
+                                    <td className="px-6 py-4 text-gray-600">{v.creator}</td>
+                                    <td className="px-6 py-4 font-semibold">R$ {v.goal.toFixed(2)}</td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex flex-col">
+                                            <ProgressBar value={v.current} max={v.goal} />
+                                            <span className="text-xs mt-1 text-gray-500">R$ {v.current.toFixed(2)}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${v.status === 'Ativa' ? 'bg-green-100 text-green-800' : v.status === 'Finalizada' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}`}>{v.status}</span></td>
+                                    <td className="px-6 py-4">{new Date(v.endDate).toLocaleDateString()}</td>
+                                    <td className="px-6 py-4 text-center">
+                                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon/></button>
+                                        <button className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon/></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                 </div>
+            </main>
+        </div>
+    );
+};
+
+type Rifa = { id: number; prize: string; image: string; ticketPrice: number; totalTickets: number; soldTickets: number; status: 'Ativa' | 'Finalizada' | 'Pendente'; drawDate: string; };
+const RifasPage = () => {
+     const [rifas, setRifas] = useState<Rifa[]>([
+        { id: 1, prize: 'iPhone 15 Pro', image: 'https://i.imgur.com/s6nIflL.png', ticketPrice: 10, totalTickets: 200, soldTickets: 150, status: 'Ativa', drawDate: '2024-09-01' },
+        { id: 2, prize: 'Viagem para a Praia', image: 'https://i.imgur.com/gS32kcs.png', ticketPrice: 20, totalTickets: 100, soldTickets: 100, status: 'Finalizada', drawDate: '2024-05-20' },
+    ]);
+    return (
+         <div className="animate-fade-in">
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Rifas</h1>
+                <Button>+ Nova Rifa</Button>
+            </header>
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500">
+                         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" className="px-6 py-3">Prêmio</th>
+                                <th scope="col" className="px-6 py-3">Preço/Bilhete</th>
+                                <th scope="col" className="px-6 py-3">Progresso</th>
+                                <th scope="col" className="px-6 py-3">Status</th>
+                                <th scope="col" className="px-6 py-3">Data Sorteio</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rifas.map(r => (
+                                <tr key={r.id} className="bg-white border-b hover:bg-gray-50 align-middle">
+                                    <td className="px-6 py-4 font-bold text-gray-800 flex items-center space-x-3">
+                                        <img src={r.image} alt={r.prize} className="w-12 h-12 object-cover rounded-md" />
+                                        <span>{r.prize}</span>
+                                    </td>
+                                    <td className="px-6 py-4 font-semibold">R$ {r.ticketPrice.toFixed(2)}</td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex flex-col">
+                                            <ProgressBar value={r.soldTickets} max={r.totalTickets} />
+                                            <span className="text-xs mt-1 text-gray-500">{r.soldTickets} / {r.totalTickets} vendidos</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${r.status === 'Ativa' ? 'bg-green-100 text-green-800' : r.status === 'Finalizada' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}`}>{r.status}</span></td>
+                                    <td className="px-6 py-4">{new Date(r.drawDate).toLocaleDateString()}</td>
+                                    <td className="px-6 py-4 text-center">
+                                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon/></button>
+                                        <button className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon/></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                 </div>
+            </main>
+        </div>
+    );
+};
+
+type Cupom = { id: number; code: string; type: 'percent' | 'fixed'; value: number; usageLimit: number; usageCount: number; expiryDate: string; };
+const CuponsPage = () => {
+    const [cupons, setCupons] = useState<Cupom[]>([
+        { id: 1, code: 'BEMVINDO10', type: 'percent', value: 10, usageLimit: 100, usageCount: 25, expiryDate: '2024-12-31' },
+        { id: 2, code: 'OFF50', type: 'fixed', value: 50, usageLimit: 50, usageCount: 50, expiryDate: '2024-07-31' },
+        { id: 3, code: 'EXPIRADO', type: 'fixed', value: 20, usageLimit: 10, usageCount: 5, expiryDate: '2024-01-01' },
+    ]);
+     const getStatus = (cupom: Cupom): { text: string; className: string } => {
+        if (new Date(cupom.expiryDate) < new Date()) return { text: 'Expirado', className: 'bg-red-100 text-red-800' };
+        if (cupom.usageCount >= cupom.usageLimit) return { text: 'Esgotado', className: 'bg-yellow-100 text-yellow-800' };
+        return { text: 'Ativo', className: 'bg-green-100 text-green-800' };
+    };
+
+    return (
+         <div className="animate-fade-in">
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Cupons de Desconto</h1>
+                <Button>+ Novo Cupom</Button>
+            </header>
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500">
+                         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" className="px-6 py-3">Código</th>
+                                <th scope="col" className="px-6 py-3">Tipo</th>
+                                <th scope="col" className="px-6 py-3">Valor</th>
+                                <th scope="col" className="px-6 py-3">Uso</th>
+                                <th scope="col" className="px-6 py-3">Validade</th>
+                                <th scope="col" className="px-6 py-3">Status</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {cupons.map(c => {
+                                const status = getStatus(c);
+                                return (
+                                <tr key={c.id} className="bg-white border-b hover:bg-gray-50 align-middle">
+                                    <td className="px-6 py-4 font-mono font-bold text-gray-800">{c.code}</td>
+                                    <td className="px-6 py-4">{c.type === 'percent' ? 'Porcentagem' : 'Valor Fixo'}</td>
+                                    <td className="px-6 py-4 font-semibold">{c.type === 'percent' ? `${c.value}%` : `R$ ${c.value.toFixed(2)}`}</td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex flex-col">
+                                            <ProgressBar value={c.usageCount} max={c.usageLimit} />
+                                            <span className="text-xs mt-1 text-gray-500">{c.usageCount} / {c.usageLimit} usados</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">{new Date(c.expiryDate).toLocaleDateString()}</td>
+                                    <td className="px-6 py-4"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${status.className}`}>{status.text}</span></td>
+                                    <td className="px-6 py-4 text-center">
+                                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon/></button>
+                                        <button className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon/></button>
+                                    </td>
+                                </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                 </div>
+            </main>
+        </div>
+    );
+};
+
+// --- GESTÃO DE JOGOS SECTION ---
+
+// MOCK DATA
+const initialUsers: User[] = [
+    { id: 1, name: 'so4853388@gmail.com', email: 'so4853388@gmail.com', saldo: 50.00, data: 'Jun 9, 2025 00:00:00', status: 'Ativo', influencer: false },
+    { id: 2, name: 'kleiberlopesmb@gmail.com', email: 'kleiberlopesmb@gmail.com', saldo: 50.00, data: 'Jun 9, 2025 01:28:20', status: 'Ativo', influencer: true },
+    { id: 3, name: 'mateus.vasconcllos@gmail.com', email: 'mateus.vasconcllos@gmail.com', saldo: 50.00, data: 'Jun 8, 2025 23:36:11', status: 'Ativo', influencer: false },
+    { id: 4, name: 'admin@eu.com', email: 'admin@eu.com', saldo: 0.00, data: 'Mar 30, 2025 00:00:00', status: 'Banido', influencer: false },
+];
+const initialWallets: Wallet[] = [
+    { id: 1, usuario: 'so4853388@gmail.com', saldo: 50, saldo_saque: 0, bonus: 0, saldo_b_rol: 0 },
+    { id: 2, usuario: 'kleiberlopesmb@gmail.com', saldo: 50, saldo_saque: 0, bonus: 0, saldo_b_rol: 50 },
+];
+const initialDeposits: Deposit[] = [
+    { id: 'ed9bea5017480596faca086a9bd8b', user: 'eunidiopereirasilva@gmail.com', valor: 10, tipo: 'pix', status: 'Aprovado', created_at: 'Jun 8, 2025 21:20:24' },
+    { id: '5cb2cf151124f46aa978cdcab0b9b0d', user: 'leons_ramos@hotmail.com', valor: 20, tipo: 'pix', status: 'Pendente', created_at: 'Mar 31, 2025 13:06:17' },
+];
+const initialWithdrawals: Withdrawal[] = [
+    { id: 1, nome: 'admin@eu.com', valor: 20.00, tipo: 'Telefone', chave_pix: '45999057184', status: 'Aprovado', data: 'Mar 30, 2025 11:20:27' },
+    { id: 2, nome: 'user@example.com', valor: 100.00, tipo: 'Telefone', chave_pix: '11987654321', status: 'Pendente', data: 'Jun 10, 2025 10:00:00' },
+];
+const initialCategories: Category[] = [
+    { id: 1, nome: 'Todos', descricao: 'All Games', slug: 'todos' },
+    { id: 2, nome: 'Slots', descricao: 'Slots', slug: 'slots' },
+    { id: 3, nome: 'Ao vivo', descricao: 'Cassino ao vivo', slug: 'ao-vivo' },
+];
+const initialProviders: Provider[] = [
+    { id: 1, nome: 'PGSOFT', status: 'Ativo' },
+    { id: 2, nome: 'PRAGMATIC', status: 'Ativo' },
+    { id: 3, nome: 'EVOPLAY', status: 'Inativo' },
+];
+const initialGameHistory: GameHistory[] = [
+    { id: 1, usuario: 'leons_ramos@hotmail.com', jogo: '1695365', tipo: 'Perda', pagamento: 'balance_bonus', valor: 0.4, provedor: 'Play Fiver' },
+    { id: 2, usuario: 'leons_ramos@hotmail.com', jogo: '1879752', tipo: 'Ganho', pagamento: 'balance', valor: 0.8, provedor: 'Play Fiver' },
+];
+
+type Game = { id: number; cover: string; provider: string; name: string; onHome: boolean; featured: boolean; status: boolean; views: string; };
+
+const initialGames: Game[] = []; // Lista de jogos zerada conforme solicitado
+
+const TodosOsJogosPage = () => {
+    const [games, setGames] = useState<Game[]>(initialGames);
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [editingGame, setEditingGame] = useState<Game | null>(null);
+    const [formState, setFormState] = useState<Partial<Game>>({});
+    const [itemToDelete, setItemToDelete] = useState<Game | null>(null);
+
+    const handleToggle = (id: number, field: keyof Game) => {
+        setGames(games.map(g => g.id === id ? { ...g, [field]: !g[field] } : g));
+    };
+
+    const handleEdit = (game: Game) => {
+        setEditingGame(game);
+        setFormState(game);
+        setModalOpen(true);
+    };
+
+    const handleCreate = () => {
+        setEditingGame(null);
+        setFormState({ name: '', provider: 'PGSOFT', cover: '', onHome: false, featured: false, status: true });
+        setModalOpen(true);
+    };
+
+    const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormState(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleFormSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        if (editingGame) {
+            setGames(games.map(g => g.id === editingGame.id ? { ...g, ...formState } as Game : g));
+        } else {
+            const newGame: Game = {
+                id: Date.now(),
+                views: '0',
+                ...formState,
+            } as Game;
+            setGames(prev => [newGame, ...prev]);
+        }
+        setModalOpen(false);
+    };
+
+    const handleDelete = (game: Game) => {
+        setGames(games.filter(g => g.id !== game.id));
+        setItemToDelete(null);
+    };
+
+    return (
+        <div className="animate-fade-in">
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Todos Os Jogos</h1>
+                <Button onClick={handleCreate}>+ Novo Jogo</Button>
+            </header>
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                {games.length === 0 ? (
+                    <div className="text-center py-16">
+                        <AllGamesIcon className="mx-auto w-16 h-16 text-gray-300" />
+                        <h3 className="mt-4 text-lg font-semibold text-gray-700">Nenhum jogo cadastrado</h3>
+                        <p className="mt-1 text-sm text-gray-500">Comece adicionando um novo jogo para vê-lo aqui.</p>
+                        <Button onClick={handleCreate} className="mt-6">
+                            + Adicionar Primeiro Jogo
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left text-gray-500">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th scope="col" className="p-4"><input type="checkbox" className="rounded border-gray-300" /></th>
+                                    <th scope="col" className="px-6 py-3">Capa</th>
+                                    <th scope="col" className="px-6 py-3">Provedor</th>
+                                    <th scope="col" className="px-6 py-3">Nome</th>
+                                    <th scope="col" className="px-6 py-3 text-center">Exibir na Home</th>
+                                    <th scope="col" className="px-6 py-3 text-center">Destaques</th>
+                                    <th scope="col" className="px-6 py-3 text-center">Status</th>
+                                    <th scope="col" className="px-6 py-3 text-center">Views</th>
+                                    <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {games.map((game) => (
+                                    <tr key={game.id} className="bg-white border-b hover:bg-gray-50 align-middle">
+                                        <td className="w-4 p-4"><input type="checkbox" className="rounded border-gray-300" /></td>
+                                        <td className="px-6 py-2"><img src={game.cover} alt={game.name} className="w-12 h-12 object-cover rounded-md" /></td>
+                                        <td className="px-6 py-4 font-semibold text-gray-600">{game.provider}</td>
+                                        <td className="px-6 py-4 font-bold text-gray-800">{game.name}</td>
+                                        <td className="px-6 py-4 text-center"><ToggleSwitch checked={game.onHome} onChange={() => handleToggle(game.id, 'onHome')} /></td>
+                                        <td className="px-6 py-4 text-center"><ToggleSwitch checked={game.featured} onChange={() => handleToggle(game.id, 'featured')} /></td>
+                                        <td className="px-6 py-4 text-center"><ToggleSwitch checked={game.status} onChange={() => handleToggle(game.id, 'status')} /></td>
+                                        <td className="px-6 py-4 text-center font-semibold text-gray-600">{game.views}</td>
+                                        <td className="px-6 py-4 text-center">
+                                            <div className="flex items-center justify-center space-x-1">
+                                                <button onClick={() => handleEdit(game)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-full transition-colors" aria-label={`Editar ${game.name}`}><PencilIcon /></button>
+                                                <button onClick={() => setItemToDelete(game)} className="p-2 text-red-600 hover:bg-red-100 rounded-full transition-colors" aria-label={`Excluir ${game.name}`}><TrashIcon /></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </main>
+             <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} title={editingGame ? "Editar Jogo" : "Criar Novo Jogo"}>
+                <form onSubmit={handleFormSubmit} className="space-y-6">
+                    <Input name="name" label="Nome do Jogo" value={formState.name || ''} onChange={handleFormChange} required />
+                    <Select name="provider" label="Provedor" value={formState.provider || ''} onChange={handleFormChange} required>
+                        <option>PGSOFT</option>
+                        <option>PRAGMATIC</option>
+                    </Select>
+                    <Input name="cover" label="URL da Capa" value={formState.cover || ''} onChange={handleFormChange} placeholder="https://exemplo.com/imagem.png" required />
+                    <footer className="flex justify-end items-center pt-4 space-x-4">
+                        <Button type="button" onClick={() => setModalOpen(false)} className="bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</Button>
+                        <Button type="submit">Salvar Alterações</Button>
+                    </footer>
+                </form>
+            </Modal>
+            <ConfirmationModal 
+                isOpen={!!itemToDelete} 
+                onClose={() => setItemToDelete(null)}
+                onConfirm={() => itemToDelete && handleDelete(itemToDelete)}
+                title="Confirmar Exclusão"
+                message={`Tem certeza de que deseja excluir o jogo "${itemToDelete?.name}"? Esta ação não pode ser desfeita.`}
+            />
+        </div>
+    );
+};
+
+const TodasAsCategoriasPage = () => {
+    const [categories, setCategories] = useState<Category[]>(initialCategories);
+    return(
+        <div className="animate-fade-in">
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Todas As Categorias</h1>
+                <Button>+ Nova Categoria</Button>
+            </header>
+             <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" className="p-4"><input type="checkbox" className="rounded border-gray-300" /></th>
+                                <th scope="col" className="px-6 py-3">Nome</th>
+                                <th scope="col" className="px-6 py-3">Descrição</th>
+                                <th scope="col" className="px-6 py-3">Slug</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                         <tbody>
+                            {categories.map((cat) => (
+                                <tr key={cat.id} className="bg-white border-b hover:bg-gray-50 align-middle">
+                                    <td className="w-4 p-4"><input type="checkbox" className="rounded border-gray-300" /></td>
+                                    <td className="px-6 py-4 font-bold text-gray-800">{cat.nome}</td>
+                                    <td className="px-6 py-4">{cat.descricao}</td>
+                                    <td className="px-6 py-4 font-mono text-xs">{cat.slug}</td>
+                                    <td className="px-6 py-4 text-center">
+                                        <div className="flex items-center justify-center space-x-1">
+                                            <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon /></button>
+                                            <button className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon /></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    );
+};
+const TodosOsProvedoresPage = () => {
+    const [providers, setProviders] = useState<Provider[]>(initialProviders);
+    return(
+        <div className="animate-fade-in">
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Todos Os Provedores</h1>
+                <Button>+ Novo Provedor</Button>
+            </header>
+             <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" className="p-4"><input type="checkbox" className="rounded border-gray-300" /></th>
+                                <th scope="col" className="px-6 py-3">Nome</th>
+                                <th scope="col" className="px-6 py-3">Status</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                         <tbody>
+                            {providers.map((p) => (
+                                <tr key={p.id} className="bg-white border-b hover:bg-gray-50 align-middle">
+                                    <td className="w-4 p-4"><input type="checkbox" className="rounded border-gray-300" /></td>
+                                    <td className="px-6 py-4 font-bold text-gray-800">{p.nome}</td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${p.status === 'Ativo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                            {p.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                        <div className="flex items-center justify-center space-x-1">
+                                            <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon /></button>
+                                            <button className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon /></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    );
+};
+
+const HistoricoDePartidasPage = () => {
+     const [history, setHistory] = useState<GameHistory[]>(initialGameHistory);
+     return (
+        <div className="animate-fade-in">
+            <h1 className="text-3xl font-extrabold text-gray-800 font-heading mb-6">Histórico de Partidas</h1>
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-gray-500">
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
                                 <th scope="col" className="px-6 py-3">Usuário</th>
-                                <th scope="col" className="px-6 py-3">Perfil</th>
-                                <th scope="col" className="px-6 py-3">Último Acesso</th>
-                                <th scope="col" className="px-6 py-3">Status</th>
-                                <th scope="col" className="px-6 py-3 text-right">Ações</th>
+                                <th scope="col" className="px-6 py-3">Jogo</th>
+                                <th scope="col" className="px-6 py-3">Tipo</th>
+                                <th scope="col" className="px-6 py-3">Pagamento</th>
+                                <th scope="col" className="px-6 py-3">Valor</th>
+                                <th scope="col" className="px-6 py-3">Provedor</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {dummyUsers.map((user) => (
-                                <tr key={user.id} className="bg-white border-b hover:bg-gray-50">
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center space-x-3">
-                                        <img className="w-10 h-10 rounded-full" src={user.avatar} alt={user.name} />
-                                        <div>
-                                            <div className="font-bold">{user.name}</div>
-                                            <div className="text-gray-500 text-xs">{user.email}</div>
-                                        </div>
-                                    </th>
-                                    <td className="px-6 py-4">{user.role}</td>
-                                    <td className="px-6 py-4">{user.lastLogin}</td>
+                            {history.map((h) => (
+                                <tr key={h.id} className="bg-white border-b hover:bg-gray-50">
+                                    <td className="px-6 py-4 font-medium text-gray-900">{h.usuario}</td>
+                                    <td className="px-6 py-4">{h.jogo}</td>
                                     <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 font-semibold leading-tight text-xs rounded-full ${
-                                            user.status === 'Ativo' ? 'bg-green-100 text-green-800' :
-                                            user.status === 'Inativo' ? 'bg-red-100 text-red-800' :
-                                            'bg-yellow-100 text-yellow-800'
-                                        }`}>{user.status}</span>
+                                        <span className={`font-semibold ${h.tipo === 'Ganho' ? 'text-green-600' : 'text-red-600'}`}>{h.tipo}</span>
                                     </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end space-x-2">
-                                            <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-full transition-colors"><PencilIcon /></button>
-                                            <button className="p-2 text-red-600 hover:bg-red-100 rounded-full transition-colors"><TrashIcon /></button>
-                                        </div>
+                                    <td className="px-6 py-4">{h.pagamento}</td>
+                                    <td className="px-6 py-4 font-semibold">R$ {h.valor.toFixed(2)}</td>
+                                    <td className="px-6 py-4">{h.provedor}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+     )
+};
+const CarteirasPage = () => {
+    const [wallets, setWallets] = useState<Wallet[]>(initialWallets);
+    return(
+        <div className="animate-fade-in">
+            <h1 className="text-3xl font-extrabold text-gray-800 font-heading mb-6">Carteiras</h1>
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" className="px-6 py-3">Usuário</th>
+                                <th scope="col" className="px-6 py-3">Saldo</th>
+                                <th scope="col" className="px-6 py-3">Saldo Saque</th>
+                                <th scope="col" className="px-6 py-3">Bônus</th>
+                                <th scope="col" className="px-6 py-3">Saldo B Rol.</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {wallets.map(w => (
+                                <tr key={w.id} className="bg-white border-b hover:bg-gray-50">
+                                    <td className="px-6 py-4 font-medium text-gray-900">{w.usuario}</td>
+                                    <td className="px-6 py-4">R$ {w.saldo.toFixed(2)}</td>
+                                    <td className="px-6 py-4">R$ {w.saldo_saque.toFixed(2)}</td>
+                                    <td className="px-6 py-4">R$ {w.bonus.toFixed(2)}</td>
+                                    <td className="px-6 py-4">R$ {w.saldo_b_rol.toFixed(2)}</td>
+                                    <td className="px-6 py-4 text-center">
+                                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon /></button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </main>
+        </div>
+    )
+};
+const DepositosPage = () => {
+    const [deposits, setDeposits] = useState<Deposit[]>(initialDeposits);
+    return(
+        <div className="animate-fade-in">
+            <h1 className="text-3xl font-extrabold text-gray-800 font-heading mb-6">Depósitos</h1>
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" className="px-6 py-3">ID Pag.</th>
+                                <th scope="col" className="px-6 py-3">Usuário</th>
+                                <th scope="col" className="px-6 py-3">Valor</th>
+                                <th scope="col" className="px-6 py-3">Tipo</th>
+                                <th scope="col" className="px-6 py-3">Status</th>
+                                <th scope="col" className="px-6 py-3">Data</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {deposits.map(d => (
+                                <tr key={d.id} className="bg-white border-b hover:bg-gray-50">
+                                    <td className="px-6 py-4 font-mono text-xs text-gray-600 truncate max-w-xs">{d.id}</td>
+                                    <td className="px-6 py-4 font-medium">{d.user}</td>
+                                    <td className="px-6 py-4 font-semibold">R$ {d.valor.toFixed(2)}</td>
+                                    <td className="px-6 py-4">{d.tipo}</td>
+                                    <td className="px-6 py-4">
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${d.status === 'Aprovado' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                            {d.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-600">{d.created_at}</td>
+                                     <td className="px-6 py-4 text-center">
+                                        <button disabled={d.status === 'Aprovado'} className="p-2 text-green-600 hover:bg-green-100 rounded-full disabled:text-gray-300 disabled:hover:bg-transparent"><CheckCircleIcon /></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    )
+};
+const SaquesPage = () => {
+    const [withdrawals, setWithdrawals] = useState<Withdrawal[]>(initialWithdrawals);
+    return (
+        <div className="animate-fade-in">
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Saques</h1>
+                <Button>+ Novo Saque</Button>
+            </header>
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500">
+                         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" className="px-6 py-3">Nome</th>
+                                <th scope="col" className="px-6 py-3">Valor</th>
+                                <th scope="col" className="px-6 py-3">Tipo</th>
+                                <th scope="col" className="px-6 py-3">Chave Pix</th>
+                                <th scope="col" className="px-6 py-3">Status</th>
+                                <th scope="col" className="px-6 py-3">Data</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {withdrawals.map(w => (
+                                <tr key={w.id} className="bg-white border-b hover:bg-gray-50">
+                                    <td className="px-6 py-4 font-medium">{w.nome}</td>
+                                    <td className="px-6 py-4 font-semibold">R$ {w.valor.toFixed(2)}</td>
+                                    <td className="px-6 py-4">{w.tipo}</td>
+                                    <td className="px-6 py-4">{w.chave_pix}</td>
+                                    <td className="px-6 py-4">
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${w.status === 'Aprovado' ? 'bg-green-100 text-green-800' : w.status === 'Pendente' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                            {w.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">{w.data}</td>
+                                    <td className="px-6 py-4 text-center">
+                                         {w.status === 'Pendente' && (
+                                            <div className="flex justify-center space-x-2">
+                                                <button className="p-2 text-green-600 hover:bg-green-100 rounded-full"><CheckCircleIcon /></button>
+                                                <button className="p-2 text-red-600 hover:bg-red-100 rounded-full"><XCircleIcon /></button>
+                                            </div>
+                                         )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
         </div>
     );
 };
 
-const FinanceiroPage = () => {
-    const dummyTransactions = [
-        { id: 1, date: '20/07/2024', description: 'Doação - Campanha do Agasalho', amount: 50.00, type: 'Crédito', status: 'Concluído' },
-        { id: 2, date: '19/07/2024', description: 'Saque para conta bancária', amount: -1200.00, type: 'Débito', status: 'Concluído' },
-        { id: 3, date: '18/07/2024', description: 'Venda de bilhetes - Rifa iPhone 15', amount: 250.00, type: 'Crédito', status: 'Concluído' },
-        { id: 4, date: '17/07/2024', description: 'Taxa da plataforma (Julho)', amount: -75.50, type: 'Débito', status: 'Concluído' },
-        { id: 5, date: '16/07/2024', description: 'Doação - Ajuda para o Hospital', amount: 100.00, type: 'Crédito', status: 'Pendente' },
-    ];
-    return (
+const UsuariosPage = ({ onNavigateToUser }: { onNavigateToUser: (user: User) => void }) => {
+    const [users] = useState<User[]>(initialUsers);
+    return(
         <div className="animate-fade-in">
-            <h1 className="text-3xl font-bold font-heading text-neutral-dark mb-6">Visão Geral Financeira</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <StatCard title="Saldo Disponível" value="R$ 12.540,50" icon={WalletIcon} color="bg-primary" />
-                <StatCard title="Pendente de Liberação" value="R$ 2.810,00" icon={ClockIcon} color="bg-yellow-500" />
-                <StatCard title="Total Sacado" value="R$ 89.200,00" icon={MoneyIcon} color="bg-blue-500" />
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Usuários</h1>
+                <Button>+ Novo Usuário</Button>
+            </header>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                 <StatCard title="Total Usuários" value="7" subtext="" trend="up" icon={<UsersIcon className="text-gray-600"/>} />
+                 <StatCard title="Novos na Semana" value="2" subtext="" trend="up" icon={<UsersIcon className="text-gray-600"/>} />
+                 <StatCard title="Novos no Mês" value="5" subtext="" trend="down" icon={<UsersIcon className="text-gray-600"/>} />
             </div>
-            <div className="bg-white p-6 rounded-xl shadow-md">
-                <h3 className="text-xl font-bold font-heading text-neutral-dark mb-4">Histórico de Transações</h3>
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-gray-500">
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
+                                <th scope="col" className="px-6 py-3">Nome</th>
+                                <th scope="col" className="px-6 py-3">Email</th>
+                                <th scope="col" className="px-6 py-3">Saldo</th>
                                 <th scope="col" className="px-6 py-3">Data</th>
-                                <th scope="col" className="px-6 py-3">Descrição</th>
-                                <th scope="col" className="px-6 py-3 text-right">Valor (R$)</th>
-                                <th scope="col" className="px-6 py-3 text-center">Status</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {dummyTransactions.map((tx) => (
-                                <tr key={tx.id} className="bg-white border-b hover:bg-gray-50">
-                                    <td className="px-6 py-4">{tx.date}</td>
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{tx.description}</th>
-                                    <td className={`px-6 py-4 text-right font-semibold ${tx.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                        {tx.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                    </td>
+                         <tbody>
+                            {users.map((user) => (
+                                <tr key={user.id} className="bg-white border-b hover:bg-gray-50">
+                                    <td className="px-6 py-4 font-medium text-gray-900">{user.name}</td>
+                                    <td className="px-6 py-4">{user.email}</td>
+                                    <td className="px-6 py-4">R$ {user.saldo.toFixed(2)}</td>
+                                    <td className="px-6 py-4">{user.data}</td>
                                     <td className="px-6 py-4 text-center">
-                                         <span className={`inline-flex items-center space-x-1 px-2 py-1 font-semibold leading-tight text-xs rounded-full ${
-                                            tx.status === 'Concluído' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                        }`}>
-                                            {tx.status === 'Concluído' ? <CheckCircleIcon /> : <ClockIcon className="w-4 h-4" />}
-                                            <span>{tx.status}</span>
-                                        </span>
+                                        <button onClick={() => onNavigateToUser(user)} className="p-2 text-gray-600 hover:bg-gray-100 rounded-full flex items-center space-x-2 text-sm">
+                                            <DetailsIcon />
+                                            <span>Detalhes</span>
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-    );
-};
-
-const PlaceholderPage: FC<{ title:string }> = ({ title }) => (
-    <div className="animate-fade-in bg-white p-8 rounded-xl shadow-md">
-        <h1 className="text-3xl font-bold font-heading text-neutral-dark">{title}</h1>
-        <p className="mt-4 text-gray-600">Conteúdo da página de <span className="font-semibold">{title}</span> em breve...</p>
-        <p className="mt-2 text-gray-500 text-sm">Esta é uma área de demonstração. A funcionalidade completa será implementada em breve.</p>
-    </div>
-);
-
-
-const LandingPage: FC<{ onEnterDashboard?: () => void, isLoggedInAs?: UserRole | null, onLogout?: () => void }> = ({ onEnterDashboard, isLoggedInAs = null, onLogout }) => {
-    const faqItems = [
-      { category: 'Geral', items: [ { q: "O que é a PREMIX?", a: "A PREMIX é uma plataforma completa que permite criar e gerenciar campanhas de arrecadação (vaquinhas), organizar sorteios (rifas) e integrar jogos de entretenimento, tudo em um só lugar." }, { q: "A plataforma é segura para transações financeiras?", a: "Sim. Priorizamos a segurança de ponta a ponta, utilizando gateways de pagamento confiáveis e criptografia para garantir que todas as transações e dados dos usuários sejam processados com máxima proteção." }, { q: "Quais são as taxas cobradas pela plataforma?", a: "Nossa estrutura de taxas é transparente e competitiva. Cobramos uma pequena porcentagem sobre o valor arrecadado para manter e melhorar a plataforma. Todos os detalhes podem ser encontrados em sua seção 'Financeiro' no painel." } ] },
-      { category: 'Vaquinhas', items: [ { q: "Como posso criar uma vaquinha para minha causa?", a: "É muito fácil! No painel, vá para a seção 'Vaquinhas' e clique em 'Criar Nova Vaquinha'. Você preencherá um formulário com detalhes, meta, imagens e descrição da sua campanha." }, { q: "Como faço para sacar o dinheiro arrecadado?", a: "Assim que sua campanha atingir o prazo ou a meta, os valores (descontadas as taxas) ficarão disponíveis em seu saldo na plataforma. Você pode solicitar o saque para sua conta bancária a qualquer momento através do painel 'Financeiro'." } ] },
-      { category: 'Rifas', items: [ { q: "Como funciona o sorteio das rifas? É transparente?", a: "Totalmente. O sorteio é realizado de forma automatizada pela plataforma em uma data e horário que você define. O resultado é gerado de forma aleatória e pode ser auditado, garantindo 100% de transparência para todos os participantes." }, { q: "Os participantes recebem comprovantes dos bilhetes comprados?", a: "Sim. A cada compra confirmada, o participante recebe um e-mail com a confirmação e os números dos seus bilhetes, garantindo o registro e a segurança da sua participação." } ] },
-      { category: 'Jogos', items: [ { q: "Como os jogos são integrados à plataforma?", a: "Nós oferecemos uma API de integração simples para uma variedade de provedores de jogos. Você pode escolher quais jogos ativar em sua plataforma através do painel de 'Gestão de Jogos'." }, { q: "A plataforma garante a justiça dos resultados dos jogos?", a: "Sim. Trabalhamos apenas com provedores de jogos licenciados e auditados, que utilizam geradores de números aleatórios (RNG) para garantir resultados justos e imparciais em todas as partidas." } ] }
-    ];
-    const [openFaq, setOpenFaq] = useState<string | null>('Geral-0');
-
-    return (
-        <div className="min-h-screen bg-gray-50 text-neutral-dark font-sans flex flex-col items-center justify-center relative overflow-x-hidden">
-            <div className="absolute top-0 left-0 w-full h-full z-0"></div>
-            <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-primary/10 rounded-full filter blur-3xl animate-pulse-subtle"></div>
-            <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-secondary/10 rounded-full filter blur-3xl animate-pulse-subtle"></div>
-
-            <header className="fixed top-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-sm shadow-sm">
-                 <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold font-heading text-neutral-dark">PREMIX</h1>
-                    {isLoggedInAs ? (
-                        <div className="flex items-center space-x-4">
-                            <span className="font-semibold text-gray-700">Bem-vindo, {isLoggedInAs}!</span>
-                            <button onClick={onLogout} className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-all duration-300">
-                                Sair
-                            </button>
-                        </div>
-                    ) : (
-                        <button onClick={onEnterDashboard} className="bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:shadow-primary/50 transition-all duration-300 transform hover:scale-105">
-                            Acessar Painel
-                        </button>
-                    )}
-                 </div>
-            </header>
-
-            <main className="z-10 flex flex-col items-center w-full">
-                <section className="text-center py-32 px-6 mt-12">
-                    <h1 className="text-5xl md:text-7xl font-extrabold font-heading text-neutral-dark animate-fade-in">Sua Plataforma 3-em-1</h1>
-                    <p className="max-w-3xl mx-auto mt-4 text-lg text-gray-600 animate-fade-in">Crie vaquinhas, organize rifas e divirta-se com jogos. Tudo em um só lugar, de forma segura e transparente.</p>
-                    <button onClick={onEnterDashboard} className={`mt-12 bg-primary hover:bg-primary-dark text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:shadow-primary/50 transition-all duration-300 transform hover:scale-105 animate-fade-in ${isLoggedInAs ? 'hidden' : ''}`}>
-                        Comece Agora Mesmo
-                    </button>
-                </section>
-                <section id="features" className="py-20 px-6 w-full max-w-6xl"><div className="text-center mb-12"><h2 className="text-4xl font-bold font-heading">Tudo que você precisa</h2><p className="text-gray-500 mt-2">Recursos poderosos para alavancar suas ideias.</p></div><div className="grid grid-cols-1 md:grid-cols-3 gap-8"><div className="bg-white p-8 rounded-2xl border border-gray-200 text-center flex flex-col items-center shadow-lg transition-transform duration-300 hover:-translate-y-2"><div className="bg-primary p-4 rounded-full mb-4"><VaquinhaIcon className="w-10 h-10 text-white" /></div><h3 className="text-2xl font-bold font-heading mb-2">Vaquinhas Online</h3><p className="text-gray-600 text-sm">Crie e gerencie campanhas de arrecadação de forma simples e eficiente. Acompanhe doações em tempo real.</p></div><div className="bg-white p-8 rounded-2xl border border-gray-200 text-center flex flex-col items-center shadow-lg transition-transform duration-300 hover:-translate-y-2"><div className="bg-secondary p-4 rounded-full mb-4"><RaffleIcon className="w-10 h-10 text-white" /></div><h3 className="text-2xl font-bold font-heading mb-2">Rifas Digitais</h3><p className="text-gray-600 text-sm">Organize sorteios com bilhetes numerados, pagamento integrado e sorteio automatizado e transparente.</p></div><div className="bg-white p-8 rounded-2xl border border-gray-200 text-center flex flex-col items-center shadow-lg transition-transform duration-300 hover:-translate-y-2"><div className="bg-blue-500 p-4 rounded-full mb-4"><GamesIcon className="w-10 h-10 text-white" /></div><h3 className="text-2xl font-bold font-heading mb-2">Jogos e Entretenimento</h3><p className="text-gray-600 text-sm">Integre jogos de slot e outras formas de entretenimento para engajar seus usuários e gerar receita.</p></div></div></section>
-                <section id="how-it-works" className="py-20 px-6 w-full bg-white"><div className="container mx-auto max-w-5xl"><div className="text-center mb-12"><h2 className="text-4xl font-bold font-heading">Comece em 3 Passos Simples</h2><p className="text-gray-500 mt-2">Transforme sua ideia em realidade rapidamente.</p></div><div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-4"><div className="flex flex-col items-center text-center p-6 max-w-xs"><div className="flex items-center justify-center w-20 h-20 bg-primary/10 border-2 border-primary rounded-full mb-4"><PencilIcon className="w-8 h-8 text-primary"/></div><h3 className="text-xl font-bold mb-2">1. Crie sua Campanha</h3><p className="text-gray-500">Descreva sua vaquinha ou rifa, defina suas metas e personalize sua página.</p></div><div className="text-primary h-16 w-px md:w-32 md:h-px bg-gray-200"></div><div className="flex flex-col items-center text-center p-6 max-w-xs"><div className="flex items-center justify-center w-20 h-20 bg-primary/10 border-2 border-primary rounded-full mb-4"><ShareIcon className="w-8 h-8 text-primary"/></div><h3 className="text-xl font-bold mb-2">2. Divulgue seu Link</h3><p className="text-gray-500">Compartilhe o link exclusivo da sua campanha com amigos, família e nas redes sociais.</p></div><div className="text-primary h-16 w-px md:w-32 md:h-px bg-gray-200"></div><div className="flex flex-col items-center text-center p-6 max-w-xs"><div className="flex items-center justify-center w-20 h-20 bg-primary/10 border-2 border-primary rounded-full mb-4"><MoneyIcon className="w-8 h-8 text-primary"/></div><h3 className="text-xl font-bold mb-2">3. Receba o Dinheiro</h3><p className="text-gray-500">Acompanhe as contribuições e saque o valor arrecadado diretamente para sua conta.</p></div></div></div></section>
-                <section id="testimonials" className="py-20 px-6 w-full max-w-6xl"><div className="text-center mb-12"><h2 className="text-4xl font-bold font-heading">O que nossos usuários dizem</h2><p className="text-gray-500 mt-2">Histórias de sucesso que nos inspiram.</p></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"><div className="bg-white p-8 rounded-lg border border-gray-200"><p className="text-gray-700 italic">"A PREMIX foi fundamental para nossa campanha de ajuda comunitária. A plataforma é fácil de usar e o suporte é incrível!"</p><div className="flex items-center mt-4"><img src="https://i.pravatar.cc/150?u=user1" alt="Juliana S." className="w-12 h-12 rounded-full mr-4" /><div><p className="font-bold">Juliana S.</p><p className="text-sm text-primary">ONG Viver Bem</p></div></div></div><div className="bg-white p-8 rounded-lg border border-gray-200"><p className="text-gray-700 italic">"Organizei uma rifa para a formatura da minha turma e foi um sucesso. Tudo automatizado e muito seguro. Recomendo!"</p><div className="flex items-center mt-4"><img src="https://i.pravatar.cc/150?u=user2" alt="Marcos P." className="w-12 h-12 rounded-full mr-4" /><div><p className="font-bold">Marcos P.</p><p className="text-sm text-primary">Comissão de Formatura</p></div></div></div><div className="bg-white p-8 rounded-lg border border-gray-200"><p className="text-gray-700 italic">"Finalmente uma plataforma que une arrecadação com entretenimento. Meus seguidores adoraram os jogos!"</p><div className="flex items-center mt-4"><img src="https://i.pravatar.cc/150?u=user3" alt="Carla R." className="w-12 h-12 rounded-full mr-4" /><div><p className="font-bold">Carla R.</p><p className="text-sm text-primary">Criadora de Conteúdo</p></div></div></div></div></section>
-                <section id="faq" className="py-20 px-6 w-full bg-white"><div className="container mx-auto max-w-4xl"><div className="text-center mb-12"><h2 className="text-4xl font-bold font-heading">Perguntas Frequentes</h2><p className="text-gray-500 mt-2">Tudo o que você precisa saber para começar.</p></div><div className="space-y-8">{faqItems.map((category) => (<div key={category.category}><h3 className="text-2xl font-bold font-heading mb-4 text-primary">{category.category}</h3><div className="space-y-4">{category.items.map((item, index) => { const id = `${category.category}-${index}`; return (<div key={id} className="bg-white border border-gray-200 rounded-lg overflow-hidden"><button onClick={() => setOpenFaq(openFaq === id ? null : id)} className="w-full flex justify-between items-center text-left p-5 font-semibold text-lg"><span>{item.q}</span><ChevronDownIcon className={`transition-transform duration-300 ${openFaq === id ? 'rotate-180' : ''}`} /></button><div className={`transition-all duration-500 ease-in-out ${openFaq === id ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}><div className="p-5 pt-0 text-gray-600">{item.a}</div></div></div>)})}</div></div>)) }</div></div></section>
-                <section className={`py-24 px-6 text-center w-full bg-gray-100 ${isLoggedInAs ? 'hidden' : ''}`}><h2 className="text-4xl font-bold font-heading">Pronto para começar?</h2><p className="text-gray-500 mt-2 max-w-2xl mx-auto">Junte-se a milhares de pessoas que já estão transformando suas ideias em realidade com a PREMIX.</p><button onClick={onEnterDashboard} className="mt-8 bg-primary hover:bg-primary-dark text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:shadow-primary/50 transition-all duration-300 transform hover:scale-105">Acessar o Painel Gratuitamente</button></section>
             </main>
-
-            <footer className="w-full bg-white border-t border-gray-200 z-10 py-8 px-6">
-                <div className="container mx-auto text-center text-gray-500 text-sm">
-                    <p>&copy; 2024 PREMIX. Todos os direitos reservados.</p>
-                    <p className="mt-2"><a href="#" className="hover:text-primary mx-2">Termos de Serviço</a> |<a href="#" className="hover:text-primary mx-2">Política de Privacidade</a></p>
-                </div>
-            </footer>
         </div>
     );
 };
 
-
-const AdminDashboardLayout: FC<{ userRole: UserRole; onLogout: () => void }> = ({ userRole, onLogout }) => {
-    const [activePage, setActivePage] = useState('Dashboard');
-
-    const Sidebar: FC<{ activePage: string; setActivePage: (page: string) => void }> = ({ activePage, setActivePage }) => (
-        <aside className="w-64 flex-shrink-0 bg-neutral-dark text-gray-300 flex flex-col p-4">
-            <div className="text-center py-4 mb-4">
-                <h1 className="text-3xl font-bold font-heading text-white">PREMIX</h1>
-                <p className="text-xs text-primary-light">Admin Dashboard</p>
+const UserDetailPage = ({ user, onBack }: { user: User; onBack: () => void; }) => {
+    return(
+        <div className="animate-fade-in">
+             <button onClick={onBack} className="flex items-center space-x-2 text-sm font-semibold text-gray-600 hover:text-gray-900 mb-6">
+                <ArrowLeftIcon />
+                <span>Voltar para Usuários</span>
+            </button>
+            <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Editar Usuário</h1>
+            <p className="text-gray-500 mb-8">Gerencie as informações de {user.email}</p>
+            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                <form className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input name="name" label="Nome" value={user.name} onChange={() => {}} />
+                        <Input name="email" label="Email" value={user.email} onChange={() => {}} />
+                    </div>
+                    <div className="flex items-center space-x-8 pt-4">
+                         <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <ToggleSwitch checked={user.status === 'Ativo'} onChange={() => {}} />
+                        </div>
+                         <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Influencer</label>
+                            <ToggleSwitch checked={user.influencer} onChange={() => {}} />
+                        </div>
+                    </div>
+                     <div className="pt-4 flex items-center space-x-4">
+                        <Button type="submit">Salvar Alterações</Button>
+                        <Button type="button" className="bg-red-600 hover:bg-red-700">Excluir Usuário</Button>
+                    </div>
+                </form>
             </div>
-            <nav className="flex-1 space-y-4">
-                {navItems.map((section) => (
-                    <div key={section.title}>
-                        <h2 className="px-4 text-xs font-bold tracking-wider text-gray-500 uppercase">{section.title}</h2>
-                        <ul className="mt-2 space-y-1">
+        </div>
+    )
+}
+
+// --- Admin Panel Component ---
+const AdminPanel: FC<{ onLogout: () => void }> = ({ onLogout }) => {
+    const [activePage, setActivePage] = useState<Page>('Painel de Controle');
+    const [openMenus, setOpenMenus] = useState<string[]>(['Gestão de Jogos', 'Arrecadação & Marketing', 'Configurações']);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+    const handleMenuToggle = (title: string) => {
+        setOpenMenus(prev => prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]);
+    };
+
+    const navigateTo = (page: Page) => {
+        setActivePage(page);
+        setSelectedUser(null);
+    }
+
+    const renderContent = () => {
+        if (selectedUser) {
+            return <UserDetailPage user={selectedUser} onBack={() => setSelectedUser(null)} />
+        }
+        
+        switch (activePage) {
+            case 'Painel de Controle': return <DashboardPage />;
+            // Configs
+            case 'Configurações': return <ConfiguracoesPage />;
+            case 'API de jogos': return <ApiJogosPage />;
+            case 'Gateway de Pagamentos': return <GatewayPagamentosPage />;
+            case 'Definições de Email': return <DefinicoesEmailPage />;
+            case 'Banners': return <BannersPage />;
+            case 'Customização': return <CustomizacaoPage />;
+            // Marketing
+            case 'Vaquinhas': return <VaquinhasPage />;
+            case 'Rifas': return <RifasPage />;
+            case 'Cupons de Desconto': return <CuponsPage />;
+            // Gestão de Jogos
+            case 'Usuários': return <UsuariosPage onNavigateToUser={setSelectedUser} />;
+            case 'Carteiras': return <CarteirasPage />;
+            case 'Depósitos': return <DepositosPage />;
+            case 'Saques': return <SaquesPage />;
+            case 'Todas As Categorias': return <TodasAsCategoriasPage />;
+            case 'Todos Os Provedores': return <TodosOsProvedoresPage />;
+            case 'Todos Os Jogos': return <TodosOsJogosPage />;
+            case 'Histórico de Partidas': return <HistoricoDePartidasPage />;
+            default: return <PlaceholderPage title={activePage} />;
+        }
+    };
+
+    const Sidebar: FC = () => (
+        <aside className="w-64 flex-shrink-0 bg-[#0F172A] text-gray-300 flex flex-col">
+            <div className="text-center py-6 border-b border-gray-700/50">
+                <h1 className="text-3xl font-extrabold text-white tracking-wider font-heading">PREMIX</h1>
+            </div>
+            <nav className="flex-1 px-4 pt-4 space-y-2 overflow-y-auto">
+                {navItems.map((section, sectionIndex) => (
+                    <div key={section.title || `section-${sectionIndex}`}>
+                        {section.title && (
+                            <button onClick={() => handleMenuToggle(section.title!)} className="w-full flex justify-between items-center px-2 pt-4 pb-2 text-xs font-bold tracking-wider text-gray-500 uppercase">
+                                <span>{section.title}</span>
+                                <ChevronDownIcon className={`w-4 h-4 transition-transform duration-300 ${openMenus.includes(section.title) ? 'rotate-180' : ''}`} />
+                            </button>
+                        )}
+                        <ul className={`space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${section.title && !openMenus.includes(section.title) ? 'max-h-0' : 'max-h-[800px]'}`}>
                             {section.items.map((item) => (
                                 <li key={item.name}>
-                                    <a href="#" onClick={(e) => { e.preventDefault(); setActivePage(item.name); }}
-                                        className={`flex items-center space-x-3 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${ activePage === item.name ? 'bg-primary text-white shadow-lg' : 'hover:bg-gray-700/50 hover:text-white'}`}>
-                                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                                    <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(item.name); }}
+                                        className={`flex items-center space-x-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${activePage === item.name ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-700/50 hover:text-white'}`}>
+                                        <item.icon className="w-5 h-5" />
                                         <span>{item.name}</span>
                                     </a>
                                 </li>
@@ -523,45 +1403,35 @@ const AdminDashboardLayout: FC<{ userRole: UserRole; onLogout: () => void }> = (
                     </div>
                 ))}
             </nav>
-            <div className="mt-auto text-center text-xs text-gray-500">
-                <p>&copy; 2024 PREMIX. Todos os direitos reservados.</p>
-            </div>
         </aside>
     );
 
-    const Header: FC<{ title: string; userRole: UserRole; onLogout: () => void }> = ({ title, userRole, onLogout }) => (
-        <header className="bg-white shadow-sm p-4 flex justify-between items-center">
-            <h2 className="text-2xl font-bold font-heading text-neutral-dark">{title}</h2>
+    const Header: FC = () => (
+        <header className="bg-white shadow-sm p-4 flex justify-between items-center z-10 border-b border-gray-200">
+            <Breadcrumbs page={activePage} subPage={selectedUser?.email} onNavigate={navigateTo} />
             <div className="flex items-center space-x-4">
-                <div className="text-right">
-                    <span className="text-sm font-semibold text-gray-600">{userRole}</span>
-                    <p className="text-xs text-gray-500">online</p>
+                <div className="relative">
+                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input type="text" placeholder="Pesquisar..." className="w-full lg:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
-                <img className="w-10 h-10 rounded-full" src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="User avatar" />
-                <button onClick={onLogout} className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors" title="Sair">
+                <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center font-bold text-lg">A</div>
+                    <div className="text-right hidden sm:block">
+                        <span className="text-sm font-semibold text-gray-800">Admin</span>
+                    </div>
+                </div>
+                <button onClick={onLogout} className="p-2 text-gray-500 hover:text-red-600" title="Sair">
                     <LogoutIcon />
                 </button>
             </div>
         </header>
     );
-    
-    const renderContent = () => {
-        switch(activePage) {
-            case 'Dashboard': return <DashboardPage />;
-            case 'Vaquinhas': return <VaquinhasPage />;
-            case 'Rifas': return <RifasPage />;
-            case 'Jogos': return <JogosPage />;
-            case 'Usuários': return <UsuariosPage />;
-            case 'Financeiro': return <FinanceiroPage />;
-            default: return <PlaceholderPage title={activePage} />;
-        }
-    };
 
     return (
-        <div className="flex h-screen bg-neutral-light font-sans text-gray-800">
-            <Sidebar activePage={activePage} setActivePage={setActivePage} />
+        <div className="flex h-screen bg-gray-50 font-sans text-gray-800">
+            <Sidebar />
             <div className="flex-1 flex flex-col overflow-hidden">
-                <Header title={activePage} userRole={userRole} onLogout={onLogout} />
+                <Header />
                 <main className="flex-1 overflow-x-hidden overflow-y-auto p-8">
                     {renderContent()}
                 </main>
@@ -570,53 +1440,247 @@ const AdminDashboardLayout: FC<{ userRole: UserRole; onLogout: () => void }> = (
     );
 };
 
-const App = () => {
-    // State to manage user session
-    const [user, setUser] = useState<{ loggedIn: boolean; role: UserRole | null }>({ loggedIn: false, role: null });
-    
-    // State to manage navigation to the login page
-    const [showLoginPage, setShowLoginPage] = useState(false);
+const BannerSlider: FC = () => {
+    const banners = [
+        { img: 'https://images.unsplash.com/photo-1617802690992-09d341818a25?q=80&w=2070&auto=format&fit=crop', title: 'Bônus de Boas-Vindas!', subtitle: 'Cadastre-se e ganhe até 100% no seu primeiro depósito.' },
+        { img: 'https://images.unsplash.com/photo-1542866753-a389183a35a9?q=80&w=2070&auto=format&fit=crop', title: 'Novos Slots Adicionados', subtitle: 'Explore mundos incríveis com nossos novos jogos de slot.' },
+        { img: 'https://images.unsplash.com/photo-1599333934360-3a137b04a4b2?q=80&w=1954&auto=format&fit=crop', title: 'Cassino Ao Vivo', subtitle: 'A experiência real de um cassino, onde você estiver.' },
+    ];
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const timeoutRef = useRef<number | null>(null);
 
-    // Called from LoginPage upon successful login
-    const handleLogin = (role: UserRole) => {
-        setUser({ loggedIn: true, role: role });
-        setShowLoginPage(false); // Hide login page and proceed to the app
-    };
-
-    // Called from AdminDashboard or logged-in LandingPage to log out
-    const handleLogout = () => {
-        setUser({ loggedIn: false, role: null });
-    };
-
-    // Called from LandingPage's "Acessar Painel" button
-    const navigateToLogin = () => {
-        setShowLoginPage(true);
-    };
-
-    // --- RENDER LOGIC ---
-
-    // 1. If we have been explicitly told to show the login page (and user is not logged in)
-    if (showLoginPage && !user.loggedIn) {
-        return <LoginPage onLogin={handleLogin} />;
-    }
-
-    // 2. If the user IS logged in
-    if (user.loggedIn && user.role) {
-        // Admin or Manager sees the dashboard
-        if (user.role === 'Administrador' || user.role === 'Gestor/Criador') {
-            return <AdminDashboardLayout userRole={user.role} onLogout={handleLogout} />;
+    const resetTimeout = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
         }
-        
-        // Regular user or game user sees the landing page, but in a logged-in state
-        return <LandingPage 
-            isLoggedInAs={user.role} 
-            onLogout={handleLogout} 
-            onEnterDashboard={navigateToLogin} 
-        />;
+    }
+
+    useEffect(() => {
+        resetTimeout();
+        timeoutRef.current = window.setTimeout(
+            () => setCurrentIndex((prevIndex) => prevIndex === banners.length - 1 ? 0 : prevIndex + 1),
+            5000
+        );
+        return () => {
+            resetTimeout();
+        };
+    }, [currentIndex]);
+
+    return (
+        <section className="relative h-[60vh] w-full overflow-hidden">
+            <div className="absolute inset-0 flex transition-transform duration-1000 ease-in-out" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
+                {banners.map((banner, index) => (
+                    <div key={index} className="relative w-full h-full flex-shrink-0">
+                        <img src={banner.img} alt={banner.title} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/60"></div>
+                        <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-6">
+                            <h2 className="text-4xl md:text-6xl font-black font-heading uppercase tracking-wide animate-fade-in" style={{ animationDelay: '0.2s' }}>{banner.title}</h2>
+                            <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-200 animate-fade-in" style={{ animationDelay: '0.5s' }}>{banner.subtitle}</p>
+                            <Button className="mt-8 bg-blue-600 hover:bg-blue-500 text-lg px-8 py-3 transform hover:scale-105 animate-fade-in" style={{ animationDelay: '0.8s' }}>Jogue Agora</Button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+             <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex space-x-3">
+                {banners.map((_, index) => (
+                    <button key={index} onClick={() => setCurrentIndex(index)} className={`w-3 h-3 rounded-full transition-all ${currentIndex === index ? 'bg-white scale-125' : 'bg-white/50'}`}></button>
+                ))}
+            </div>
+        </section>
+    );
+};
+
+
+// --- HOME PAGE Component ---
+const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
+
+    const popularGames = [
+        { id: 4, cover: 'https://i.ibb.co/R9jB5zP/mines.png', provider: 'PGSOFT', name: 'Mines' },
+        { id: 5, cover: 'https://i.ibb.co/8Y4y7Q2/fortune-tiger.png', provider: 'PGSOFT', name: 'Fortune Tiger' },
+        { id: 6, cover: 'https://i.ibb.co/pwnL9D4/fortune-ox.png', provider: 'PGSOFT', name: 'Fortune Ox' },
+        { id: 1, cover: 'https://i.ibb.co/kXPT29V/zeus-vs-hades.png', provider: 'PRAGMATIC', name: 'Zeus vs Hades' },
+        { id: 2, cover: 'https://i.ibb.co/3cqd1qH/fortune-snake.png', provider: 'PGSOFT', name: 'Fortune Snake' },
+        { id: 3, cover: 'https://i.ibb.co/tZ5Z0Gb/plinko.png', provider: 'PGSOFT', name: 'Plinko' },
+    ];
+    
+    return (
+        <div className="bg-neutral-dark text-white font-sans">
+            {/* Header */}
+            <header className="bg-neutral-dark/80 backdrop-blur-lg sticky top-0 z-40">
+                <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+                    <h1 className="text-3xl font-extrabold tracking-wider font-heading">PREMIX</h1>
+                    <nav className="hidden md:flex items-center space-x-6">
+                        <a href="#" className="hover:text-blue-400 transition">Início</a>
+                        <a href="#jogos" className="hover:text-blue-400 transition">Jogos</a>
+                        <a href="#rifas" className="hover:text-blue-400 transition">Rifas</a>
+                        <a href="#vaquinhas" className="hover:text-blue-400 transition">Vaquinhas</a>
+                    </nav>
+                    <div className="flex items-center space-x-3">
+                        <button onClick={onLoginClick} className="bg-gray-700 hover:bg-gray-600 text-sm font-semibold px-4 py-2 rounded-lg transition">Login</button>
+                        <button onClick={onLoginClick} className="bg-blue-600 hover:bg-blue-700 text-sm font-semibold px-4 py-2 rounded-lg transition shadow-lg">Cadastre-se</button>
+                    </div>
+                </div>
+            </header>
+
+            <main>
+                <BannerSlider />
+                
+                {/* Features Section */}
+                <section id="vaquinhas" className="py-20 bg-gray-900">
+                    <div className="container mx-auto px-6">
+                        <div className="flex flex-col md:flex-row items-center gap-12">
+                            <div className="md:w-1/2">
+                                <h2 className="text-3xl font-extrabold font-heading">Vaquinhas: Juntos Fazemos a Diferença</h2>
+                                <p className="mt-4 text-lg text-gray-300">Apoie causas importantes ou crie sua própria campanha de arrecadação. Na PREMIX, a força da comunidade transforma vidas. Participe e ajude a construir um futuro melhor.</p>
+                                <Button className="mt-6">Ver Campanhas</Button>
+                            </div>
+                            <div className="md:w-1/2">
+                                <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop" alt="Vaquinhas Comunitárias" className="rounded-xl shadow-2xl shadow-blue-500/10" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                 <section id="rifas" className="py-20 bg-neutral-dark">
+                    <div className="container mx-auto px-6">
+                         <div className="flex flex-col md:flex-row-reverse items-center gap-12">
+                            <div className="md:w-1/2">
+                                <h2 className="text-3xl font-extrabold font-heading">Rifas: A Sorte ao Seu Alcance</h2>
+                                <p className="mt-4 text-lg text-gray-300">Sonha com prêmios incríveis? Nossas rifas oferecem a chance de ganhar desde gadgets de última geração até viagens inesquecíveis por um preço muito baixo. Escolha sua sorte!</p>
+                                <Button className="mt-6">Participar das Rifas</Button>
+                            </div>
+                            <div className="md:w-1/2">
+                                <img src="https://images.unsplash.com/photo-1579548122080-c35fd6820ecb?q=80&w=2070&auto=format&fit=crop" alt="Prêmios Incríveis" className="rounded-xl shadow-2xl shadow-blue-500/10" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="cupons" className="py-20 bg-gray-900">
+                    <div className="container mx-auto px-6 text-center">
+                        <h2 className="text-3xl font-extrabold font-heading">Cupons de Bônus e Ofertas Especiais</h2>
+                        <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-300">Maximize sua diversão com nossos cupons de bônus! Fique de olho nas ofertas exclusivas que preparamos para você ter ainda mais chances de ganhar.</p>
+                         <div className="mt-10 max-w-lg mx-auto bg-neutral-dark p-8 rounded-2xl border border-dashed border-blue-500 shadow-lg">
+                            <p className="font-mono text-2xl tracking-widest text-blue-400">BEMVINDO100</p>
+                            <p className="mt-3 text-lg">Use este cupom no seu primeiro depósito e ganhe <span className="font-bold text-white">100% de bônus!</span></p>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Popular Games Section */}
+                <section id="jogos" className="py-20 bg-neutral-dark">
+                    <div className="container mx-auto px-6">
+                        <h3 className="text-3xl font-extrabold text-center font-heading mb-12">Jogos Mais Populares</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                            {popularGames.map(game => (
+                                <div key={game.id} className="group cursor-pointer">
+                                    <div className="aspect-w-1 aspect-h-1 rounded-xl overflow-hidden transform group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-blue-600/20 transition-all duration-300">
+                                        <img src={game.cover} alt={game.name} className="w-full h-full object-cover" />
+                                    </div>
+                                    <div className="mt-3">
+                                        <p className="font-bold truncate">{game.name}</p>
+                                        <p className="text-sm text-gray-400">{game.provider}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+             {/* Footer */}
+            <footer className="bg-gray-900 py-12">
+                <div className="container mx-auto px-6 text-center text-gray-400">
+                    <h2 className="text-2xl font-bold font-heading text-white">PREMIX</h2>
+                    <div className="flex justify-center space-x-6 my-6">
+                        <a href="#" className="hover:text-white">Termos de Serviço</a>
+                        <a href="#" className="hover:text-white">Política de Privacidade</a>
+                        <a href="#" className="hover:text-white">Jogo Responsável</a>
+                    </div>
+                    <p className="text-sm">&copy; {new Date().getFullYear()} PREMIX. Todos os direitos reservados.</p>
+                </div>
+            </footer>
+        </div>
+    );
+}
+
+const LoginModal: FC<{ isOpen: boolean; onClose: () => void; onAdminLogin: () => void; }> = ({ isOpen, onClose, onAdminLogin }) => {
+    const [isRegister, setIsRegister] = useState(false);
+    const [role, setRole] = useState<'Administrador' | 'Gestor' | 'Usuário' | 'Jogos'>('Usuário');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        setError('');
+
+        if (role === 'Administrador') {
+            if (username === 'admin01' && password === 'a123') {
+                onAdminLogin();
+            } else {
+                setError('Credenciais de administrador inválidas.');
+            }
+        } else {
+            // Lógica para outros perfis
+            alert(`Login para ${role} bem-sucedido (simulação).`);
+            onClose();
+        }
+    };
+    
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} title={isRegister ? "Criar Conta" : "Acessar Plataforma"} maxWidth="max-w-md">
+            <div className="w-full">
+                <div className="flex border-b border-gray-200">
+                    <button onClick={() => setIsRegister(false)} className={`w-1/2 py-3 text-sm font-bold ${!isRegister ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}>Login</button>
+                    <button onClick={() => setIsRegister(true)} className={`w-1/2 py-3 text-sm font-bold ${isRegister ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}>{isRegister ? "Já tenho conta" : "Cadastre-se"}</button>
+                </div>
+                <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
+                    <Select label="Selecione seu perfil" name="role" value={role} onChange={e => setRole(e.target.value as any)}>
+                        <option>Usuário</option>
+                        <option>Gestor</option>
+                        <option>Jogos</option>
+                        <option>Administrador</option>
+                    </Select>
+
+                    <Input name="username" label="Usuário ou E-mail" value={username} onChange={e => setUsername(e.target.value)} required />
+                    <Input name="password" label="Senha" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+                    
+                    {error && <p className="text-red-500 text-sm font-semibold">{error}</p>}
+                    
+                    <div className="pt-2">
+                        <Button type="submit" className="w-full">{isRegister ? "Criar Conta" : "Entrar"}</Button>
+                    </div>
+                </form>
+            </div>
+        </Modal>
+    )
+}
+
+// --- Main App Component ---
+const App = () => {
+    const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+    
+    const handleAdminLogin = () => {
+        setIsAdminAuthenticated(true);
+        setIsLoginModalOpen(false);
+    };
+
+    const handleLogout = () => {
+        setIsAdminAuthenticated(false);
+    };
+
+    if (!isAdminAuthenticated) {
+        return (
+            <>
+                <HomePage onLoginClick={() => setIsLoginModalOpen(true)} />
+                <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} onAdminLogin={handleAdminLogin} />
+            </>
+        )
     }
     
-    // 3. The default view for any non-logged-in user is the public landing page
-    return <LandingPage onEnterDashboard={navigateToLogin} />;
+    return <AdminPanel onLogout={handleLogout} />;
 };
 
 export default App;
