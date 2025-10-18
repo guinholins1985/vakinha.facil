@@ -34,7 +34,7 @@ const SpinnerIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
 );
 const VaquinhaIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H9a2 2 0 00-2 2v2m10 4h-2a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2zM7 9V7a2 2 0 012-2h2" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13H9m6 0a2 2 0 012 2v2a2 2 0 01-2 2H9a2 2 0 01-2-2v-2a2 2 0 012-2h6z" /></svg>;
 const RifaIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5z" /></svg>;
-const CouponIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5l-7 7 7 7" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15l-3-3m0 0l3-3m-3 3h12a2 2 0 002-2V8a2 2 0 00-2-2H9" /></svg>;
+const CouponIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 12L3 8m4 8l4-8m-4 8H3m4 0h4m9 4v-4m0 4h4m0-4h-4m0 4L15 8m6 12l-4-8m4 8h-4" /></svg>;
 const DetailsIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fillRule="evenodd" d="M.458 10C3.732 4.943 7.523 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-7.064 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>;
 const CheckCircleIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>;
 const XCircleIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg>;
@@ -99,195 +99,186 @@ const navItems: { title?: string; items: NavItem[] }[] = [
     },
 ];
 
-// --- JOGO DO TIGRINHO (NOVA VERSÃO) ---
+// --- JOGO DO TIGRINHO (VERSÃO FIEL AO DESIGN) ---
 const GoldenTigerSlot: FC<{ onLogout: () => void }> = ({ onLogout }) => {
-    type Symbol = { emoji: string; payout: { 3: number; 4: number; 5: number; }; name: string; };
-    const SYMBOLS: Record<string, Symbol> = {
-        TIGER: { emoji: '🐅', payout: { 3: 50, 4: 200, 5: 1000 }, name: 'Wild' },
-        ENVELOPE: { emoji: '🧧', payout: { 3: 0, 4: 0, 5: 0 }, name: 'Scatter' },
-        INGOT: { emoji: '💰', payout: { 3: 20, 4: 100, 5: 500 }, name: 'Ingot' },
-        FORTUNE: { emoji: '福', payout: { 3: 15, 4: 75, 5: 250 }, name: 'Fortune' },
-        TANGERINE: { emoji: '🍊', payout: { 3: 10, 4: 50, 5: 120 }, name: 'Tangerine' },
-        A: { emoji: 'A', payout: { 3: 5, 4: 20, 5: 100 }, name: 'A' },
-        K: { emoji: 'K', payout: { 3: 4, 4: 15, 5: 80 }, name: 'K' },
-        Q: { emoji: 'Q', payout: { 3: 3, 4: 10, 5: 60 }, name: 'Q' },
-        J: { emoji: 'J', payout: { 3: 2, 4: 8, 5: 40 }, name: 'J' },
-    };
-    const REEL_SYMBOLS = Object.values(SYMBOLS);
-    const PAYLINES = [
-        [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4]], [[1, 0], [1, 1], [1, 2], [1, 3], [1, 4]], [[2, 0], [2, 1], [2, 2], [2, 3], [2, 4]],
-        [[0, 0], [1, 1], [2, 2], [1, 3], [0, 4]], [[2, 0], [1, 1], [0, 2], [1, 3], [2, 4]], [[0, 0], [0, 1], [1, 2], [0, 3], [0, 4]],
-        [[2, 0], [2, 1], [1, 2], [2, 3], [2, 4]], [[0, 1], [1, 2], [2, 3], [1, 4], [0, 3]], [[2, 1], [1, 2], [0, 3], [1, 4], [2, 3]],
+    type Symbol = { name: string; image: string; multiplier: number; };
+    const SYMBOLS: Symbol[] = [
+        { name: 'tangerine', image: 'https://i.ibb.co/yQW2k7x/symbol-tangerine.png', multiplier: 1 },
+        { name: 'ornament', image: 'https://i.ibb.co/RSCyT9V/symbol-ornament.png', multiplier: 1.5 },
+        { name: 'envelope', image: 'https://i.ibb.co/h9z71Jv/symbol-envelope.png', multiplier: 2 },
+        { name: 'bag', image: 'https://i.ibb.co/2Z500zG/symbol-bag.png', multiplier: 3 },
+        { name: 'ingot', image: 'https://i.ibb.co/bXJz2N1/symbol-ingot.png', multiplier: 5 },
     ];
-    const BET_AMOUNTS = [0.25, 0.5, 1, 2, 5, 10, 25, 50, 100, 250];
+    const BET_LEVELS = [25, 50, 100, 250, 500, 1000];
 
-    const generateInitialReels = () => Array(5).fill(null).map(() => Array(3).fill(null).map(() => REEL_SYMBOLS[Math.floor(Math.random() * REEL_SYMBOLS.length)]));
-    const createEmptyWinningCells = () => Array(3).fill(null).map(() => Array(5).fill(false));
-
-    const [reels, setReels] = useState<Symbol[][]>(generateInitialReels());
-    const [balance, setBalance] = useState(1000);
-    const [betIndex, setBetIndex] = useState(2);
+    // --- State Management ---
+    const [reels, setReels] = useState<Symbol[][]>(() => Array(3).fill(null).map(() => Array(3).fill(null).map(() => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)])));
+    const [balance, setBalance] = useState(9750);
+    const [betIndex, setBetIndex] = useState(3);
     const [winAmount, setWinAmount] = useState(0);
+    const [isWinning, setIsWinning] = useState(false);
     const [isSpinning, setIsSpinning] = useState(false);
-    const [message, setMessage] = useState('Boa sorte!');
-    const [freeSpins, setFreeSpins] = useState(0);
-    const [multiplier, setMultiplier] = useState(1);
-    const [isTurbo, setIsTurbo] = useState(false);
-    const [winningCells, setWinningCells] = useState<boolean[][]>(createEmptyWinningCells());
-    const [showBigWin, setShowBigWin] = useState(false);
 
-    const betAmount = BET_AMOUNTS[betIndex];
+    // --- Audio Refs ---
+    const spinSoundRef = useRef<HTMLAudioElement>(null);
+    const winSoundRef = useRef<HTMLAudioElement>(null);
+    const betSoundRef = useRef<HTMLAudioElement>(null);
 
-    const handleSpin = useCallback(() => {
-        if (isSpinning || (balance < betAmount && freeSpins === 0)) return;
+    const betAmount = BET_LEVELS[betIndex];
 
-        setIsSpinning(true);
-        setWinAmount(0);
-        setWinningCells(createEmptyWinningCells());
-        setShowBigWin(false);
+    const formatCurrency = (value: number) => value.toLocaleString('pt-BR', { style: 'decimal', minimumFractionDigits: 2 });
 
-        if (freeSpins > 0) {
-            setFreeSpins(prev => prev - 1);
-            setMultiplier(prev => Math.min(prev + 1, 10));
-        } else {
-            setBalance(prev => prev - betAmount);
-            setMultiplier(1);
+    const playSound = (soundRef: React.RefObject<HTMLAudioElement>) => {
+        if (soundRef.current) {
+            soundRef.current.currentTime = 0;
+            soundRef.current.play().catch(error => console.error("Audio play failed:", error));
         }
+    };
 
-        const newReels = Array(5).fill(null).map(() => Array(3).fill(null).map(() => REEL_SYMBOLS[Math.floor(Math.random() * REEL_SYMBOLS.length)]));
+    const handleSpin = () => {
+        if (isSpinning || balance < betAmount) return;
 
+        playSound(spinSoundRef);
+        setIsSpinning(true);
+        setIsWinning(false);
+        setWinAmount(0);
+        setBalance(prev => prev - betAmount);
+        
+        const finalReels = Array(3).fill(null).map(() => Array(3).fill(null).map(() => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]));
+        
+        // Timeout for spin animation
         setTimeout(() => {
-            setReels(newReels);
-
-            let totalWin = 0;
-            const newWinningCells = createEmptyWinningCells();
-
-            PAYLINES.forEach(line => {
-                const lineSymbols = line.map(([row, col]) => newReels[col][row]);
-                let firstSymbol = lineSymbols.find(s => s.name !== 'Wild') || SYMBOLS.TIGER;
-                
-                let matchCount = 0;
-                for (const symbol of lineSymbols) {
-                    if (symbol.name === firstSymbol.name || symbol.name === 'Wild') matchCount++;
-                    else break;
-                }
-
-                if (matchCount >= 3) {
-                    const payout = (firstSymbol.payout[matchCount as keyof typeof firstSymbol.payout] || 0) * betAmount;
-                    totalWin += payout;
-                    for (let i = 0; i < matchCount; i++) {
-                        const [row, col] = line[i];
-                        newWinningCells[row][col] = true;
-                    }
-                }
-            });
-            setWinningCells(newWinningCells);
-
-            const scatterCount = newReels.flat().filter(s => s.name === 'Scatter').length;
-            if (scatterCount >= 3) {
-                const newFreeSpins = 10;
-                setFreeSpins(prev => prev + newFreeSpins);
-                setMessage(`${scatterCount} Scatters! ${newFreeSpins} Rodadas Grátis!`);
-            }
-
-            if (totalWin > 0) {
-                const finalWin = totalWin * multiplier;
-                setWinAmount(finalWin);
-                setBalance(prev => prev + finalWin);
-                setMessage(`GANHOU R$ ${finalWin.toFixed(2)}!`);
-                if (finalWin >= betAmount * 10) setShowBigWin(true);
-            } else if (scatterCount < 3) {
-                setMessage(freeSpins > 1 ? `Gire de novo! ${freeSpins - 1} restantes.` : 'Tente novamente!');
-            }
-            
-            if (freeSpins <= 1 && multiplier > 1) setMultiplier(1);
-            
+            setReels(finalReels);
+            checkWin(finalReels);
             setIsSpinning(false);
-        }, isTurbo ? 300 : 2000);
+        }, 1500);
+    };
+    
+    const checkWin = (currentReels: Symbol[][]) => {
+        const middleRowSymbols = currentReels.map(reel => reel[1]);
+        const firstSymbol = middleRowSymbols[0];
+        const isWin = middleRowSymbols.every(symbol => symbol.name === firstSymbol.name);
 
-    }, [balance, betAmount, freeSpins, isSpinning, isTurbo, multiplier]);
-
+        if (isWin) {
+            const win = betAmount * firstSymbol.multiplier;
+            setWinAmount(win);
+            setBalance(prev => prev + win);
+            setIsWinning(true);
+            playSound(winSoundRef);
+        }
+    };
+    
     const changeBet = (direction: 'up' | 'down') => {
         if (isSpinning) return;
+        playSound(betSoundRef);
         setBetIndex(prev => {
-            const newIndex = direction === 'up' ? prev + 1 : prev - 1;
-            return Math.max(0, Math.min(newIndex, BET_AMOUNTS.length - 1));
+            const newIndex = direction === 'down' ? prev - 1 : prev + 1;
+            return Math.max(0, Math.min(newIndex, BET_LEVELS.length - 1));
         });
     };
     
     return (
-        <div className="min-h-screen bg-slate-900 text-white font-sans flex flex-col items-center justify-center p-2 sm:p-4 overflow-hidden" style={{backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23991b1b' fill-opacity='0.2'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h4v1h-4v5h4v1h-4v5h4v1h-4v5h4v1h-4v5h4v1h-4v5h4v1h-4v5h4v1h-4v5h4v1h-4v5h-1v-5h-5v5h-1v-5h-5v5h-1v-5h-5v5h-1v-5h-5v5h-1v-5h-5v5h-1v-5h-5v5h-1v-5h-5v5H0v-1h4v-5H0v-1h4v-5H0v-1h4v-5H0v-1h4v-5H0v-1h4v-5H0v-1h4v-5H0v-1h4v-5H0v-1h4V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5zm-1 5h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-5 6v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm5 6h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-5 6v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm5 6h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-5 6v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm5 6h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-5 6v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm5 6h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-5 6v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`}}>
-             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-            <header className="relative w-full max-w-5xl flex justify-between items-center mb-2 z-10">
-                <h1 className="text-3xl md:text-5xl font-black font-heading text-yellow-400" style={{ textShadow: '3px 3px 6px #000' }}>Fortuna do Tigre Dourado</h1>
-                <button onClick={onLogout} className="bg-red-800/70 hover:bg-red-700/90 text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-300 flex items-center space-x-2 border border-red-500/50 shadow-lg"><LogoutIcon/> <span>Sair</span></button>
-            </header>
+        <>
+            <style>{`
+                .font-tiger { font-family: 'Poppins', sans-serif; }
+                .text-stroke-brown { -webkit-text-stroke: 1px #4a2c1a; text-stroke: 1px #4a2c1a; }
+            `}</style>
+            <audio ref={spinSoundRef} src="https://cdn.pixabay.com/audio/2022/03/15/audio_2db2499732.mp3" preload="auto"></audio>
+            <audio ref={winSoundRef} src="https://cdn.pixabay.com/audio/2022/03/23/audio_8b248866ea.mp3" preload="auto"></audio>
+            <audio ref={betSoundRef} src="https://cdn.pixabay.com/audio/2021/08/04/audio_a25c13e66a.mp3" preload="auto"></audio>
+            
+            <div className="w-full h-screen bg-black flex justify-center items-center font-tiger">
+                <div className="w-[360px] h-[640px] bg-[#f9e7c5] flex flex-col relative overflow-hidden"
+                     style={{ backgroundImage: `url('https://i.ibb.co/hLqj60M/footer-bg.png')`, backgroundPosition: 'bottom center', backgroundRepeat: 'no-repeat', backgroundSize: '100% auto' }}>
+                    
+                    {/* Header */}
+                    <div className="absolute top-0 left-0 w-full h-[150px] z-10">
+                        <img src="https://i.ibb.co/LdQd025/tiger-char.png" alt="Fortune Tiger" className="absolute top-[-10px] left-1/2 -translate-x-1/2 w-[220px] h-auto z-20"/>
+                        <div className="absolute top-0 left-0 w-full h-[80px] bg-red-700" style={{
+                            backgroundImage: `url('https://i.ibb.co/s5M8tff/header-bg.png')`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center bottom'
+                        }}></div>
+                    </div>
 
-            <div className="relative w-full max-w-4xl bg-gradient-to-b from-red-800 to-red-900 border-4 border-yellow-500 rounded-2xl p-3 md:p-4 shadow-2xl shadow-yellow-500/20" style={{boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)'}}>
-                {showBigWin && (
-                    <div className="absolute inset-0 bg-black/70 flex flex-col justify-center items-center z-30 animate-fade-in" onAnimationEnd={() => setShowBigWin(false)}>
-                        <div className="text-center">
-                            <h2 className="text-5xl md:text-7xl font-black font-heading text-yellow-300 animate-pulse" style={{WebkitTextStroke: '2px black', textShadow: '0 0 15px #fef08a'}}>GRANDE GANHO!</h2>
-                            <p className="text-3xl md:text-5xl font-bold text-white mt-2">R$ {winAmount.toFixed(2)}</p>
+                    {/* Reels Area */}
+                    <div className="w-full h-[270px] mt-[125px] flex-shrink-0 relative">
+                        <div className="absolute inset-0 top-1 left-2.5 right-2.5 bottom-1.5 flex justify-center items-center gap-1.5">
+                            {reels.map((reel, reelIndex) => (
+                                <div key={reelIndex} className="w-1/3 h-full overflow-hidden bg-[#f0d8b0] rounded-sm">
+                                     <div className={`h-full w-full flex flex-col transition-transform duration-1000 ease-in-out ${isSpinning ? '-translate-y-2/3' : 'translate-y-0'}`}>
+                                        {[...reel, ...reel, ...reel].map((symbol, symbolIndex) => (
+                                             <div key={`${reelIndex}-${symbolIndex}`} className={`w-full flex-shrink-0 h-1/3 flex items-center justify-center p-1.5 transition-all duration-300 ${isSpinning ? 'blur-[2px]' : ''}`}>
+                                                <img 
+                                                    src={symbol.image} 
+                                                    alt={symbol.name} 
+                                                    className={`w-full h-full object-contain transition-all duration-300 ${isWinning && symbolIndex % 3 === 1 ? 'animate-pulse scale-110' : ''}`} 
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <img src="https://i.ibb.co/KzWymk9/reels-frame.png" className="absolute inset-0 w-full h-full object-fill pointer-events-none" alt="Reels Frame"/>
+                    </div>
+                    
+                    {/* Win Message */}
+                    <div className="w-full h-8 flex-shrink-0 mt-2 flex justify-center items-center">
+                        <div className="relative w-[250px] h-full flex justify-center items-center">
+                             <img src="https://i.ibb.co/Gtnq8s8/win-banner.png" alt="Win Banner" className="absolute inset-0 w-full h-full object-contain"/>
+                             <span className="relative text-[#368b7d] font-bold text-lg -mt-1">{winAmount > 0 ? `Ganho R$ ${formatCurrency(winAmount)}` : "Ganhe até 2500x!"}</span>
                         </div>
                     </div>
-                )}
-                <div className="grid grid-cols-5 gap-2 md:gap-3 mb-3 p-2 bg-red-900/50 rounded-lg" style={{boxShadow: 'inset 0 0 10px rgba(0,0,0,0.7)'}}>
-                    {reels.map((reel, reelIndex) => (
-                        <div key={reelIndex} className="bg-black/20 rounded-lg overflow-hidden h-48 md:h-64">
-                            <div className={`flex flex-col h-full transition-transform duration-1000 ease-out ${isSpinning ? 'blur-sm' : ''}`}>
-                                {isSpinning ? (
-                                    reel.map((_, i) => (
-                                         <div key={i} className="flex-1 flex items-center justify-center text-4xl md:text-6xl animate-pulse">
-                                            {REEL_SYMBOLS[Math.floor(Math.random() * REEL_SYMBOLS.length)].emoji}
-                                        </div>
-                                    ))
-                                ) : (
-                                    reel.map((symbol, i) => (
-                                        <div key={i} className={`flex-1 flex items-center justify-center text-4xl md:text-6xl transition-all duration-300 ${winningCells[i][reelIndex] ? 'transform scale-125 text-yellow-300 animate-pulse' : ''}`} style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}>
-                                            {symbol.emoji}
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
 
-                <div className="bg-slate-900/50 p-2 md:p-3 rounded-xl grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-4 items-center">
-                    <div className="col-span-3 md:col-span-1 flex flex-col items-center justify-center bg-black/40 p-2 rounded-lg border border-gray-600/50">
-                        <span className="text-xs text-gray-400">SALDO</span>
-                        <span className="text-lg md:text-xl font-bold">R$ {balance.toFixed(2)}</span>
-                    </div>
-                    <div className="flex flex-col items-center justify-center bg-black/40 p-2 rounded-lg border border-gray-600/50">
-                        <span className="text-xs text-gray-400">APOSTA</span>
-                        <div className="flex items-center space-x-2">
-                             <button onClick={() => changeBet('down')} disabled={isSpinning} className="text-2xl font-bold text-yellow-400 disabled:text-gray-500">-</button>
-                            <span className="text-lg md:text-xl font-bold">R$ {betAmount.toFixed(2)}</span>
-                            <button onClick={() => changeBet('up')} disabled={isSpinning} className="text-2xl font-bold text-yellow-400 disabled:text-gray-500">+</button>
+                    {/* Info Panel */}
+                    <div className="w-full h-12 flex-shrink-0 mt-2 px-4 flex justify-between items-center text-white">
+                         {/* Balance */}
+                        <div className="bg-[#a41717] w-[130px] h-8 rounded-md border-2 border-[#d4a856] flex items-center justify-center text-sm font-bold shadow-inner shadow-black/20">
+                            {formatCurrency(balance)}
+                        </div>
+                        {/* Bet */}
+                         <div className="bg-[#a41717] w-[110px] h-8 rounded-md border-2 border-[#d4a856] flex items-center justify-center text-sm font-bold shadow-inner shadow-black/20">
+                           {formatCurrency(betAmount)}
+                        </div>
+                        {/* Win */}
+                        <div className="bg-[#a41717] w-[70px] h-8 rounded-md border-2 border-[#d4a856] flex flex-col items-center justify-center shadow-inner shadow-black/20">
+                           <span className="text-[10px] text-yellow-300 -mb-1">GANHO</span>
+                           <span className="text-sm font-bold">{formatCurrency(winAmount)}</span>
                         </div>
                     </div>
-                    <button onClick={handleSpin} disabled={isSpinning || (balance < betAmount && freeSpins === 0)} className="col-span-2 md:col-span-1 h-20 bg-gradient-to-b from-yellow-400 to-amber-600 text-black rounded-full shadow-lg flex flex-col items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 transition active:scale-95 border-2 border-yellow-200">
-                        <span className="text-2xl font-black" style={{textShadow: '1px 1px 2px rgba(0,0,0,0.3)'}}>{freeSpins > 0 ? `${freeSpins}` : 'GIRAR'}</span>
-                        {freeSpins > 0 && <span className="text-xs font-semibold">Grátis</span>}
-                    </button>
-                    <div className="flex flex-col items-center justify-center bg-black/40 p-2 rounded-lg border border-gray-600/50">
-                        <span className="text-xs text-gray-400">GANHOS</span>
-                        <span className={`text-lg md:text-xl font-bold text-green-400 transition-all duration-300 ${winAmount > 0 ? 'animate-pulse' : ''}`}>R$ {winAmount.toFixed(2)}</span>
-                    </div>
-                    <div className="flex flex-col items-center justify-center space-y-1">
-                         <button onClick={() => setIsTurbo(!isTurbo)} className={`w-full text-xs font-bold py-1 rounded transition-all ${isTurbo ? 'bg-yellow-500 text-black' : 'bg-slate-700'}`}>
-                            TURBO {isTurbo ? 'ON' : 'OFF'}
+
+                    {/* Controls */}
+                    <div className="flex-grow w-full px-4 flex justify-between items-center">
+                        <div className="flex flex-col items-center space-y-1">
+                            <button className="w-10 h-10 bg-[#7a1212]/80 rounded-full flex justify-center items-center border-2 border-[#d4a856]">
+                                <img src="https://www.svgrepo.com/show/491503/lightning.svg" className="w-5 h-5 invert" alt="Turbo"/>
+                            </button>
+                            <span className="text-xs font-semibold text-stroke-brown text-white">TURBO</span>
+                        </div>
+                        <button onClick={() => changeBet('down')} disabled={isSpinning || betIndex === 0} className="w-12 h-12 bg-transparent rounded-full flex justify-center items-center bg-center bg-contain bg-no-repeat disabled:opacity-50" style={{backgroundImage: `url('https://i.ibb.co/3k5fTqX/bet-button-bg.png')`}}>
+                            <span className="text-4xl font-bold text-stroke-brown text-white pb-1">-</span>
                         </button>
-                         {multiplier > 1 && <span className="text-center font-bold text-sm bg-blue-600 px-2 py-0.5 rounded-full animate-pulse">{multiplier}X MULTI</span>}
+
+                        <button onClick={handleSpin} disabled={isSpinning || balance < betAmount} className="w-20 h-20 bg-center bg-contain bg-no-repeat disabled:opacity-50 active:scale-95 transition-transform" style={{backgroundImage: `url('https://i.ibb.co/dKBFbhb/spin-button.png')`}}>
+                        </button>
+
+                        <button onClick={() => changeBet('up')} disabled={isSpinning || betIndex === BET_LEVELS.length - 1} className="w-12 h-12 bg-transparent rounded-full flex justify-center items-center bg-center bg-contain bg-no-repeat disabled:opacity-50" style={{backgroundImage: `url('https://i.ibb.co/3k5fTqX/bet-button-bg.png')`}}>
+                            <span className="text-4xl font-bold text-stroke-brown text-white pb-1">+</span>
+                        </button>
+                         <div className="flex flex-col items-center space-y-1">
+                            <button className="w-10 h-10 bg-[#7a1212]/80 rounded-full flex justify-center items-center border-2 border-[#d4a856]">
+                                <img src="https://www.svgrepo.com/show/485121/play.svg" className="w-5 h-5 invert" alt="Auto"/>
+                            </button>
+                            <span className="text-xs font-semibold text-stroke-brown text-white">AUTO</span>
+                        </div>
                     </div>
                 </div>
-                 <div className="text-center text-yellow-200/80 font-semibold text-sm mt-3 h-5">{message}</div>
             </div>
-            <p className="text-center text-xs text-gray-400 mt-4 max-w-4xl">Prêmio máximo: 2500x a aposta. 🐅 é Wild e substitui todos os símbolos exceto 🧧. 3 ou mais 🧧 ativam 10 rodadas grátis com multiplicador progressivo.</p>
-        </div>
+        </>
     );
 };
+
 
 // --- Reusable Components ---
 const Modal: FC<{ isOpen: boolean; onClose: () => void; title: string; children: ReactNode; maxWidth?: string }> = ({ isOpen, onClose, title, children, maxWidth = "max-w-2xl" }) => {
@@ -1485,6 +1476,38 @@ const UsuariosPage = ({ onNavigateToUser }: { onNavigateToUser: (user: User) => 
 };
 
 const UserDetailPage = ({ user, onBack }: { user: User; onBack: () => void; }) => {
+    const [formData, setFormData] = useState<User>(user);
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({...prev, [name]: value}));
+    };
+
+    const handleToggle = (field: 'status' | 'influencer', checked: boolean) => {
+        if (field === 'status') {
+            setFormData(prev => ({ ...prev, status: checked ? 'Ativo' : 'Banido' }));
+        } else {
+            setFormData(prev => ({ ...prev, influencer: checked }));
+        }
+    };
+    
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        setIsSaving(true);
+        setSaveSuccess(false);
+        console.log("Salvando dados do usuário:", formData);
+        // Simula chamada de API
+        setTimeout(() => {
+            setIsSaving(false);
+            setSaveSuccess(true);
+            setTimeout(() => setSaveSuccess(false), 2500);
+            // Em um app real, aqui você chamaria uma função via props
+            // para atualizar a lista de usuários no componente pai.
+        }, 1500);
+    };
+
     return(
         <div className="animate-fade-in">
              <button onClick={onBack} className="flex items-center space-x-2 text-sm font-semibold text-gray-600 hover:text-gray-900 mb-6">
@@ -1494,24 +1517,27 @@ const UserDetailPage = ({ user, onBack }: { user: User; onBack: () => void; }) =
             <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Editar Usuário</h1>
             <p className="text-gray-500 mb-8">Gerencie as informações de {user.email}</p>
             <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Input name="name" label="Nome" value={user.name} onChange={() => {}} />
-                        <Input name="email" label="Email" value={user.email} onChange={() => {}} />
+                        <Input name="name" label="Nome" value={formData.name} onChange={handleChange} />
+                        <Input name="email" label="Email" value={formData.email} onChange={handleChange} />
                     </div>
                     <div className="flex items-center space-x-8 pt-4">
                          <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <ToggleSwitch checked={user.status === 'Ativo'} onChange={() => {}} />
+                            <ToggleSwitch checked={formData.status === 'Ativo'} onChange={(checked) => handleToggle('status', checked)} />
                         </div>
                          <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Influencer</label>
-                            <ToggleSwitch checked={user.influencer} onChange={() => {}} />
+                            <ToggleSwitch checked={formData.influencer} onChange={(checked) => handleToggle('influencer', checked)} />
                         </div>
                     </div>
                      <div className="pt-4 flex items-center space-x-4">
-                        <Button type="submit">Salvar Alterações</Button>
+                        <Button type="submit" disabled={isSaving}>
+                            {isSaving ? <SpinnerIcon /> : 'Salvar Alterações'}
+                        </Button>
                         <Button type="button" className="bg-red-600 hover:bg-red-700">Excluir Usuário</Button>
+                        {saveSuccess && <p className="ml-4 text-green-600 font-semibold animate-fade-in">Usuário salvo com sucesso!</p>}
                     </div>
                 </form>
             </div>
@@ -1639,11 +1665,11 @@ const BannerSlider: FC = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const timeoutRef = useRef<number | null>(null);
 
-    const resetTimeout = () => {
+    const resetTimeout = useCallback(() => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
         }
-    }
+    }, []);
 
     useEffect(() => {
         resetTimeout();
@@ -1654,50 +1680,82 @@ const BannerSlider: FC = () => {
         return () => {
             resetTimeout();
         };
-    }, [currentIndex, banners.length]);
+    }, [currentIndex, banners.length, resetTimeout]);
 
     return (
-        <section className="relative h-[60vh] w-full overflow-hidden">
+        <section className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden">
             <div className="absolute inset-0 flex transition-transform duration-1000 ease-in-out" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
                 {banners.map((banner, index) => (
                     <div key={index} className="relative w-full h-full flex-shrink-0">
                         <img src={banner.img} alt={banner.title} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/60"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/10"></div>
                         <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-6">
-                            <h2 className="text-4xl md:text-6xl font-black font-heading uppercase tracking-wide animate-fade-in" style={{ animationDelay: '0.2s' }}>{banner.title}</h2>
-                            <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-200 animate-fade-in" style={{ animationDelay: '0.5s' }}>{banner.subtitle}</p>
-                            <Button className="mt-8 bg-blue-600 hover:bg-blue-500 text-lg px-8 py-3 transform hover:scale-105 animate-fade-in" style={{ animationDelay: '0.8s' }}>Jogue Agora</Button>
+                            <h2 className="text-4xl md:text-6xl font-black font-heading uppercase tracking-wide animate-fade-in drop-shadow-lg" style={{ animationDelay: '0.2s' }}>{banner.title}</h2>
+                            <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-200 animate-fade-in drop-shadow-md" style={{ animationDelay: '0.5s' }}>{banner.subtitle}</p>
+                            <button className="mt-8 bg-primary hover:bg-primary-dark text-white font-bold text-lg px-8 py-3 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 animate-fade-in flex items-center space-x-2" style={{ animationDelay: '0.8s' }}>
+                                <span>Jogue Agora</span>
+                                <ChevronRightIcon className="w-5 h-5" />
+                            </button>
                         </div>
                     </div>
                 ))}
             </div>
              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex space-x-3">
                 {banners.map((_, index) => (
-                    <button key={index} onClick={() => setCurrentIndex(index)} className={`w-3 h-3 rounded-full transition-all ${currentIndex === index ? 'bg-white scale-125' : 'bg-white/50'}`}></button>
+                    <button key={index} onClick={() => setCurrentIndex(index)} className={`w-3 h-3 rounded-full transition-all ${currentIndex === index ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/75'}`}></button>
                 ))}
             </div>
         </section>
     );
 };
 
+const FeatureSection: FC<{
+    id: string;
+    bgColor: string;
+    title: string;
+    description: string;
+    buttonText: string;
+    imageUrl: string;
+    imageAlt: string;
+    reverse?: boolean;
+}> = ({ id, bgColor, title, description, buttonText, imageUrl, imageAlt, reverse = false }) => (
+    <section id={id} className={`py-20 lg:py-28 ${bgColor} overflow-hidden`}>
+        <div className="container mx-auto px-6">
+            <div className={`flex flex-col md:flex-row items-center gap-12 lg:gap-20 ${reverse ? 'md:flex-row-reverse' : ''}`}>
+                <div className="md:w-1/2 animate-fade-in">
+                    <h2 className="text-3xl lg:text-4xl font-extrabold font-heading text-slate-900">{title}</h2>
+                    <p className="mt-4 text-lg text-gray-600">{description}</p>
+                    <button className="mt-8 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 flex items-center space-x-2">
+                         <span>{buttonText}</span>
+                         <ChevronRightIcon className="w-5 h-5"/>
+                    </button>
+                </div>
+                <div className="md:w-1/2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                    <img src={imageUrl} alt={imageAlt} className="rounded-xl shadow-2xl" />
+                </div>
+            </div>
+        </div>
+    </section>
+);
+
 
 // --- HOME PAGE Component ---
 const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
     
     return (
-        <div className="bg-neutral-dark text-white font-sans">
+        <div className="bg-white text-slate-800 font-sans">
             {/* Header */}
-            <header className="bg-neutral-dark/80 backdrop-blur-lg sticky top-0 z-40">
+            <header className="bg-white/80 backdrop-blur-lg sticky top-0 z-40 border-b border-slate-200">
                 <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-                    <h1 className="text-3xl font-extrabold tracking-wider font-heading">PREMIX</h1>
-                    <nav className="hidden md:flex items-center space-x-6">
-                        <a href="#" className="hover:text-blue-400 transition">Início</a>
-                        <a href="#rifas" className="hover:text-blue-400 transition">Rifas</a>
-                        <a href="#vaquinhas" className="hover:text-blue-400 transition">Vaquinhas</a>
+                    <h1 className="text-3xl font-extrabold tracking-wider font-heading text-slate-900">PREMIX</h1>
+                    <nav className="hidden md:flex items-center space-x-8">
+                        <a href="#" className="text-slate-600 hover:text-primary transition font-medium">Início</a>
+                        <a href="#rifas" className="text-slate-600 hover:text-primary transition font-medium">Rifas</a>
+                        <a href="#vaquinhas" className="text-slate-600 hover:text-primary transition font-medium">Vaquinhas</a>
                     </nav>
                     <div className="flex items-center space-x-3">
-                        <button onClick={onLoginClick} className="bg-gray-700 hover:bg-gray-600 text-sm font-semibold px-4 py-2 rounded-lg transition">Login</button>
-                        <button onClick={onLoginClick} className="bg-blue-600 hover:bg-blue-700 text-sm font-semibold px-4 py-2 rounded-lg transition shadow-lg">Cadastre-se</button>
+                        <button onClick={onLoginClick} className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors">Login</button>
+                        <button onClick={onLoginClick} className="bg-primary hover:bg-primary-dark text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors shadow-sm hover:shadow-md">Cadastre-se</button>
                     </div>
                 </div>
             </header>
@@ -1705,57 +1763,48 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
             <main>
                 <BannerSlider />
                 
-                {/* Features Section */}
-                <section id="vaquinhas" className="py-20 bg-gray-900">
-                    <div className="container mx-auto px-6">
-                        <div className="flex flex-col md:flex-row items-center gap-12">
-                            <div className="md:w-1/2">
-                                <h2 className="text-3xl font-extrabold font-heading">Vaquinhas: Juntos Fazemos a Diferença</h2>
-                                <p className="mt-4 text-lg text-gray-300">Apoie causas importantes ou crie sua própria campanha de arrecadação. Na PREMIX, a força da comunidade transforma vidas. Participe e ajude a construir um futuro melhor.</p>
-                                <Button className="mt-6">Ver Campanhas</Button>
-                            </div>
-                            <div className="md:w-1/2">
-                                <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop" alt="Vaquinhas Comunitárias" className="rounded-xl shadow-2xl shadow-blue-500/10" />
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                <FeatureSection
+                    id="vaquinhas"
+                    bgColor="bg-slate-50"
+                    title="Vaquinhas: Juntos Fazemos a Diferença"
+                    description="Apoie causas importantes ou crie sua própria campanha de arrecadação. Na PREMIX, a força da comunidade transforma vidas. Participe e ajude a construir um futuro melhor."
+                    buttonText="Ver Campanhas"
+                    imageUrl="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop"
+                    imageAlt="Vaquinhas Comunitárias"
+                />
                 
-                 <section id="rifas" className="py-20 bg-neutral-dark">
-                    <div className="container mx-auto px-6">
-                         <div className="flex flex-col md:flex-row-reverse items-center gap-12">
-                            <div className="md:w-1/2">
-                                <h2 className="text-3xl font-extrabold font-heading">Rifas: A Sorte ao Seu Alcance</h2>
-                                <p className="mt-4 text-lg text-gray-300">Sonha com prêmios incríveis? Nossas rifas oferecem a chance de ganhar desde gadgets de última geração até viagens inesquecíveis por um preço muito baixo. Escolha sua sorte!</p>
-                                <Button className="mt-6">Participar das Rifas</Button>
-                            </div>
-                            <div className="md:w-1/2">
-                                <img src="https://images.unsplash.com/photo-1579548122080-c35fd6820ecb?q=80&w=2070&auto=format&fit=crop" alt="Prêmios Incríveis" className="rounded-xl shadow-2xl shadow-blue-500/10" />
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                 <FeatureSection
+                    id="rifas"
+                    bgColor="bg-white"
+                    title="Rifas: A Sorte ao Seu Alcance"
+                    description="Sonha com prêmios incríveis? Nossas rifas oferecem a chance de ganhar desde gadgets de última geração até viagens inesquecíveis por um preço muito baixo. Escolha sua sorte!"
+                    buttonText="Participar das Rifas"
+                    imageUrl="https://images.unsplash.com/photo-1579548122080-c35fd6820ecb?q=80&w=2070&auto=format&fit=crop"
+                    imageAlt="Prêmios Incríveis"
+                    reverse={true}
+                />
                 
-                <section id="cupons" className="py-20 bg-gray-900">
+                <section id="cupons" className="py-20 lg:py-28 bg-slate-50">
                     <div className="container mx-auto px-6 text-center">
-                        <h2 className="text-3xl font-extrabold font-heading">Cupons de Bônus e Ofertas Especiais</h2>
-                        <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-300">Maximize sua diversão com nossos cupons de bônus! Fique de olho nas ofertas exclusivas que preparamos para você ter ainda mais chances de ganhar.</p>
-                         <div className="mt-10 max-w-lg mx-auto bg-neutral-dark p-8 rounded-2xl border border-dashed border-blue-500 shadow-lg">
-                            <p className="font-mono text-2xl tracking-widest text-blue-400">BEMVINDO100</p>
-                            <p className="mt-3 text-lg">Use este cupom no seu primeiro depósito e ganhe <span className="font-bold text-white">100% de bônus!</span></p>
+                        <h2 className="text-3xl lg:text-4xl font-extrabold font-heading text-slate-900 animate-fade-in">Cupons de Bônus e Ofertas Especiais</h2>
+                        <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-600 animate-fade-in" style={{ animationDelay: '0.2s' }}>Maximize sua diversão com nossos cupons de bônus! Fique de olho nas ofertas exclusivas que preparamos para você ter ainda mais chances de ganhar.</p>
+                         <div className="mt-10 max-w-md mx-auto bg-white p-8 rounded-2xl border border-primary/20 shadow-xl transform hover:scale-105 transition-transform duration-300 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                            <CouponIcon className="w-12 h-12 mx-auto text-primary mb-4" />
+                            <p className="font-mono text-3xl tracking-widest text-primary">BEMVINDO100</p>
+                            <p className="mt-3 text-lg text-gray-700">Use este cupom no seu primeiro depósito e ganhe <span className="font-bold text-slate-900">100% de bônus!</span></p>
                         </div>
                     </div>
                 </section>
             </main>
 
              {/* Footer */}
-            <footer className="bg-gray-900 py-12">
-                <div className="container mx-auto px-6 text-center text-gray-400">
-                    <h2 className="text-2xl font-bold font-heading text-white">PREMIX</h2>
-                    <div className="flex justify-center space-x-6 my-6">
-                        <a href="#" className="hover:text-white">Termos de Serviço</a>
-                        <a href="#" className="hover:text-white">Política de Privacidade</a>
-                        <a href="#" className="hover:text-white">Jogo Responsável</a>
+            <footer className="bg-white border-t border-slate-200 py-12">
+                <div className="container mx-auto px-6 text-center text-gray-500">
+                    <h2 className="text-2xl font-bold font-heading text-slate-900">PREMIX</h2>
+                    <div className="flex justify-center space-x-8 my-6">
+                        <a href="#" className="hover:text-primary transition">Termos de Serviço</a>
+                        <a href="#" className="hover:text-primary transition">Política de Privacidade</a>
+                        <a href="#" className="hover:text-primary transition">Jogo Responsável</a>
                     </div>
                     <p className="text-sm">&copy; {new Date().getFullYear()} PREMIX. Todos os direitos reservados.</p>
                 </div>
