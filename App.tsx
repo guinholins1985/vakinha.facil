@@ -111,27 +111,33 @@ type User = { id: number; name: string; email: string; saldo: number; data: stri
 type Wallet = { id: number; usuario: string; saldo: number; saldo_saque: number; bonus: number; saldo_b_rol: number };
 type Deposit = { id: string; user: string; valor: number; tipo: 'pix'; status: 'Aprovado' | 'Pendente'; created_at: string; };
 type Withdrawal = { id: number; nome: string; valor: number; tipo: 'Telefone'; chave_pix: string; status: 'Aprovado' | 'Pendente' | 'Recusado'; data: string; };
+type Gincana = { id: number; name: string; description: string; startDate: string; endDate: string; status: 'Planejada' | 'Em Andamento' | 'Finalizada'; };
+type Pet = { id: number; name: string; species: 'Cachorro' | 'Gato'; breed: string; age: string; gender: 'Macho' | 'Fêmea'; photo: string; description: string; status: 'Disponível' | 'Adotado'; };
+
 
 const navItems: { title?: string; items: NavItem[] }[] = [
     { items: [{ name: "Painel de Controle", icon: DashboardIcon }] },
     {
-        title: "Ação Social",
+        title: "Gestão da Plataforma",
         items: [
-            { name: "Vaquinha Online para Projetos Locais", icon: VaquinhaIcon },
-            { name: "Gincana Solidária", icon: TrophyIcon },
-            { name: "Feira de Adoção de Animais", icon: PawIcon },
-            { name: "Cidade Limpa", icon: SparklesIcon },
-            { name: "Projeto Adote um Espaço", icon: MapPinIcon },
-            { name: "Roda de Conversa sobre Saúde Mental", icon: ChatAlt2Icon },
-            { name: "Projeto Recicla +", icon: RecycleIcon },
-            { name: "Feira de Economia Solidária", icon: ScaleIcon },
-            { name: "Projeto Praia Limpa", icon: SunIcon },
-            { name: "Projeto Rio Vivo", icon: SunIcon },
-            { name: "Projeto Arte com Crianças", icon: PaintBrushIcon },
-            { name: "Projeto Dança para Idosos", icon: UserGroupIcon },
-            { name: "Projeto Yoga na Praça", icon: UserGroupIcon },
-            { name: "Projeto Arte com Idosos", icon: PaintBrushIcon },
-            { name: "Projeto Arte com Adolescentes", icon: PaintBrushIcon },
+            { name: "Usuários", icon: UsersIcon },
+            { name: "Carteiras", icon: WalletIcon },
+            { name: "Depósitos", icon: DepositIcon },
+            { name: "Saques", icon: WithdrawIcon },
+            { name: "Configurações", icon: SettingsIcon },
+            { name: "Gateway de Pagamentos", icon: GatewayIcon },
+            { name: "Definições de Email", icon: EmailIcon },
+            { name: "Customização", icon: CustomizeIcon },
+        ]
+    },
+    {
+        title: "Marketing & Arrecadação",
+        items: [
+            { name: "Rifa Solidária", icon: RifaIcon },
+            { name: "Cupom de Desconto em Parcerias Locais", icon: CouponIcon },
+            { name: "Clube de Vantagens", icon: HeartIcon },
+            { name: "Banco de Talentos Locais", icon: BriefcaseIcon },
+            { name: "Banners", icon: BannersIcon },
         ]
     },
     {
@@ -235,26 +241,23 @@ const navItems: { title?: string; items: NavItem[] }[] = [
         ]
     },
     {
-        title: "Marketing & Arrecadação",
+        title: "Ação Social",
         items: [
-            { name: "Rifa Solidária", icon: RifaIcon },
-            { name: "Cupom de Desconto em Parcerias Locais", icon: CouponIcon },
-            { name: "Clube de Vantagens", icon: HeartIcon },
-            { name: "Banco de Talentos Locais", icon: BriefcaseIcon },
-            { name: "Banners", icon: BannersIcon },
-        ]
-    },
-    {
-        title: "Gestão da Plataforma",
-        items: [
-            { name: "Usuários", icon: UsersIcon },
-            { name: "Carteiras", icon: WalletIcon },
-            { name: "Depósitos", icon: DepositIcon },
-            { name: "Saques", icon: WithdrawIcon },
-            { name: "Configurações", icon: SettingsIcon },
-            { name: "Gateway de Pagamentos", icon: GatewayIcon },
-            { name: "Definições de Email", icon: EmailIcon },
-            { name: "Customização", icon: CustomizeIcon },
+            { name: "Vaquinha Online para Projetos Locais", icon: VaquinhaIcon },
+            { name: "Gincana Solidária", icon: TrophyIcon },
+            { name: "Feira de Adoção de Animais", icon: PawIcon },
+            { name: "Cidade Limpa", icon: SparklesIcon },
+            { name: "Projeto Adote um Espaço", icon: MapPinIcon },
+            { name: "Roda de Conversa sobre Saúde Mental", icon: ChatAlt2Icon },
+            { name: "Projeto Recicla +", icon: RecycleIcon },
+            { name: "Feira de Economia Solidária", icon: ScaleIcon },
+            { name: "Projeto Praia Limpa", icon: SunIcon },
+            { name: "Projeto Rio Vivo", icon: SunIcon },
+            { name: "Projeto Arte com Crianças", icon: PaintBrushIcon },
+            { name: "Projeto Dança para Idosos", icon: UserGroupIcon },
+            { name: "Projeto Yoga na Praça", icon: UserGroupIcon },
+            { name: "Projeto Arte com Idosos", icon: PaintBrushIcon },
+            { name: "Projeto Arte com Adolescentes", icon: PaintBrushIcon },
         ]
     },
 ];
@@ -751,17 +754,66 @@ const CustomizacaoPage = () => {
 };
 
 // --- ARRECADAÇÃO & MARKETING ---
-type Vaquinha = { id: number; title: string; goal: number; current: number; status: 'Ativa' | 'Finalizada' | 'Pendente'; creator: string; endDate: string; };
+type Vaquinha = { id: number; title: string; description: string; goal: number; current: number; status: 'Ativa' | 'Finalizada' | 'Pendente'; creator: string; endDate: string; };
 const VaquinhasPage = () => {
     const [vaquinhas, setVaquinhas] = useState<Vaquinha[]>([
-        { id: 1, title: 'Ajuda para o Abrigo de Animais', goal: 5000, current: 3750, status: 'Ativa', creator: 'Ana Silva', endDate: '2024-08-30' },
-        { id: 2, title: 'Campanha do Agasalho 2024', goal: 2000, current: 2000, status: 'Finalizada', creator: 'Carlos Souza', endDate: '2024-06-15' },
+        { id: 1, title: 'Ajuda para o Abrigo de Animais', description: 'Arrecadação para comprar ração e medicamentos para os animais do abrigo local.', goal: 5000, current: 3750, status: 'Ativa', creator: 'Ana Silva', endDate: '2024-08-30' },
+        { id: 2, title: 'Campanha do Agasalho 2024', description: 'Vamos ajudar a aquecer o inverno de quem mais precisa com doações de agasalhos e cobertores.', goal: 2000, current: 2000, status: 'Finalizada', creator: 'Carlos Souza', endDate: '2024-06-15' },
     ]);
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [editingVaquinha, setEditingVaquinha] = useState<Vaquinha | null>(null);
+    const [formState, setFormState] = useState<Partial<Vaquinha>>({});
+    const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+    const [deletingId, setDeletingId] = useState<number | null>(null);
+
+    const handleCreate = () => {
+        setEditingVaquinha(null);
+        setFormState({ title: '', description: '', goal: 0, creator: '', endDate: '', status: 'Pendente' });
+        setModalOpen(true);
+    };
+
+    const handleEdit = (vaquinha: Vaquinha) => {
+        setEditingVaquinha(vaquinha);
+        setFormState(vaquinha);
+        setModalOpen(true);
+    };
+
+    const handleDelete = (id: number) => {
+        setDeletingId(id);
+        setConfirmModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (deletingId) {
+            setVaquinhas(vaquinhas.filter(v => v.id !== deletingId));
+        }
+        setConfirmModalOpen(false);
+        setDeletingId(null);
+    };
+
+    const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value, type } = e.target;
+        const isNumber = type === 'number';
+        setFormState(prev => ({ ...prev, [name]: isNumber ? parseFloat(value) : value }));
+    };
+
+    const handleFormSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        if (editingVaquinha) {
+            setVaquinhas(vaquinhas.map(v => v.id === editingVaquinha.id ? { ...v, ...formState } as Vaquinha : v));
+        } else {
+            const newVaquinha: Vaquinha = { id: Date.now(), current: 0, ...formState } as Vaquinha;
+            setVaquinhas(prev => [newVaquinha, ...prev]);
+        }
+        setModalOpen(false);
+    };
+
+
     return (
          <div className="animate-fade-in">
             <header className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Vaquinhas</h1>
-                <Button>+ Nova Vaquinha</Button>
+                <Button onClick={handleCreate}>+ Nova Vaquinha</Button>
             </header>
             <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                  <div className="overflow-x-auto">
@@ -792,8 +844,8 @@ const VaquinhasPage = () => {
                                     <td className="px-6 py-4"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${v.status === 'Ativa' ? 'bg-green-100 text-green-800' : v.status === 'Finalizada' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}`}>{v.status}</span></td>
                                     <td className="px-6 py-4">{new Date(v.endDate).toLocaleDateString()}</td>
                                     <td className="px-6 py-4 text-center">
-                                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon/></button>
-                                        <button className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon/></button>
+                                        <button onClick={() => handleEdit(v)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon/></button>
+                                        <button onClick={() => handleDelete(v.id)} className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon/></button>
                                     </td>
                                 </tr>
                             ))}
@@ -801,6 +853,29 @@ const VaquinhasPage = () => {
                     </table>
                  </div>
             </main>
+            <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} title={editingVaquinha ? "Editar Vaquinha" : "Criar Nova Vaquinha"}>
+                <form onSubmit={handleFormSubmit} className="space-y-6">
+                    <Input name="title" label="Título" value={formState.title || ''} onChange={handleFormChange} required />
+                    <Textarea name="description" label="Descrição" value={formState.description || ''} onChange={handleFormChange} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input name="goal" label="Meta (R$)" type="number" step="0.01" value={formState.goal || ''} onChange={handleFormChange} required />
+                        <Input name="creator" label="Criador" value={formState.creator || ''} onChange={handleFormChange} required />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input name="endDate" label="Data de Encerramento" type="date" value={formState.endDate || ''} onChange={handleFormChange} required />
+                        <Select name="status" label="Status" value={formState.status || 'Pendente'} onChange={handleFormChange} required>
+                            <option value="Pendente">Pendente</option>
+                            <option value="Ativa">Ativa</option>
+                            <option value="Finalizada">Finalizada</option>
+                        </Select>
+                    </div>
+                    <footer className="flex justify-end items-center pt-4 space-x-4">
+                        <Button type="button" onClick={() => setModalOpen(false)} className="bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</Button>
+                        <Button type="submit">Salvar</Button>
+                    </footer>
+                </form>
+            </Modal>
+            <ConfirmationModal isOpen={isConfirmModalOpen} onClose={() => setConfirmModalOpen(false)} onConfirm={confirmDelete} title="Confirmar Exclusão" message="Tem certeza que deseja excluir esta vaquinha? Esta ação não pode ser desfeita."/>
         </div>
     );
 };
@@ -1199,10 +1274,210 @@ const UserDetailPage = ({ user, onBack }: { user: User; onBack: () => void; }) =
     )
 }
 
+
+const GincanaSolidariaPage = () => {
+    const [gincanas, setGincanas] = useState<Gincana[]>([
+        { id: 1, name: 'Gincana de Inverno 2024', description: 'Coleta de agasalhos e alimentos para a comunidade carente.', startDate: '2024-07-01', endDate: '2024-07-15', status: 'Em Andamento'},
+        { id: 2, name: 'Primavera Solidária', description: 'Revitalização da praça central com plantio de mudas e limpeza.', startDate: '2024-09-20', endDate: '2024-09-22', status: 'Planejada'},
+        { id: 3, name: 'Páscoa Feliz', description: 'Arrecadação e distribuição de chocolates para crianças.', startDate: '2024-03-25', endDate: '2024-04-01', status: 'Finalizada'},
+    ]);
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [editingGincana, setEditingGincana] = useState<Gincana | null>(null);
+    const [formState, setFormState] = useState<Partial<Gincana>>({});
+
+    const statusColors: Record<Gincana['status'], string> = {
+        'Planejada': 'bg-yellow-100 text-yellow-800',
+        'Em Andamento': 'bg-blue-100 text-blue-800',
+        'Finalizada': 'bg-green-100 text-green-800',
+    };
+
+    const handleCreate = () => {
+        setEditingGincana(null);
+        setFormState({ name: '', description: '', startDate: '', endDate: '', status: 'Planejada' });
+        setModalOpen(true);
+    };
+
+    const handleEdit = (gincana: Gincana) => {
+        setEditingGincana(gincana);
+        setFormState(gincana);
+        setModalOpen(true);
+    };
+    
+    const handleDelete = (id: number) => {
+        setGincanas(gincanas.filter(g => g.id !== id));
+    };
+
+    const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormState(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleFormSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        if (editingGincana) {
+            setGincanas(gincanas.map(g => g.id === editingGincana.id ? { ...g, ...formState } as Gincana : g));
+        } else {
+            const newGincana: Gincana = { id: Date.now(), ...formState } as Gincana;
+            setGincanas(prev => [newGincana, ...prev]);
+        }
+        setModalOpen(false);
+    };
+
+    return (
+        <div className="animate-fade-in">
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Gincana Solidária</h1>
+                <Button onClick={handleCreate}>+ Nova Gincana</Button>
+            </header>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {gincanas.map(gincana => (
+                    <div key={gincana.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                        <div>
+                            <div className="flex justify-between items-start">
+                                <h3 className="text-lg font-bold text-gray-800">{gincana.name}</h3>
+                                <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${statusColors[gincana.status]}`}>{gincana.status}</span>
+                            </div>
+                            <p className="text-sm text-gray-500 mt-2">{gincana.description}</p>
+                            <p className="text-xs text-gray-400 mt-4">
+                                {new Date(gincana.startDate).toLocaleDateString()} - {new Date(gincana.endDate).toLocaleDateString()}
+                            </p>
+                        </div>
+                        <div className="mt-4 flex justify-end space-x-2">
+                            <button onClick={() => handleEdit(gincana)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon /></button>
+                            <button onClick={() => handleDelete(gincana.id)} className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon /></button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+             <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} title={editingGincana ? "Editar Gincana" : "Criar Nova Gincana"}>
+                <form onSubmit={handleFormSubmit} className="space-y-6">
+                    <Input name="name" label="Nome da Gincana" value={formState.name || ''} onChange={handleFormChange} required />
+                    <Textarea name="description" label="Descrição" value={formState.description || ''} onChange={handleFormChange} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input name="startDate" label="Data de Início" type="date" value={formState.startDate || ''} onChange={handleFormChange} required />
+                        <Input name="endDate" label="Data de Término" type="date" value={formState.endDate || ''} onChange={handleFormChange} required />
+                    </div>
+                    <Select name="status" label="Status" value={formState.status || 'Planejada'} onChange={handleFormChange} required>
+                        <option value="Planejada">Planejada</option>
+                        <option value="Em Andamento">Em Andamento</option>
+                        <option value="Finalizada">Finalizada</option>
+                    </Select>
+                    <footer className="flex justify-end items-center pt-4 space-x-4">
+                        <Button type="button" onClick={() => setModalOpen(false)} className="bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</Button>
+                        <Button type="submit">Salvar</Button>
+                    </footer>
+                </form>
+            </Modal>
+        </div>
+    );
+};
+
+const FeiraAdocaoPage = () => {
+    const [pets, setPets] = useState<Pet[]>([
+        { id: 1, name: 'Bolinha', species: 'Cachorro', breed: 'Vira-lata', age: '2 anos', gender: 'Macho', photo: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?q=80&w=2070&auto=format&fit=crop', description: 'Um cãozinho muito dócil e brincalhão.', status: 'Disponível' },
+        { id: 2, name: 'Frajola', species: 'Gato', breed: 'Siamês', age: '1 ano', gender: 'Fêmea', photo: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?q=80&w=2080&auto=format&fit=crop', description: 'Uma gatinha calma e carinhosa, ótima companhia.', status: 'Disponível' },
+        { id: 3, name: 'Rex', species: 'Cachorro', breed: 'Labrador', age: '3 anos', gender: 'Macho', photo: 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?q=80&w=1970&auto=format&fit=crop', description: 'Um labrador cheio de energia, adora correr e brincar.', status: 'Adotado' },
+    ]);
+     const [isModalOpen, setModalOpen] = useState(false);
+    const [editingPet, setEditingPet] = useState<Pet | null>(null);
+    const [formState, setFormState] = useState<Partial<Pet>>({});
+
+     const handleCreate = () => {
+        setEditingPet(null);
+        setFormState({ name: '', species: 'Cachorro', breed: '', age: '', gender: 'Macho', photo: '', description: '', status: 'Disponível' });
+        setModalOpen(true);
+    };
+
+    const handleEdit = (pet: Pet) => {
+        setEditingPet(pet);
+        setFormState(pet);
+        setModalOpen(true);
+    };
+
+    const handleDelete = (id: number) => {
+        setPets(pets.filter(p => p.id !== id));
+    };
+    
+    const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormState(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleFormSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        if (editingPet) {
+            setPets(pets.map(p => p.id === editingPet.id ? { ...p, ...formState } as Pet : p));
+        } else {
+            const newPet: Pet = { id: Date.now(), ...formState } as Pet;
+            setPets(prev => [newPet, ...prev]);
+        }
+        setModalOpen(false);
+    };
+
+
+    return (
+        <div className="animate-fade-in">
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Feira de Adoção de Animais</h1>
+                <Button onClick={handleCreate}>+ Cadastrar Animal</Button>
+            </header>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {pets.map(pet => (
+                    <div key={pet.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+                        <img src={pet.photo} alt={pet.name} className="w-full h-48 object-cover"/>
+                        <div className="p-4 flex flex-col flex-grow">
+                            <div className="flex justify-between items-start">
+                                <h3 className="text-lg font-bold text-gray-800">{pet.name}</h3>
+                                <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${pet.status === 'Disponível' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700'}`}>{pet.status}</span>
+                            </div>
+                            <p className="text-sm text-gray-500 mt-1">{pet.breed}, {pet.age}</p>
+                            <p className="text-sm text-gray-600 mt-3 flex-grow">{pet.description}</p>
+                            <div className="mt-4 pt-4 border-t border-gray-200 flex justify-end space-x-2">
+                                <button onClick={() => handleEdit(pet)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon /></button>
+                                <button onClick={() => handleDelete(pet.id)} className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon /></button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} title={editingPet ? "Editar Animal" : "Cadastrar Novo Animal"}>
+                <form onSubmit={handleFormSubmit} className="space-y-6">
+                    <Input name="name" label="Nome do Animal" value={formState.name || ''} onChange={handleFormChange} required />
+                    <Input name="photo" label="URL da Foto" value={formState.photo || ''} onChange={handleFormChange} required />
+                    <Textarea name="description" label="Descrição" value={formState.description || ''} onChange={handleFormChange} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input name="breed" label="Raça" value={formState.breed || ''} onChange={handleFormChange} required />
+                        <Input name="age" label="Idade" value={formState.age || ''} onChange={handleFormChange} required />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <Select name="species" label="Espécie" value={formState.species || 'Cachorro'} onChange={handleFormChange} required>
+                            <option>Cachorro</option>
+                            <option>Gato</option>
+                        </Select>
+                        <Select name="gender" label="Gênero" value={formState.gender || 'Macho'} onChange={handleFormChange} required>
+                            <option>Macho</option>
+                            <option>Fêmea</option>
+                        </Select>
+                        <Select name="status" label="Status" value={formState.status || 'Disponível'} onChange={handleFormChange} required>
+                            <option>Disponível</option>
+                            <option>Adotado</option>
+                        </Select>
+                    </div>
+                    <footer className="flex justify-end items-center pt-4 space-x-4">
+                        <Button type="button" onClick={() => setModalOpen(false)} className="bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</Button>
+                        <Button type="submit">Salvar</Button>
+                    </footer>
+                </form>
+            </Modal>
+        </div>
+    )
+}
+
+
 // --- Admin Panel Component ---
 const AdminPanel: FC<{ onLogout: () => void }> = ({ onLogout }) => {
     const [activePage, setActivePage] = useState<Page>('Painel de Controle');
-    const [openMenus, setOpenMenus] = useState<string[]>(['Ação Social', 'Cultura & Arte', 'Educação & Oficinas', 'Sustentabilidade & Trocas', 'Clubes & Lazer', 'Marketing & Arrecadação', 'Gestão da Plataforma']);
+    const [openMenus, setOpenMenus] = useState<string[]>(['Gestão da Plataforma', 'Marketing & Arrecadação', 'Cultura & Arte', 'Educação & Oficinas', 'Sustentabilidade & Trocas', 'Clubes & Lazer', 'Ação Social']);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     const handleMenuToggle = (title: string) => {
@@ -1236,6 +1511,9 @@ const AdminPanel: FC<{ onLogout: () => void }> = ({ onLogout }) => {
             case 'Carteiras': return <CarteirasPage />;
             case 'Depósitos': return <DepositosPage />;
             case 'Saques': return <SaquesPage />;
+            // Ação Social
+            case 'Gincana Solidária': return <GincanaSolidariaPage />;
+            case 'Feira de Adoção de Animais': return <FeiraAdocaoPage />;
             // Novas Páginas (com placeholders)
             default: return <PlaceholderPage title={activePage} />;
         }
