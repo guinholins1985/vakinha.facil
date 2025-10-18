@@ -1,4 +1,4 @@
-import React, { useState, FC, ReactNode, ChangeEvent, FormEvent, useEffect, useRef } from 'react';
+import React, { useState, FC, ReactNode, ChangeEvent, FormEvent, useEffect, useRef, useCallback } from 'react';
 
 // --- Ícones SVG ---
 const DashboardIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>;
@@ -98,6 +98,196 @@ const navItems: { title?: string; items: NavItem[] }[] = [
         ]
     },
 ];
+
+// --- JOGO DO TIGRINHO (NOVA VERSÃO) ---
+const GoldenTigerSlot: FC<{ onLogout: () => void }> = ({ onLogout }) => {
+    type Symbol = { emoji: string; payout: { 3: number; 4: number; 5: number; }; name: string; };
+    const SYMBOLS: Record<string, Symbol> = {
+        TIGER: { emoji: '🐅', payout: { 3: 50, 4: 200, 5: 1000 }, name: 'Wild' },
+        ENVELOPE: { emoji: '🧧', payout: { 3: 0, 4: 0, 5: 0 }, name: 'Scatter' },
+        INGOT: { emoji: '💰', payout: { 3: 20, 4: 100, 5: 500 }, name: 'Ingot' },
+        FORTUNE: { emoji: '福', payout: { 3: 15, 4: 75, 5: 250 }, name: 'Fortune' },
+        TANGERINE: { emoji: '🍊', payout: { 3: 10, 4: 50, 5: 120 }, name: 'Tangerine' },
+        A: { emoji: 'A', payout: { 3: 5, 4: 20, 5: 100 }, name: 'A' },
+        K: { emoji: 'K', payout: { 3: 4, 4: 15, 5: 80 }, name: 'K' },
+        Q: { emoji: 'Q', payout: { 3: 3, 4: 10, 5: 60 }, name: 'Q' },
+        J: { emoji: 'J', payout: { 3: 2, 4: 8, 5: 40 }, name: 'J' },
+    };
+    const REEL_SYMBOLS = Object.values(SYMBOLS);
+    const PAYLINES = [
+        [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4]], [[1, 0], [1, 1], [1, 2], [1, 3], [1, 4]], [[2, 0], [2, 1], [2, 2], [2, 3], [2, 4]],
+        [[0, 0], [1, 1], [2, 2], [1, 3], [0, 4]], [[2, 0], [1, 1], [0, 2], [1, 3], [2, 4]], [[0, 0], [0, 1], [1, 2], [0, 3], [0, 4]],
+        [[2, 0], [2, 1], [1, 2], [2, 3], [2, 4]], [[0, 1], [1, 2], [2, 3], [1, 4], [0, 3]], [[2, 1], [1, 2], [0, 3], [1, 4], [2, 3]],
+    ];
+    const BET_AMOUNTS = [0.25, 0.5, 1, 2, 5, 10, 25, 50, 100, 250];
+
+    const generateInitialReels = () => Array(5).fill(null).map(() => Array(3).fill(null).map(() => REEL_SYMBOLS[Math.floor(Math.random() * REEL_SYMBOLS.length)]));
+    const createEmptyWinningCells = () => Array(3).fill(null).map(() => Array(5).fill(false));
+
+    const [reels, setReels] = useState<Symbol[][]>(generateInitialReels());
+    const [balance, setBalance] = useState(1000);
+    const [betIndex, setBetIndex] = useState(2);
+    const [winAmount, setWinAmount] = useState(0);
+    const [isSpinning, setIsSpinning] = useState(false);
+    const [message, setMessage] = useState('Boa sorte!');
+    const [freeSpins, setFreeSpins] = useState(0);
+    const [multiplier, setMultiplier] = useState(1);
+    const [isTurbo, setIsTurbo] = useState(false);
+    const [winningCells, setWinningCells] = useState<boolean[][]>(createEmptyWinningCells());
+    const [showBigWin, setShowBigWin] = useState(false);
+
+    const betAmount = BET_AMOUNTS[betIndex];
+
+    const handleSpin = useCallback(() => {
+        if (isSpinning || (balance < betAmount && freeSpins === 0)) return;
+
+        setIsSpinning(true);
+        setWinAmount(0);
+        setWinningCells(createEmptyWinningCells());
+        setShowBigWin(false);
+
+        if (freeSpins > 0) {
+            setFreeSpins(prev => prev - 1);
+            setMultiplier(prev => Math.min(prev + 1, 10));
+        } else {
+            setBalance(prev => prev - betAmount);
+            setMultiplier(1);
+        }
+
+        const newReels = Array(5).fill(null).map(() => Array(3).fill(null).map(() => REEL_SYMBOLS[Math.floor(Math.random() * REEL_SYMBOLS.length)]));
+
+        setTimeout(() => {
+            setReels(newReels);
+
+            let totalWin = 0;
+            const newWinningCells = createEmptyWinningCells();
+
+            PAYLINES.forEach(line => {
+                const lineSymbols = line.map(([row, col]) => newReels[col][row]);
+                let firstSymbol = lineSymbols.find(s => s.name !== 'Wild') || SYMBOLS.TIGER;
+                
+                let matchCount = 0;
+                for (const symbol of lineSymbols) {
+                    if (symbol.name === firstSymbol.name || symbol.name === 'Wild') matchCount++;
+                    else break;
+                }
+
+                if (matchCount >= 3) {
+                    const payout = (firstSymbol.payout[matchCount as keyof typeof firstSymbol.payout] || 0) * betAmount;
+                    totalWin += payout;
+                    for (let i = 0; i < matchCount; i++) {
+                        const [row, col] = line[i];
+                        newWinningCells[row][col] = true;
+                    }
+                }
+            });
+            setWinningCells(newWinningCells);
+
+            const scatterCount = newReels.flat().filter(s => s.name === 'Scatter').length;
+            if (scatterCount >= 3) {
+                const newFreeSpins = 10;
+                setFreeSpins(prev => prev + newFreeSpins);
+                setMessage(`${scatterCount} Scatters! ${newFreeSpins} Rodadas Grátis!`);
+            }
+
+            if (totalWin > 0) {
+                const finalWin = totalWin * multiplier;
+                setWinAmount(finalWin);
+                setBalance(prev => prev + finalWin);
+                setMessage(`GANHOU R$ ${finalWin.toFixed(2)}!`);
+                if (finalWin >= betAmount * 10) setShowBigWin(true);
+            } else if (scatterCount < 3) {
+                setMessage(freeSpins > 1 ? `Gire de novo! ${freeSpins - 1} restantes.` : 'Tente novamente!');
+            }
+            
+            if (freeSpins <= 1 && multiplier > 1) setMultiplier(1);
+            
+            setIsSpinning(false);
+        }, isTurbo ? 300 : 2000);
+
+    }, [balance, betAmount, freeSpins, isSpinning, isTurbo, multiplier]);
+
+    const changeBet = (direction: 'up' | 'down') => {
+        if (isSpinning) return;
+        setBetIndex(prev => {
+            const newIndex = direction === 'up' ? prev + 1 : prev - 1;
+            return Math.max(0, Math.min(newIndex, BET_AMOUNTS.length - 1));
+        });
+    };
+    
+    return (
+        <div className="min-h-screen bg-slate-900 text-white font-sans flex flex-col items-center justify-center p-2 sm:p-4 overflow-hidden" style={{backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23991b1b' fill-opacity='0.2'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h4v1h-4v5h4v1h-4v5h4v1h-4v5h4v1h-4v5h4v1h-4v5h4v1h-4v5h4v1h-4v5h4v1h-4v5h-1v-5h-5v5h-1v-5h-5v5h-1v-5h-5v5h-1v-5h-5v5h-1v-5h-5v5h-1v-5h-5v5h-1v-5h-5v5H0v-1h4v-5H0v-1h4v-5H0v-1h4v-5H0v-1h4v-5H0v-1h4v-5H0v-1h4v-5H0v-1h4v-5H0v-1h4V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5h5V0h1v5zm-1 5h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-5 6v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm5 6h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-5 6v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm5 6h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-5 6v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm5 6h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-5 6v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm5 6h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-6 0h-5v5h5v-5zm-5 6v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5zm6 0v5h5v-5h-5z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`}}>
+             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+            <header className="relative w-full max-w-5xl flex justify-between items-center mb-2 z-10">
+                <h1 className="text-3xl md:text-5xl font-black font-heading text-yellow-400" style={{ textShadow: '3px 3px 6px #000' }}>Fortuna do Tigre Dourado</h1>
+                <button onClick={onLogout} className="bg-red-800/70 hover:bg-red-700/90 text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-300 flex items-center space-x-2 border border-red-500/50 shadow-lg"><LogoutIcon/> <span>Sair</span></button>
+            </header>
+
+            <div className="relative w-full max-w-4xl bg-gradient-to-b from-red-800 to-red-900 border-4 border-yellow-500 rounded-2xl p-3 md:p-4 shadow-2xl shadow-yellow-500/20" style={{boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)'}}>
+                {showBigWin && (
+                    <div className="absolute inset-0 bg-black/70 flex flex-col justify-center items-center z-30 animate-fade-in" onAnimationEnd={() => setShowBigWin(false)}>
+                        <div className="text-center">
+                            <h2 className="text-5xl md:text-7xl font-black font-heading text-yellow-300 animate-pulse" style={{WebkitTextStroke: '2px black', textShadow: '0 0 15px #fef08a'}}>GRANDE GANHO!</h2>
+                            <p className="text-3xl md:text-5xl font-bold text-white mt-2">R$ {winAmount.toFixed(2)}</p>
+                        </div>
+                    </div>
+                )}
+                <div className="grid grid-cols-5 gap-2 md:gap-3 mb-3 p-2 bg-red-900/50 rounded-lg" style={{boxShadow: 'inset 0 0 10px rgba(0,0,0,0.7)'}}>
+                    {reels.map((reel, reelIndex) => (
+                        <div key={reelIndex} className="bg-black/20 rounded-lg overflow-hidden h-48 md:h-64">
+                            <div className={`flex flex-col h-full transition-transform duration-1000 ease-out ${isSpinning ? 'blur-sm' : ''}`}>
+                                {isSpinning ? (
+                                    reel.map((_, i) => (
+                                         <div key={i} className="flex-1 flex items-center justify-center text-4xl md:text-6xl animate-pulse">
+                                            {REEL_SYMBOLS[Math.floor(Math.random() * REEL_SYMBOLS.length)].emoji}
+                                        </div>
+                                    ))
+                                ) : (
+                                    reel.map((symbol, i) => (
+                                        <div key={i} className={`flex-1 flex items-center justify-center text-4xl md:text-6xl transition-all duration-300 ${winningCells[i][reelIndex] ? 'transform scale-125 text-yellow-300 animate-pulse' : ''}`} style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}>
+                                            {symbol.emoji}
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="bg-slate-900/50 p-2 md:p-3 rounded-xl grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-4 items-center">
+                    <div className="col-span-3 md:col-span-1 flex flex-col items-center justify-center bg-black/40 p-2 rounded-lg border border-gray-600/50">
+                        <span className="text-xs text-gray-400">SALDO</span>
+                        <span className="text-lg md:text-xl font-bold">R$ {balance.toFixed(2)}</span>
+                    </div>
+                    <div className="flex flex-col items-center justify-center bg-black/40 p-2 rounded-lg border border-gray-600/50">
+                        <span className="text-xs text-gray-400">APOSTA</span>
+                        <div className="flex items-center space-x-2">
+                             <button onClick={() => changeBet('down')} disabled={isSpinning} className="text-2xl font-bold text-yellow-400 disabled:text-gray-500">-</button>
+                            <span className="text-lg md:text-xl font-bold">R$ {betAmount.toFixed(2)}</span>
+                            <button onClick={() => changeBet('up')} disabled={isSpinning} className="text-2xl font-bold text-yellow-400 disabled:text-gray-500">+</button>
+                        </div>
+                    </div>
+                    <button onClick={handleSpin} disabled={isSpinning || (balance < betAmount && freeSpins === 0)} className="col-span-2 md:col-span-1 h-20 bg-gradient-to-b from-yellow-400 to-amber-600 text-black rounded-full shadow-lg flex flex-col items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 transition active:scale-95 border-2 border-yellow-200">
+                        <span className="text-2xl font-black" style={{textShadow: '1px 1px 2px rgba(0,0,0,0.3)'}}>{freeSpins > 0 ? `${freeSpins}` : 'GIRAR'}</span>
+                        {freeSpins > 0 && <span className="text-xs font-semibold">Grátis</span>}
+                    </button>
+                    <div className="flex flex-col items-center justify-center bg-black/40 p-2 rounded-lg border border-gray-600/50">
+                        <span className="text-xs text-gray-400">GANHOS</span>
+                        <span className={`text-lg md:text-xl font-bold text-green-400 transition-all duration-300 ${winAmount > 0 ? 'animate-pulse' : ''}`}>R$ {winAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex flex-col items-center justify-center space-y-1">
+                         <button onClick={() => setIsTurbo(!isTurbo)} className={`w-full text-xs font-bold py-1 rounded transition-all ${isTurbo ? 'bg-yellow-500 text-black' : 'bg-slate-700'}`}>
+                            TURBO {isTurbo ? 'ON' : 'OFF'}
+                        </button>
+                         {multiplier > 1 && <span className="text-center font-bold text-sm bg-blue-600 px-2 py-0.5 rounded-full animate-pulse">{multiplier}X MULTI</span>}
+                    </div>
+                </div>
+                 <div className="text-center text-yellow-200/80 font-semibold text-sm mt-3 h-5">{message}</div>
+            </div>
+            <p className="text-center text-xs text-gray-400 mt-4 max-w-4xl">Prêmio máximo: 2500x a aposta. 🐅 é Wild e substitui todos os símbolos exceto 🧧. 3 ou mais 🧧 ativam 10 rodadas grátis com multiplicador progressivo.</p>
+        </div>
+    );
+};
 
 // --- Reusable Components ---
 const Modal: FC<{ isOpen: boolean; onClose: () => void; title: string; children: ReactNode; maxWidth?: string }> = ({ isOpen, onClose, title, children, maxWidth = "max-w-2xl" }) => {
@@ -1464,7 +1654,7 @@ const BannerSlider: FC = () => {
         return () => {
             resetTimeout();
         };
-    }, [currentIndex]);
+    }, [currentIndex, banners.length]);
 
     return (
         <section className="relative h-[60vh] w-full overflow-hidden">
@@ -1493,15 +1683,6 @@ const BannerSlider: FC = () => {
 
 // --- HOME PAGE Component ---
 const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
-
-    const popularGames = [
-        { id: 4, cover: 'https://i.ibb.co/R9jB5zP/mines.png', provider: 'PGSOFT', name: 'Mines' },
-        { id: 5, cover: 'https://i.ibb.co/8Y4y7Q2/fortune-tiger.png', provider: 'PGSOFT', name: 'Fortune Tiger' },
-        { id: 6, cover: 'https://i.ibb.co/pwnL9D4/fortune-ox.png', provider: 'PGSOFT', name: 'Fortune Ox' },
-        { id: 1, cover: 'https://i.ibb.co/kXPT29V/zeus-vs-hades.png', provider: 'PRAGMATIC', name: 'Zeus vs Hades' },
-        { id: 2, cover: 'https://i.ibb.co/3cqd1qH/fortune-snake.png', provider: 'PGSOFT', name: 'Fortune Snake' },
-        { id: 3, cover: 'https://i.ibb.co/tZ5Z0Gb/plinko.png', provider: 'PGSOFT', name: 'Plinko' },
-    ];
     
     return (
         <div className="bg-neutral-dark text-white font-sans">
@@ -1511,7 +1692,6 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
                     <h1 className="text-3xl font-extrabold tracking-wider font-heading">PREMIX</h1>
                     <nav className="hidden md:flex items-center space-x-6">
                         <a href="#" className="hover:text-blue-400 transition">Início</a>
-                        <a href="#jogos" className="hover:text-blue-400 transition">Jogos</a>
                         <a href="#rifas" className="hover:text-blue-400 transition">Rifas</a>
                         <a href="#vaquinhas" className="hover:text-blue-400 transition">Vaquinhas</a>
                     </nav>
@@ -1566,26 +1746,6 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
                         </div>
                     </div>
                 </section>
-
-                {/* Popular Games Section */}
-                <section id="jogos" className="py-20 bg-neutral-dark">
-                    <div className="container mx-auto px-6">
-                        <h3 className="text-3xl font-extrabold text-center font-heading mb-12">Jogos Mais Populares</h3>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-                            {popularGames.map(game => (
-                                <div key={game.id} className="group cursor-pointer">
-                                    <div className="aspect-w-1 aspect-h-1 rounded-xl overflow-hidden transform group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-blue-600/20 transition-all duration-300">
-                                        <img src={game.cover} alt={game.name} className="w-full h-full object-cover" />
-                                    </div>
-                                    <div className="mt-3">
-                                        <p className="font-bold truncate">{game.name}</p>
-                                        <p className="text-sm text-gray-400">{game.provider}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
             </main>
 
              {/* Footer */}
@@ -1604,7 +1764,7 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
     );
 }
 
-const LoginModal: FC<{ isOpen: boolean; onClose: () => void; onAdminLogin: () => void; }> = ({ isOpen, onClose, onAdminLogin }) => {
+const LoginModal: FC<{ isOpen: boolean; onClose: () => void; onAdminLogin: () => void; onPlayerLogin: () => void; }> = ({ isOpen, onClose, onAdminLogin, onPlayerLogin }) => {
     const [isRegister, setIsRegister] = useState(false);
     const [role, setRole] = useState<'Administrador' | 'Gestor' | 'Usuário' | 'Jogos'>('Usuário');
     const [username, setUsername] = useState('');
@@ -1621,6 +1781,8 @@ const LoginModal: FC<{ isOpen: boolean; onClose: () => void; onAdminLogin: () =>
             } else {
                 setError('Credenciais de administrador inválidas.');
             }
+        } else if (role === 'Usuário' || role === 'Jogos') {
+            onPlayerLogin();
         } else {
             // Lógica para outros perfis
             alert(`Login para ${role} bem-sucedido (simulação).`);
@@ -1660,27 +1822,43 @@ const LoginModal: FC<{ isOpen: boolean; onClose: () => void; onAdminLogin: () =>
 // --- Main App Component ---
 const App = () => {
     const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+    const [isPlayerAuthenticated, setIsPlayerAuthenticated] = useState(false);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     
     const handleAdminLogin = () => {
         setIsAdminAuthenticated(true);
         setIsLoginModalOpen(false);
     };
+    
+    const handlePlayerLogin = () => {
+        setIsPlayerAuthenticated(true);
+        setIsLoginModalOpen(false);
+    };
 
     const handleLogout = () => {
         setIsAdminAuthenticated(false);
+        setIsPlayerAuthenticated(false);
     };
 
-    if (!isAdminAuthenticated) {
-        return (
-            <>
-                <HomePage onLoginClick={() => setIsLoginModalOpen(true)} />
-                <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} onAdminLogin={handleAdminLogin} />
-            </>
-        )
+    if (isPlayerAuthenticated) {
+        return <GoldenTigerSlot onLogout={handleLogout} />;
+    }
+
+    if (isAdminAuthenticated) {
+        return <AdminPanel onLogout={handleLogout} />;
     }
     
-    return <AdminPanel onLogout={handleLogout} />;
+    return (
+        <>
+            <HomePage onLoginClick={() => setIsLoginModalOpen(true)} />
+            <LoginModal 
+                isOpen={isLoginModalOpen} 
+                onClose={() => setIsLoginModalOpen(false)} 
+                onAdminLogin={handleAdminLogin}
+                onPlayerLogin={handlePlayerLogin}
+            />
+        </>
+    )
 };
 
 export default App;
