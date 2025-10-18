@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // --- Icon Components (using inline SVG for simplicity and no extra files) ---
 const ServiceIcon = () => (
@@ -33,7 +33,6 @@ const ClassifiedsIcon = () => (
 );
 
 // --- Feature Card Component ---
-// FIX: Explicitly type FeatureCard as a React.FC to allow React-specific props like 'key' to be passed without causing a TypeScript error.
 const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description: string; delay: string; }> = ({ icon, title, description, delay }) => (
   <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in" style={{ animationDelay: delay }}>
     <div className="flex items-center justify-center h-16 w-16 rounded-full bg-primary-DEFAULT mb-4">
@@ -46,12 +45,21 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description:
 );
 
 // --- Admin Login Modal Component ---
-const LoginModal = ({ onLogin, onClose, error, setUsername, setPassword }) => (
+interface LoginModalProps {
+  onLogin: (e: React.FormEvent<HTMLFormElement>) => void;
+  onClose: () => void;
+  error: string;
+  setUsername: React.Dispatch<React.SetStateAction<string>>;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
+  isLoading: boolean;
+}
+
+const LoginModal: React.FC<LoginModalProps> = ({ onLogin, onClose, error, setUsername, setPassword, isLoading }) => (
   <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fade-in">
     <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-sm m-4">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold font-heading text-neutral-dark">Acesso Restrito</h2>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">&times;</button>
+        <button onClick={onClose} className="text-gray-500 hover:text-gray-800 transition-colors text-3xl font-light" aria-label="Fechar">&times;</button>
       </div>
       <form onSubmit={onLogin}>
         <div className="mb-4">
@@ -62,6 +70,7 @@ const LoginModal = ({ onLogin, onClose, error, setUsername, setPassword }) => (
             onChange={(e) => setUsername(e.target.value)}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-DEFAULT"
             required
+            autoComplete="username"
           />
         </div>
         <div className="mb-6">
@@ -72,11 +81,22 @@ const LoginModal = ({ onLogin, onClose, error, setUsername, setPassword }) => (
             onChange={(e) => setPassword(e.target.value)}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-DEFAULT"
             required
+            autoComplete="current-password"
           />
         </div>
         {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
-        <button type="submit" className="w-full bg-primary-DEFAULT hover:bg-primary-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors">
-          Entrar
+        <button type="submit" className="w-full bg-primary-DEFAULT hover:bg-primary-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors flex items-center justify-center disabled:opacity-75" disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Entrando...
+            </>
+          ) : (
+            'Entrar'
+          )}
         </button>
       </form>
     </div>
@@ -84,10 +104,18 @@ const LoginModal = ({ onLogin, onClose, error, setUsername, setPassword }) => (
 );
 
 // --- Admin Panel Component ---
-const AdminPanel = () => (
+interface AdminPanelProps {
+    onLogout: () => void;
+}
+const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => (
     <section className="py-20 animate-fade-in">
         <div className="container mx-auto px-6">
-            <h1 className="text-3xl md:text-4xl font-heading font-bold text-neutral-dark mb-8">Painel Administrativo</h1>
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl md:text-4xl font-heading font-bold text-neutral-dark">Painel Administrativo</h1>
+                <button onClick={onLogout} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors cursor-pointer text-sm font-bold">
+                    Sair
+                </button>
+            </div>
             <div className="bg-white p-8 rounded-lg shadow-md">
                 <h2 className="text-2xl font-heading font-bold text-neutral-dark mb-4">Bem-vindo, Admin!</h2>
                 <p className="text-gray-600 mb-6">Esta é a sua área de gerenciamento. Aqui você poderá adicionar, editar e remover conteúdos da plataforma REDELOCAL.</p>
@@ -111,22 +139,38 @@ function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (username === 'ad' && password === 'a123') {
+  useEffect(() => {
+    const storedIsAdmin = localStorage.getItem('isAdmin');
+    if (storedIsAdmin === 'true') {
       setIsAdmin(true);
-      setShowLoginModal(false);
-      setUsername('');
-      setPassword('');
-      setLoginError('');
-    } else {
-      setLoginError('Usuário ou senha inválidos.');
     }
+  }, []);
+
+  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setLoginError('');
+
+    setTimeout(() => {
+      if (username === 'ad' && password === 'a123') {
+        setIsAdmin(true);
+        localStorage.setItem('isAdmin', 'true');
+        setShowLoginModal(false);
+        setUsername('');
+        setPassword('');
+        setLoginError('');
+      } else {
+        setLoginError('Usuário ou senha inválidos.');
+      }
+      setIsLoading(false);
+    }, 1000);
   };
 
   const handleLogout = () => {
     setIsAdmin(false);
+    localStorage.removeItem('isAdmin');
   };
 
   const mvpFeatures = [
@@ -149,10 +193,10 @@ function App() {
           <div className="hidden md:flex space-x-6 items-center">
             {isAdmin ? (
               <>
-                <a href="#" className="font-bold text-primary-DEFAULT transition-colors">Painel Admin</a>
-                <a href="#" onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors cursor-pointer">
+                <span className="font-bold text-neutral-dark">Painel Admin</span>
+                <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors cursor-pointer">
                   Sair
-                </a>
+                </button>
               </>
             ) : (
               <>
@@ -160,9 +204,9 @@ function App() {
                 <a href="#" className="text-gray-600 hover:text-primary-DEFAULT transition-colors">Serviços</a>
                 <a href="#" className="text-gray-600 hover:text-primary-DEFAULT transition-colors">Eventos</a>
                 <a href="#" className="text-gray-600 hover:text-primary-DEFAULT transition-colors">Sobre</a>
-                <a href="#" onClick={() => setShowLoginModal(true)} className="bg-primary-DEFAULT text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors cursor-pointer">
+                <button onClick={() => setShowLoginModal(true)} className="bg-primary-DEFAULT text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors cursor-pointer">
                   Login
-                </a>
+                </button>
               </>
             )}
           </div>
@@ -179,7 +223,7 @@ function App() {
       {/* Main Content */}
       <main>
         {isAdmin ? (
-          <AdminPanel />
+          <AdminPanel onLogout={handleLogout} />
         ) : (
           <>
             {/* Hero Section */}
@@ -245,6 +289,7 @@ function App() {
             error={loginError}
             setUsername={setUsername}
             setPassword={setPassword}
+            isLoading={isLoading}
         />
       )}
     </div>
