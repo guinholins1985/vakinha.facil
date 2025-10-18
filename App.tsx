@@ -1,9 +1,8 @@
-import React, { useState, FC, ReactNode, ChangeEvent, FormEvent, useEffect, useRef, useCallback } from 'react';
+import React, { useState, FC, ReactNode, ChangeEvent, FormEvent, useEffect, useCallback, useRef } from 'react';
 
 // --- Ícones SVG ---
 const DashboardIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>;
 const SettingsIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
-const ApiIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>;
 const GatewayIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>;
 const EmailIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>;
 const BannersIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" /></svg>;
@@ -35,74 +34,12 @@ const CheckCircleIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) 
 const XCircleIcon: FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg>;
 const ArrowLeftIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>;
 
-// --- NOVOS ÍCONES (Biblioteca Expandida) ---
-const HeartIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>;
-const BookOpenIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
-const PuzzleIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" /></svg>;
-const PawIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor"><path d="M18.226 12.634a1.013 1.013 0 00-1.428-.225 1 1 0 00-.223 1.424 5.992 5.992 0 01-3.66 2.052 6.002 6.002 0 01-7.82-5.467 6.002 6.002 0 013.633-4.825 1 1 0 00.5-1.928 8.003 8.003 0 00-5.485 7.15 8.003 8.003 0 007.842 7.12 8.016 8.016 0 005.14-2.527 1 1 0 00.001-1.204z" /><path d="M12.5 5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM4 8a2 2 0 100-4 2 2 0 000 4zm11 1a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" /></svg>;
-const GlobeIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h10a2 2 0 002-2v-1a2 2 0 012-2h1.945M7.704 4.125a9.025 9.025 0 0111.438 0M7.704 4.125L3 11m4.704-6.875L7 11m11-6.875L21 11m-4.704-6.875L17 11M12 21v-4m0 0H9m3 0h3" /></svg>;
-const LeafIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
-const TrophyIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110 18 9 9 0 010-18z" /></svg>;
-const RefreshIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h5M20 20v-5h-5M4 4l1.5 1.5A9 9 0 0012 21a9 9 0 009-9M20 20l-1.5-1.5A9 9 0 0012 3a9 9 0 00-9 9" /></svg>;
-const ChatAlt2Icon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V7a2 2 0 012-2h1m6 4h.01M13 12h.01M10 12h.01M7 12h.01" /></svg>;
-const MusicNoteIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 6l12-3" /></svg>;
-const WrenchIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
-const SparklesIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>;
-const ShirtIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 8H7a2 2 0 01-2-2v-4a2 2 0 012-2h10a2 2 0 012 2v4a2 2 0 01-2 2h-3" /></svg>;
-const PaintBrushIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" /></svg>;
-const AcademicCapIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 14l9-5-9-5-9 5 9 5z" /><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0v6" /></svg>;
-const LibraryIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" /></svg>;
-const BriefcaseIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>;
-const StorefrontIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>;
-const CameraIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
-const FilmIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" /></svg>;
-const MapPinIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
-const BeakerIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547a2 2 0 00-.547 1.806l.443 2.216a2 2 0 002.103 1.57l3.996-.799a2 2 0 011.806.547l.318.158a2 2 0 001.806.547l3.996-.799a2 2 0 002.103-1.57l.443-2.216a2 2 0 00-.547-1.806zM15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
-const RecycleIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 1V6a4 4 0 00-4-4H5a4 4 0 00-4 4v12a4 4 0 004 4h14a4 4 0 004-4v-3m-4-2l-4-4m0 0l-4 4m4-4v12" /></svg>;
-const LightBulbIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>;
-const ScaleIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>;
-const ScissorsIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M14.121 14.121L19 19m-7.071-7.071L19 5m-7.071 7.071L5 19m7.071-7.071L5 5" /><circle cx="7" cy="7" r="2" /><circle cx="17" cy="17" r="2" /></svg>;
-const BicycleIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M14 10a2 2 0 11-4 0 2 2 0 014 0zM4 14a2 2 0 100-4 2 2 0 000 4z" /><path strokeLinecap="round" strokeLinejoin="round" d="M14 10l2 4M4 14h6m-4-4l2-4" /><path d="M12 21a9 9 0 009-9H3a9 9 0 009 9z" /></svg>;
-const SpeakerphoneIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-2.104 9.168-5.188" /></svg>;
-const CakeIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 15.24a8.952 8.952 0 01-3.834 2.21 8.952 8.952 0 01-7.166 0 8.952 8.952 0 01-7.166 0A8.952 8.952 0 013 15.24M21 15.24V14a2 2 0 00-2-2H5a2 2 0 00-2 2v1.24M3 15.24a8.952 8.952 0 013.834 2.21m10.332 0a8.952 8.952 0 013.834-2.21M12 12V3m0 9a2 2 0 00-2 2v2a2 2 0 104 0v-2a2 2 0 00-2-2z" /></svg>;
-const HomeIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>;
-const FeatherIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M19 3v4m2-2h-4m-3 10v6m-2-2h4m-1-14a8 8 0 00-8 8c0 4.418 3.582 8 8 8s8-3.582 8-8-3.582-8-8-8z" /></svg>;
-const FireIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7.014A15.957 15.957 0 0112 2c2.972 0 5.432 1.047 7.014 3.014C21.458 7.014 22 10 22 12c0 3.982-3.958 7-8.943 7-1.42 0-2.8-.23-4.114-.657z" /></svg>;
-const ColorSwatchIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343a2 2 0 01-1.414-.586l-2.828-2.828a2 2 0 00-1.414-.586H7m0 0a2 2 0 012 2v2a2 2 0 01-2 2H5" /></svg>;
-const UserGroupIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>;
-const SunIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>;
-
 // --- App Structure & Types ---
 type Page =
-    | 'Painel de Controle' | 'Configurações' | 'API de jogos' | 'Gateway de Pagamentos'
+    | 'Painel de Controle' | 'Configurações' | 'Gateway de Pagamentos'
     | 'Definições de Email' | 'Banners' | 'Customização' | 'Usuários' | 'Carteiras'
     | 'Depósitos' | 'Saques'
-    // 100 Novas Páginas
-    | 'Rifa Solidária' | 'Vaquinha Online para Projetos Locais' | 'Cupom de Desconto em Parcerias Locais' | 'Clube de Vantagens'
-    | 'Feira de Troca de Livros' | 'Oficina de Brinquedos Reciclados' | 'Feira de Adoção de Animais' | 'Curso de Idiomas Comunitário'
-    | 'Horta Comunitária' | 'Gincana Solidária' | 'Troca de Sementes' | 'Café com Causa' | 'Música nas Praças' | 'Oficina de Consertos'
-    | 'Cidade Limpa' | 'Feira de Troca de Roupas' | 'Cultura na Rua' | 'Clube de Jogos de Tabuleiro' | 'Hortas Escolares'
-    | 'Biblioteca Comunitária' | 'Banco de Talentos Locais' | 'Feira de Artesanato Local' | 'Projeto Memória Local' | 'Gincana Cultural'
-    | 'Troca de Brinquedos' | 'Cine Debate Comunitário' | 'Projeto Adote um Espaço' | 'Roda de Conversa sobre Saúde Mental'
-    | 'Feira de Tecnologia e Inovação' | 'Clube de Leitura' | 'Projeto Recicla +' | 'Feira de Troca de Plantas'
-    | 'Oficina de Culinária Saudável' | 'Projeto Música para Todos' | 'Feira de Economia Solidária' | 'Clube de Fotografia'
-    | 'Projeto Praça Viva' | 'Feira de Troca de Games' | 'Oficina de Costura Criativa' | 'Projeto Bicicleta para Todos'
-    | 'Feira de Livros Infantis' | 'Clube de Dança' | 'Projeto Arte na Rua' | 'Feira de Troca de Discos e Vinis'
-    | 'Oficina de Marcenaria' | 'Projeto Jardim Sensorial' | 'Feira de Troca de Equipamentos Esportivos' | 'Clube de Xadrez'
-    | 'Projeto Contadores de Histórias' | 'Feira de Troca de Livros Didáticos' | 'Oficina de Pintura' | 'Projeto Cidadania Ativa'
-    | 'Feira de Troca de Instrumentos Musicais' | 'Clube de Poesia' | 'Projeto Cinema ao Ar Livre' | 'Feira de Troca de Utensílios Domésticos'
-    | 'Oficina de Cerâmica' | 'Projeto Praia Limpa' | 'Feira de Troca de Decoração' | 'Clube de Meditação' | 'Projeto Teatro Comunitário'
-    | 'Feira de Troca de Eletrodomésticos' | 'Oficina de Escrita Criativa' | 'Projeto Rio Vivo' | 'Feira de Troca de Móveis'
-    | 'Clube de Jogos de Cartas' | 'Projeto Arte com Crianças' | 'Feira de Troca de Acessórios' | 'Oficina de Origami'
-    | 'Projeto Horta Urbana' | 'Feira de Troca de Livros de Autoajuda' | 'Clube de Debates' | 'Projeto Música nas Escolas'
-    | 'Feira de Troca de Brinquedos Educativos' | 'Oficina de Customização de Roupas' | 'Projeto Praça do Conhecimento'
-    | 'Feira de Troca de Livros de Ficção' | 'Clube de Canto Coral' | 'Projeto Arte com Recicláveis' | 'Feira de Troca de Livros de Não Ficção'
-    | 'Oficina de Maquiagem' | 'Projeto Dança para Idosos' | 'Feira de Troca de Livros de Poesia' | 'Clube de Jogos de RPG'
-    | 'Projeto Contação de Histórias para Adultos' | 'Feira de Troca de Livros de Viagem' | 'Oficina de Desenho'
-    | 'Projeto Yoga na Praça' | 'Feira de Troca de Livros de Ciência' | 'Clube de Escrita de Roteiros' | 'Projeto Arte com Idosos'
-    | 'Feira de Troca de Livros de História' | 'Oficina de Criação de Podcasts' | 'Projeto Coro Infantil'
-    | 'Clube de Jogos de Tabuleiro Estratégicos' | 'Projeto Arte com Adolescentes' | 'Feira de Troca de Livros de Gastronomia'
-    | 'Oficina de Criação de Histórias em Quadrinhos' | 'Projeto Coral Comunitário';
+    | 'Rifa Solidária' | 'Vaquinha Online para Projetos Locais' | 'Cupom de Desconto em Parcerias Locais';
 
 type NavItem = { name: Page; icon: FC<{ className?: string }> };
 
@@ -111,13 +48,6 @@ type User = { id: number; name: string; email: string; saldo: number; data: stri
 type Wallet = { id: number; usuario: string; saldo: number; saldo_saque: number; bonus: number; saldo_b_rol: number };
 type Deposit = { id: string; user: string; valor: number; tipo: 'pix'; status: 'Aprovado' | 'Pendente'; created_at: string; };
 type Withdrawal = { id: number; nome: string; valor: number; tipo: 'Telefone'; chave_pix: string; status: 'Aprovado' | 'Pendente' | 'Recusado'; data: string; };
-type Gincana = { id: number; name: string; description: string; startDate: string; endDate: string; status: 'Planejada' | 'Em Andamento' | 'Finalizada'; };
-type Pet = { id: number; name: string; species: 'Cachorro' | 'Gato'; breed: string; age: string; gender: 'Macho' | 'Fêmea'; photo: string; description: string; status: 'Disponível' | 'Adotado'; };
-type CidadeLimpaEvent = { id: number; name: string; location: string; date: string; organizer: string; volunteers: number; status: 'Planejado' | 'Em Andamento' | 'Concluído'; };
-type AdotadoEspaco = { id: number; name: string; location: string; adopter: string; adoptionDate: string; status: 'Disponível' | 'Adotado' | 'Manutenção Pendente'; photo: string; };
-type RodaDeConversa = { id: number; topic: string; facilitator: string; date: string; location: string; maxParticipants: number; currentParticipants: number; };
-type RecycleCampaign = { id: number; title: string; materialType: string; goalKg: number; currentKg: number; startDate: string; endDate: string; status: 'Ativa' | 'Finalizada'; };
-
 
 const navItems: { title?: string; items: NavItem[] }[] = [
     { items: [{ name: "Painel de Controle", icon: DashboardIcon }] },
@@ -137,131 +67,10 @@ const navItems: { title?: string; items: NavItem[] }[] = [
     {
         title: "Marketing & Arrecadação",
         items: [
+            { name: "Vaquinha Online para Projetos Locais", icon: VaquinhaIcon },
             { name: "Rifa Solidária", icon: RifaIcon },
             { name: "Cupom de Desconto em Parcerias Locais", icon: CouponIcon },
-            { name: "Clube de Vantagens", icon: HeartIcon },
-            { name: "Banco de Talentos Locais", icon: BriefcaseIcon },
             { name: "Banners", icon: BannersIcon },
-        ]
-    },
-    {
-        title: "Cultura & Arte",
-        items: [
-            { name: "Música nas Praças", icon: MusicNoteIcon },
-            { name: "Cultura na Rua", icon: PaintBrushIcon },
-            { name: "Biblioteca Comunitária", icon: LibraryIcon },
-            { name: "Feira de Artesanato Local", icon: StorefrontIcon },
-            { name: "Projeto Memória Local", icon: CameraIcon },
-            { name: "Cine Debate Comunitário", icon: FilmIcon },
-            { name: "Clube de Leitura", icon: BookOpenIcon },
-            { name: "Clube de Fotografia", icon: CameraIcon },
-            { name: "Projeto Praça Viva", icon: HomeIcon },
-            { name: "Projeto Arte na Rua", icon: PaintBrushIcon },
-            { name: "Projeto Contadores de Histórias", icon: ChatAlt2Icon },
-            { name: "Clube de Poesia", icon: FeatherIcon },
-            { name: "Projeto Cinema ao Ar Livre", icon: FilmIcon },
-            { name: "Projeto Teatro Comunitário", icon: UserGroupIcon },
-            { name: "Clube de Debates", icon: ChatAlt2Icon },
-            { name: "Clube de Canto Coral", icon: MusicNoteIcon },
-            { name: "Projeto Contação de Histórias para Adultos", icon: ChatAlt2Icon },
-            { name: "Clube de Escrita de Roteiros", icon: FeatherIcon },
-            { name: "Projeto Coro Infantil", icon: MusicNoteIcon },
-            { name: "Projeto Coral Comunitário", icon: MusicNoteIcon },
-        ]
-    },
-    {
-        title: "Educação & Oficinas",
-        items: [
-            { name: "Oficina de Brinquedos Reciclados", icon: PuzzleIcon },
-            { name: "Curso de Idiomas Comunitário", icon: GlobeIcon },
-            { name: "Oficina de Consertos", icon: WrenchIcon },
-            { name: "Hortas Escolares", icon: AcademicCapIcon },
-            { name: "Oficina de Culinária Saudável", icon: CakeIcon },
-            { name: "Projeto Música para Todos", icon: MusicNoteIcon },
-            { name: "Oficina de Costura Criativa", icon: ScissorsIcon },
-            { name: "Oficina de Marcenaria", icon: WrenchIcon },
-            { name: "Oficina de Pintura", icon: PaintBrushIcon },
-            { name: "Projeto Cidadania Ativa", icon: UserGroupIcon },
-            { name: "Oficina de Cerâmica", icon: ColorSwatchIcon },
-            { name: "Oficina de Escrita Criativa", icon: FeatherIcon },
-            { name: "Oficina de Origami", icon: ColorSwatchIcon },
-            { name: "Projeto Música nas Escolas", icon: MusicNoteIcon },
-            { name: "Oficina de Customização de Roupas", icon: ScissorsIcon },
-            { name: "Projeto Praça do Conhecimento", icon: AcademicCapIcon },
-            { name: "Projeto Arte com Recicláveis", icon: RecycleIcon },
-            { name: "Oficina de Maquiagem", icon: SparklesIcon },
-            { name: "Oficina de Desenho", icon: PencilIcon },
-            { name: "Oficina de Criação de Podcasts", icon: SpeakerphoneIcon },
-            { name: "Oficina de Criação de Histórias em Quadrinhos", icon: BookOpenIcon },
-        ]
-    },
-    {
-        title: "Sustentabilidade & Trocas",
-        items: [
-            { name: "Feira de Troca de Livros", icon: BookOpenIcon },
-            { name: "Horta Comunitária", icon: LeafIcon },
-            { name: "Troca de Sementes", icon: RefreshIcon },
-            { name: "Feira de Troca de Roupas", icon: ShirtIcon },
-            { name: "Troca de Brinquedos", icon: PuzzleIcon },
-            { name: "Feira de Troca de Plantas", icon: LeafIcon },
-            { name: "Feira de Troca de Games", icon: PuzzleIcon },
-            { name: "Feira de Livros Infantis", icon: BookOpenIcon },
-            { name: "Feira de Troca de Discos e Vinis", icon: MusicNoteIcon },
-            { name: "Projeto Jardim Sensorial", icon: LeafIcon },
-            { name: "Feira de Troca de Equipamentos Esportivos", icon: TrophyIcon },
-            { name: "Feira de Troca de Livros Didáticos", icon: BookOpenIcon },
-            { name: "Feira de Troca de Instrumentos Musicais", icon: MusicNoteIcon },
-            { name: "Feira de Troca de Utensílios Domésticos", icon: HomeIcon },
-            { name: "Feira de Troca de Decoração", icon: HomeIcon },
-            { name: "Feira de Troca de Eletrodomésticos", icon: HomeIcon },
-            { name: "Feira de Troca de Móveis", icon: HomeIcon },
-            { name: "Feira de Troca de Acessórios", icon: SparklesIcon },
-            { name: "Projeto Horta Urbana", icon: LeafIcon },
-            { name: "Feira de Troca de Livros de Autoajuda", icon: BookOpenIcon },
-            { name: "Feira de Troca de Brinquedos Educativos", icon: PuzzleIcon },
-            { name: "Feira de Troca de Livros de Ficção", icon: BookOpenIcon },
-            { name: "Feira de Troca de Livros de Não Ficção", icon: BookOpenIcon },
-            { name: "Feira de Troca de Livros de Poesia", icon: BookOpenIcon },
-            { name: "Feira de Troca de Livros de Viagem", icon: BookOpenIcon },
-            { name: "Feira de Troca de Livros de Ciência", icon: BeakerIcon },
-            { name: "Feira de Troca de Livros de História", icon: BookOpenIcon },
-            { name: "Feira de Troca de Livros de Gastronomia", icon: CakeIcon },
-        ]
-    },
-    {
-        title: "Clubes & Lazer",
-        items: [
-            { name: "Café com Causa", icon: ChatAlt2Icon },
-            { name: "Clube de Jogos de Tabuleiro", icon: PuzzleIcon },
-            { name: "Gincana Cultural", icon: TrophyIcon },
-            { name: "Feira de Tecnologia e Inovação", icon: LightBulbIcon },
-            { name: "Clube de Dança", icon: MusicNoteIcon },
-            { name: "Clube de Xadrez", icon: PuzzleIcon },
-            { name: "Clube de Meditação", icon: UserGroupIcon },
-            { name: "Clube de Jogos de Cartas", icon: PuzzleIcon },
-            { name: "Clube de Jogos de RPG", icon: PuzzleIcon },
-            { name: "Clube de Jogos de Tabuleiro Estratégicos", icon: PuzzleIcon },
-            { name: "Projeto Bicicleta para Todos", icon: BicycleIcon },
-        ]
-    },
-    {
-        title: "Ação Social",
-        items: [
-            { name: "Vaquinha Online para Projetos Locais", icon: VaquinhaIcon },
-            { name: "Gincana Solidária", icon: TrophyIcon },
-            { name: "Feira de Adoção de Animais", icon: PawIcon },
-            { name: "Cidade Limpa", icon: SparklesIcon },
-            { name: "Projeto Adote um Espaço", icon: MapPinIcon },
-            { name: "Roda de Conversa sobre Saúde Mental", icon: ChatAlt2Icon },
-            { name: "Projeto Recicla +", icon: RecycleIcon },
-            { name: "Feira de Economia Solidária", icon: ScaleIcon },
-            { name: "Projeto Praia Limpa", icon: SunIcon },
-            { name: "Projeto Rio Vivo", icon: SunIcon },
-            { name: "Projeto Arte com Crianças", icon: PaintBrushIcon },
-            { name: "Projeto Dança para Idosos", icon: UserGroupIcon },
-            { name: "Projeto Yoga na Praça", icon: UserGroupIcon },
-            { name: "Projeto Arte com Idosos", icon: PaintBrushIcon },
-            { name: "Projeto Arte com Adolescentes", icon: PaintBrushIcon },
         ]
     },
 ];
@@ -479,7 +288,6 @@ const DashboardPage = () => (
             <StatCard title="Usuários Ativos" value="352" subtext="+12 esta semana" trend="up" icon={<UsersIcon className="text-gray-600" />} />
             <StatCard title="Vaquinhas Ativas" value="5" subtext="R$ 1.250 arrecadados" trend="up" icon={<VaquinhaIcon className="text-gray-600" />} />
             <StatCard title="Rifas em Andamento" value="8" subtext="2.300 bilhetes vendidos" trend="up" icon={<RifaIcon className="text-gray-600" />} />
-            <StatCard title="Novos Voluntários" value="15" subtext="+3 no último mês" trend="up" icon={<HeartIcon className="text-gray-600" />} />
             <StatCard title="Depósitos" value="R$ 10,00" subtext="Total de Depósitos" trend="up" icon={<DepositIcon className="text-gray-600" />} />
             <StatCard title="Saques" value="R$ 0,00" subtext="Total de saques" trend="up" icon={<WithdrawIcon className="text-gray-600" />} />
             <StatCard title="Saldo dos Usuários" value="R$ 0,00" subtext="Saldo dos usuários" trend="up" icon={<UsersIcon className="text-gray-600" />} />
@@ -1278,463 +1086,10 @@ const UserDetailPage = ({ user, onBack }: { user: User; onBack: () => void; }) =
     )
 }
 
-
-const GincanaSolidariaPage = () => {
-    const [gincanas, setGincanas] = useState<Gincana[]>([
-        { id: 1, name: 'Gincana de Inverno 2024', description: 'Coleta de agasalhos e alimentos para a comunidade carente.', startDate: '2024-07-01', endDate: '2024-07-15', status: 'Em Andamento'},
-        { id: 2, name: 'Primavera Solidária', description: 'Revitalização da praça central com plantio de mudas e limpeza.', startDate: '2024-09-20', endDate: '2024-09-22', status: 'Planejada'},
-        { id: 3, name: 'Páscoa Feliz', description: 'Arrecadação e distribuição de chocolates para crianças.', startDate: '2024-03-25', endDate: '2024-04-01', status: 'Finalizada'},
-    ]);
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [editingGincana, setEditingGincana] = useState<Gincana | null>(null);
-    const [formState, setFormState] = useState<Partial<Gincana>>({});
-
-    const statusColors: Record<Gincana['status'], string> = {
-        'Planejada': 'bg-yellow-100 text-yellow-800',
-        'Em Andamento': 'bg-blue-100 text-blue-800',
-        'Finalizada': 'bg-green-100 text-green-800',
-    };
-
-    const handleCreate = () => {
-        setEditingGincana(null);
-        setFormState({ name: '', description: '', startDate: '', endDate: '', status: 'Planejada' });
-        setModalOpen(true);
-    };
-
-    const handleEdit = (gincana: Gincana) => {
-        setEditingGincana(gincana);
-        setFormState(gincana);
-        setModalOpen(true);
-    };
-    
-    const handleDelete = (id: number) => {
-        setGincanas(gincanas.filter(g => g.id !== id));
-    };
-
-    const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormState(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleFormSubmit = (e: FormEvent) => {
-        e.preventDefault();
-        if (editingGincana) {
-            setGincanas(gincanas.map(g => g.id === editingGincana.id ? { ...g, ...formState } as Gincana : g));
-        } else {
-            const newGincana: Gincana = { id: Date.now(), ...formState } as Gincana;
-            setGincanas(prev => [newGincana, ...prev]);
-        }
-        setModalOpen(false);
-    };
-
-    return (
-        <div className="animate-fade-in">
-            <header className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Gincana Solidária</h1>
-                <Button onClick={handleCreate}>+ Nova Gincana</Button>
-            </header>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {gincanas.map(gincana => (
-                    <div key={gincana.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between">
-                        <div>
-                            <div className="flex justify-between items-start">
-                                <h3 className="text-lg font-bold text-gray-800">{gincana.name}</h3>
-                                <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${statusColors[gincana.status]}`}>{gincana.status}</span>
-                            </div>
-                            <p className="text-sm text-gray-500 mt-2">{gincana.description}</p>
-                            <p className="text-xs text-gray-400 mt-4">
-                                {new Date(gincana.startDate).toLocaleDateString()} - {new Date(gincana.endDate).toLocaleDateString()}
-                            </p>
-                        </div>
-                        <div className="mt-4 flex justify-end space-x-2">
-                            <button onClick={() => handleEdit(gincana)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon /></button>
-                            <button onClick={() => handleDelete(gincana.id)} className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon /></button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-             <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} title={editingGincana ? "Editar Gincana" : "Criar Nova Gincana"}>
-                <form onSubmit={handleFormSubmit} className="space-y-6">
-                    <Input name="name" label="Nome da Gincana" value={formState.name || ''} onChange={handleFormChange} required />
-                    <Textarea name="description" label="Descrição" value={formState.description || ''} onChange={handleFormChange} />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Input name="startDate" label="Data de Início" type="date" value={formState.startDate || ''} onChange={handleFormChange} required />
-                        <Input name="endDate" label="Data de Término" type="date" value={formState.endDate || ''} onChange={handleFormChange} required />
-                    </div>
-                    <Select name="status" label="Status" value={formState.status || 'Planejada'} onChange={handleFormChange} required>
-                        <option value="Planejada">Planejada</option>
-                        <option value="Em Andamento">Em Andamento</option>
-                        <option value="Finalizada">Finalizada</option>
-                    </Select>
-                    <footer className="flex justify-end items-center pt-4 space-x-4">
-                        <Button type="button" onClick={() => setModalOpen(false)} className="bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</Button>
-                        <Button type="submit">Salvar</Button>
-                    </footer>
-                </form>
-            </Modal>
-        </div>
-    );
-};
-
-const FeiraAdocaoPage = () => {
-    const [pets, setPets] = useState<Pet[]>([
-        { id: 1, name: 'Bolinha', species: 'Cachorro', breed: 'Vira-lata', age: '2 anos', gender: 'Macho', photo: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?q=80&w=2070&auto=format&fit=crop', description: 'Um cãozinho muito dócil e brincalhão.', status: 'Disponível' },
-        { id: 2, name: 'Frajola', species: 'Gato', breed: 'Siamês', age: '1 ano', gender: 'Fêmea', photo: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?q=80&w=2080&auto=format&fit=crop', description: 'Uma gatinha calma e carinhosa, ótima companhia.', status: 'Disponível' },
-        { id: 3, name: 'Rex', species: 'Cachorro', breed: 'Labrador', age: '3 anos', gender: 'Macho', photo: 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?q=80&w=1970&auto=format&fit=crop', description: 'Um labrador cheio de energia, adora correr e brincar.', status: 'Adotado' },
-    ]);
-     const [isModalOpen, setModalOpen] = useState(false);
-    const [editingPet, setEditingPet] = useState<Pet | null>(null);
-    const [formState, setFormState] = useState<Partial<Pet>>({});
-
-     const handleCreate = () => {
-        setEditingPet(null);
-        setFormState({ name: '', species: 'Cachorro', breed: '', age: '', gender: 'Macho', photo: '', description: '', status: 'Disponível' });
-        setModalOpen(true);
-    };
-
-    const handleEdit = (pet: Pet) => {
-        setEditingPet(pet);
-        setFormState(pet);
-        setModalOpen(true);
-    };
-
-    const handleDelete = (id: number) => {
-        setPets(pets.filter(p => p.id !== id));
-    };
-    
-    const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormState(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleFormSubmit = (e: FormEvent) => {
-        e.preventDefault();
-        if (editingPet) {
-            setPets(pets.map(p => p.id === editingPet.id ? { ...p, ...formState } as Pet : p));
-        } else {
-            const newPet: Pet = { id: Date.now(), ...formState } as Pet;
-            setPets(prev => [newPet, ...prev]);
-        }
-        setModalOpen(false);
-    };
-
-
-    return (
-        <div className="animate-fade-in">
-            <header className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Feira de Adoção de Animais</h1>
-                <Button onClick={handleCreate}>+ Cadastrar Animal</Button>
-            </header>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {pets.map(pet => (
-                    <div key={pet.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
-                        <img src={pet.photo} alt={pet.name} className="w-full h-48 object-cover"/>
-                        <div className="p-4 flex flex-col flex-grow">
-                            <div className="flex justify-between items-start">
-                                <h3 className="text-lg font-bold text-gray-800">{pet.name}</h3>
-                                <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${pet.status === 'Disponível' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700'}`}>{pet.status}</span>
-                            </div>
-                            <p className="text-sm text-gray-500 mt-1">{pet.breed}, {pet.age}</p>
-                            <p className="text-sm text-gray-600 mt-3 flex-grow">{pet.description}</p>
-                            <div className="mt-4 pt-4 border-t border-gray-200 flex justify-end space-x-2">
-                                <button onClick={() => handleEdit(pet)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon /></button>
-                                <button onClick={() => handleDelete(pet.id)} className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon /></button>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-            <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} title={editingPet ? "Editar Animal" : "Cadastrar Novo Animal"}>
-                <form onSubmit={handleFormSubmit} className="space-y-6">
-                    <Input name="name" label="Nome do Animal" value={formState.name || ''} onChange={handleFormChange} required />
-                    <Input name="photo" label="URL da Foto" value={formState.photo || ''} onChange={handleFormChange} required />
-                    <Textarea name="description" label="Descrição" value={formState.description || ''} onChange={handleFormChange} />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Input name="breed" label="Raça" value={formState.breed || ''} onChange={handleFormChange} required />
-                        <Input name="age" label="Idade" value={formState.age || ''} onChange={handleFormChange} required />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <Select name="species" label="Espécie" value={formState.species || 'Cachorro'} onChange={handleFormChange} required>
-                            <option>Cachorro</option>
-                            <option>Gato</option>
-                        </Select>
-                        <Select name="gender" label="Gênero" value={formState.gender || 'Macho'} onChange={handleFormChange} required>
-                            <option>Macho</option>
-                            <option>Fêmea</option>
-                        </Select>
-                        <Select name="status" label="Status" value={formState.status || 'Disponível'} onChange={handleFormChange} required>
-                            <option>Disponível</option>
-                            <option>Adotado</option>
-                        </Select>
-                    </div>
-                    <footer className="flex justify-end items-center pt-4 space-x-4">
-                        <Button type="button" onClick={() => setModalOpen(false)} className="bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</Button>
-                        <Button type="submit">Salvar</Button>
-                    </footer>
-                </form>
-            </Modal>
-        </div>
-    )
-}
-
-// --- NOVAS PÁGINAS ATIVADAS ---
-
-const CidadeLimpaPage = () => {
-    const [events, setEvents] = useState<CidadeLimpaEvent[]>([
-        { id: 1, name: 'Mutirão na Praia Central', location: 'Praia Central', date: '2024-08-10', organizer: 'Associação de Moradores', volunteers: 25, status: 'Planejado'},
-        { id: 2, name: 'Limpeza do Parque da Cidade', location: 'Parque da Cidade', date: '2024-07-20', organizer: 'Prefeitura', volunteers: 40, status: 'Em Andamento'},
-        { id: 3, name: 'Revitalização da Praça da Matriz', location: 'Praça da Matriz', date: '2024-06-01', organizer: 'Grupo de Escoteiros', volunteers: 15, status: 'Concluído'},
-    ]);
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [editingEvent, setEditingEvent] = useState<CidadeLimpaEvent | null>(null);
-    const [formState, setFormState] = useState<Partial<CidadeLimpaEvent>>({});
-
-    const statusColors: Record<CidadeLimpaEvent['status'], string> = {
-        'Planejado': 'bg-yellow-100 text-yellow-800',
-        'Em Andamento': 'bg-blue-100 text-blue-800',
-        'Concluído': 'bg-green-100 text-green-800',
-    };
-
-    const handleCreate = () => {
-        setEditingEvent(null);
-        setFormState({ name: '', location: '', date: '', organizer: '', volunteers: 0, status: 'Planejado' });
-        setModalOpen(true);
-    };
-
-    const handleEdit = (event: CidadeLimpaEvent) => {
-        setEditingEvent(event);
-        setFormState(event);
-        setModalOpen(true);
-    };
-    
-    const handleDelete = (id: number) => {
-        setEvents(events.filter(e => e.id !== id));
-    };
-
-    const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
-        setFormState(prev => ({ ...prev, [name]: type === 'number' ? parseInt(value) : value }));
-    };
-
-    const handleFormSubmit = (e: FormEvent) => {
-        e.preventDefault();
-        if (editingEvent) {
-            setEvents(events.map(ev => ev.id === editingEvent.id ? { ...ev, ...formState } as CidadeLimpaEvent : ev));
-        } else {
-            const newEvent: CidadeLimpaEvent = { id: Date.now(), ...formState } as CidadeLimpaEvent;
-            setEvents(prev => [newEvent, ...prev]);
-        }
-        setModalOpen(false);
-    };
-
-    return (
-        <div className="animate-fade-in">
-            <header className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Cidade Limpa</h1>
-                <Button onClick={handleCreate}>+ Novo Mutirão</Button>
-            </header>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {events.map(event => (
-                    <div key={event.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between">
-                        <div>
-                            <div className="flex justify-between items-start">
-                                <h3 className="text-lg font-bold text-gray-800">{event.name}</h3>
-                                <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${statusColors[event.status]}`}>{event.status}</span>
-                            </div>
-                            <p className="text-sm text-gray-500 mt-2"><strong>Local:</strong> {event.location}</p>
-                            <p className="text-sm text-gray-500"><strong>Data:</strong> {new Date(event.date).toLocaleDateString()}</p>
-                            <p className="text-sm text-gray-500"><strong>Voluntários:</strong> {event.volunteers}</p>
-                            <p className="text-xs text-gray-400 mt-4">Organizado por: {event.organizer}</p>
-                        </div>
-                        <div className="mt-4 flex justify-end space-x-2">
-                            <button onClick={() => handleEdit(event)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon /></button>
-                            <button onClick={() => handleDelete(event.id)} className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon /></button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-             <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} title={editingEvent ? "Editar Mutirão" : "Criar Novo Mutirão"}>
-                <form onSubmit={handleFormSubmit} className="space-y-6">
-                    <Input name="name" label="Nome do Evento" value={formState.name || ''} onChange={handleFormChange} required />
-                    <Input name="location" label="Local" value={formState.location || ''} onChange={handleFormChange} required />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Input name="date" label="Data" type="date" value={formState.date || ''} onChange={handleFormChange} required />
-                        <Input name="volunteers" label="Voluntários (Nº)" type="number" value={formState.volunteers || 0} onChange={handleFormChange} required />
-                    </div>
-                    <Input name="organizer" label="Organizador" value={formState.organizer || ''} onChange={handleFormChange} required />
-                    <Select name="status" label="Status" value={formState.status || 'Planejado'} onChange={handleFormChange} required>
-                        <option value="Planejado">Planejado</option>
-                        <option value="Em Andamento">Em Andamento</option>
-                        <option value="Concluído">Concluído</option>
-                    </Select>
-                    <footer className="flex justify-end items-center pt-4 space-x-4">
-                        <Button type="button" onClick={() => setModalOpen(false)} className="bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</Button>
-                        <Button type="submit">Salvar</Button>
-                    </footer>
-                </form>
-            </Modal>
-        </div>
-    );
-};
-
-const AdoteUmEspacoPage = () => {
-    const [spaces, setSpaces] = useState<AdotadoEspaco[]>([
-        { id: 1, name: 'Canteiro Central da Av. Brasil', location: 'Av. Brasil, Centro', adopter: 'Floricultura Sempre-Viva', adoptionDate: '2024-05-15', status: 'Adotado', photo: 'https://images.unsplash.com/photo-1525012214422-5834f3b89819?q=80&w=2070&auto=format&fit=crop' },
-        { id: 2, name: 'Rotatória do Bairro Industrial', location: 'Bairro Industrial', adopter: 'N/A', adoptionDate: '', status: 'Disponível', photo: 'https://images.unsplash.com/photo-1616423691280-5a35a580b2e3?q=80&w=1974&auto=format&fit=crop' },
-        { id: 3, name: 'Jardim da Escola Municipal', location: 'Escola Monteiro Lobato', adopter: 'Associação de Pais e Mestres', adoptionDate: '2024-03-10', status: 'Manutenção Pendente', photo: 'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?q=80&w=2070&auto=format&fit=crop' },
-    ]);
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [editingSpace, setEditingSpace] = useState<AdotadoEspaco | null>(null);
-    const [formState, setFormState] = useState<Partial<AdotadoEspaco>>({});
-
-    const statusColors: Record<AdotadoEspaco['status'], string> = {
-        'Disponível': 'bg-blue-100 text-blue-800',
-        'Adotado': 'bg-green-100 text-green-800',
-        'Manutenção Pendente': 'bg-yellow-100 text-yellow-800',
-    };
-    
-    // Handlers (Create, Edit, Delete, Form Submit) - omitted for brevity, but similar to CidadeLimpaPage
-
-    return (
-        <div className="animate-fade-in">
-            <header className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Projeto Adote um Espaço</h1>
-                <Button onClick={() => {}}>+ Novo Espaço</Button>
-            </header>
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {spaces.map(space => (
-                    <div key={space.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
-                        <img src={space.photo} alt={space.name} className="w-full h-40 object-cover"/>
-                        <div className="p-4 flex flex-col flex-grow">
-                             <div className="flex justify-between items-start">
-                                <h3 className="text-base font-bold text-gray-800">{space.name}</h3>
-                                <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${statusColors[space.status]}`}>{space.status}</span>
-                            </div>
-                            <p className="text-xs text-gray-500 mt-1">{space.location}</p>
-                            <div className="mt-3 flex-grow text-sm text-gray-600">
-                                {space.status !== 'Disponível' ? (
-                                    <p><strong>Adotado por:</strong> {space.adopter}<br/>
-                                    <strong>Desde:</strong> {new Date(space.adoptionDate).toLocaleDateString()}</p>
-                                ) : (
-                                    <p>Este espaço está disponível para adoção pela comunidade!</p>
-                                )}
-                            </div>
-                             <div className="mt-4 pt-4 border-t border-gray-200 flex justify-end space-x-2">
-                                <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon /></button>
-                                <button className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon /></button>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-            {/* Modal for create/edit would be here */}
-        </div>
-    );
-};
-
-const RodaDeConversaPage = () => {
-    const [sessions, setSessions] = useState<RodaDeConversa[]>([
-        { id: 1, topic: 'Lidando com a Ansiedade no Dia a Dia', facilitator: 'Dr. Ana Beatriz', date: '2024-08-15T19:00:00', location: 'Online (Zoom)', maxParticipants: 20, currentParticipants: 15 },
-        { id: 2, topic: 'Construindo Relações Saudáveis', facilitator: 'Psic. Marcos Vilela', date: '2024-08-22T19:00:00', location: 'Centro Comunitário', maxParticipants: 25, currentParticipants: 10 },
-        { id: 3, topic: 'A Importância do Autocuidado', facilitator: 'Terapeuta Juliana Lima', date: '2024-09-05T18:30:00', location: 'Online (Zoom)', maxParticipants: 20, currentParticipants: 0 },
-    ]);
-     // Handlers would be here
-    return (
-        <div className="animate-fade-in">
-            <header className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Rodas de Conversa</h1>
-                <Button onClick={() => {}}>+ Agendar Nova Roda</Button>
-            </header>
-            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-500">
-                         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                            <tr>
-                                <th scope="col" className="px-6 py-3">Tópico</th>
-                                <th scope="col" className="px-6 py-3">Facilitador(a)</th>
-                                <th scope="col" className="px-6 py-3">Data e Hora</th>
-                                <th scope="col" className="px-6 py-3">Local</th>
-                                <th scope="col" className="px-6 py-3">Participantes</th>
-                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {sessions.map(s => (
-                                <tr key={s.id} className="bg-white border-b hover:bg-gray-50 align-middle">
-                                    <td className="px-6 py-4 font-bold text-gray-800">{s.topic}</td>
-                                    <td className="px-6 py-4 text-gray-600">{s.facilitator}</td>
-                                    <td className="px-6 py-4">{new Date(s.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
-                                    <td className="px-6 py-4">{s.location}</td>
-                                    <td className="px-6 py-4">
-                                         <div className="flex flex-col">
-                                            <ProgressBar value={s.currentParticipants} max={s.maxParticipants} />
-                                            <span className="text-xs mt-1 text-gray-500">{s.currentParticipants} / {s.maxParticipants}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon/></button>
-                                        <button className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon/></button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                 </div>
-            </main>
-             {/* Modal for create/edit would be here */}
-        </div>
-    );
-};
-
-const ReciclaMaisPage = () => {
-    const [campaigns, setCampaigns] = useState<RecycleCampaign[]>([
-        { id: 1, title: 'Campanha de Coleta de Eletrônicos', materialType: 'Eletrônicos', goalKg: 500, currentKg: 210, startDate: '2024-07-01', endDate: '2024-07-31', status: 'Ativa' },
-        { id: 2, title: 'Mutirão do Plástico', materialType: 'Plástico', goalKg: 1000, currentKg: 850, startDate: '2024-06-01', endDate: '2024-06-30', status: 'Ativa' },
-        { id: 3, title: 'Vidro Vale Renda', materialType: 'Vidro', goalKg: 800, currentKg: 800, startDate: '2024-05-01', endDate: '2024-05-31', status: 'Finalizada' },
-    ]);
-    // Handlers would be here
-    return (
-        <div className="animate-fade-in">
-            <header className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Projeto Recicla+</h1>
-                <Button onClick={() => {}}>+ Nova Campanha</Button>
-            </header>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                 {campaigns.map(c => (
-                    <div key={c.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                        <div className="flex justify-between items-start">
-                            <h3 className="text-lg font-bold text-gray-800">{c.title}</h3>
-                             <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${c.status === 'Ativa' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700'}`}>{c.status}</span>
-                        </div>
-                        <p className="text-sm text-gray-500 mt-1">Material: {c.materialType}</p>
-                        <div className="mt-4">
-                            <div className="flex justify-between text-sm font-semibold text-gray-700 mb-1">
-                                <span>Progresso</span>
-                                <span>{((c.currentKg / c.goalKg) * 100).toFixed(0)}%</span>
-                            </div>
-                            <ProgressBar value={c.currentKg} max={c.goalKg} />
-                            <p className="text-xs text-gray-500 text-right mt-1">{c.currentKg}kg / {c.goalKg}kg</p>
-                        </div>
-                        <p className="text-xs text-gray-400 mt-4">
-                            {new Date(c.startDate).toLocaleDateString()} - {new Date(c.endDate).toLocaleDateString()}
-                        </p>
-                        <div className="mt-4 flex justify-end space-x-2">
-                            <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon /></button>
-                            <button className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon /></button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-             {/* Modal for create/edit would be here */}
-        </div>
-    );
-};
-
-
 // --- Admin Panel Component ---
 const AdminPanel: FC<{ onLogout: () => void }> = ({ onLogout }) => {
     const [activePage, setActivePage] = useState<Page>('Painel de Controle');
-    const [openMenus, setOpenMenus] = useState<string[]>(['Gestão da Plataforma', 'Marketing & Arrecadação', 'Cultura & Arte', 'Educação & Oficinas', 'Sustentabilidade & Trocas', 'Clubes & Lazer', 'Ação Social']);
+    const [openMenus, setOpenMenus] = useState<string[]>(['Gestão da Plataforma', 'Marketing & Arrecadação']);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     const handleMenuToggle = (title: string) => {
@@ -1768,14 +1123,6 @@ const AdminPanel: FC<{ onLogout: () => void }> = ({ onLogout }) => {
             case 'Carteiras': return <CarteirasPage />;
             case 'Depósitos': return <DepositosPage />;
             case 'Saques': return <SaquesPage />;
-            // Ação Social
-            case 'Gincana Solidária': return <GincanaSolidariaPage />;
-            case 'Feira de Adoção de Animais': return <FeiraAdocaoPage />;
-            case 'Cidade Limpa': return <CidadeLimpaPage />;
-            case 'Projeto Adote um Espaço': return <AdoteUmEspacoPage />;
-            case 'Roda de Conversa sobre Saúde Mental': return <RodaDeConversaPage />;
-            case 'Projeto Recicla +': return <ReciclaMaisPage />;
-            // Novas Páginas (com placeholders)
             default: return <PlaceholderPage title={activePage} />;
         }
     };
@@ -1867,9 +1214,9 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
         {
             image: "https://images.unsplash.com/photo-1541532713592-79a0317b6b77?q=80&w=1974&auto=format&fit=crop",
             alt: "Grupo de amigos sorrindo e se divertindo em um evento ao ar livre.",
-            title: "Cultura e Lazer Para Todos.",
-            subtitle: "Participe de eventos, oficinas e clubes. Encontre novas paixões e fortaleça os laços com sua vizinhança.",
-            cta: "Veja os Eventos"
+            title: "Apoie o Comércio Local.",
+            subtitle: "Aproveite cupons de desconto exclusivos em estabelecimentos parceiros e ajude a fortalecer a economia da sua região.",
+            cta: "Ver Parceiros"
         }
     ];
 
@@ -1892,9 +1239,9 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
     }, [nextSlide]);
     
     const testimonials = [
-        { name: 'Ana Silva', role: 'Voluntária na Horta', text: 'Participar da horta comunitária transformou meus domingos. É incrível ver o resultado do nosso trabalho e compartilhar com os vizinhos.' },
-        { name: 'Carlos Pereira', role: 'Participante do Clube de Leitura', text: 'A REDELOCAL me conectou com pessoas que amam ler tanto quanto eu. Nossos debates são a melhor parte do meu mês.'},
-        { name: 'Juliana Costa', role: 'Adotou o cão "Pipoca"', text: 'Encontrei meu melhor amigo na feira de adoção organizada pela plataforma. Minha vida ficou muito mais feliz com o Pipoca!'}
+        { name: 'Ana Silva', role: 'Organizadora de Vaquinha', text: 'A vaquinha para o nosso projeto de revitalização da praça foi um sucesso! Arrecadamos tudo que precisávamos em uma semana.' },
+        { name: 'Carlos Pereira', role: 'Ganhador da Rifa', text: 'Comprei um número na rifa para ajudar o abrigo de animais e acabei ganhando uma cesta incrível. Ajudar nunca foi tão bom!' },
+        { name: 'Juliana Costa', role: 'Dona de Comércio Local', text: 'Oferecer cupons de desconto pela REDELOCAL trouxe muitos clientes novos para minha loja. Uma parceria excelente para todos.' }
     ];
     
     return (
