@@ -51,6 +51,8 @@ const BookOpenIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => 
 const TicketIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5z" /></svg>;
 const MicrophoneIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>;
 const PaintBrushIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" /></svg>;
+const ClockIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+
 
 // --- App Structure & Types ---
 type Page =
@@ -327,8 +329,8 @@ const PlaceholderPage: FC<{ title: string }> = ({ title }) => (
     </div>
 );
 
-const StatCard: FC<{ title: string; value: string; subtext: string; trend: 'up' | 'down'; icon: ReactNode }> = ({ title, value, subtext, trend, icon }) => (
-    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center transition-all hover:shadow-md hover:-translate-y-1">
+const StatCard: FC<{ title: string; value: string; subtext: string; trend: 'up' | 'down'; icon: ReactNode; onClick?: () => void; }> = ({ title, value, subtext, trend, icon, onClick }) => (
+    <div onClick={onClick} className={`bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center transition-all hover:shadow-md hover:-translate-y-1 ${onClick ? 'cursor-pointer' : ''}`}>
         <div>
             <p className="text-sm text-gray-500 font-medium">{title}</p>
             <p className="text-3xl font-bold text-gray-800 mt-1">{value}</p>
@@ -343,23 +345,112 @@ const StatCard: FC<{ title: string; value: string; subtext: string; trend: 'up' 
     </div>
 );
 
-const DashboardPage = () => (
-    <div className="animate-fade-in space-y-8">
-        <div>
-            <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Painel de Controle</h1>
-            <p className="text-gray-500 mt-1">Olá, Admin! Bem-vindo(a) à sua plataforma comunitária.</p>
+const LineChart: FC<{ data: { name: string; users: number; revenue: number }[], height?: number }> = ({ data, height = 250 }) => {
+    const width = 500;
+    const padding = 40;
+
+    const maxValue = Math.max(...data.map(d => d.revenue), ...data.map(d => d.users));
+    const xStep = (width - padding * 2) / (data.length - 1);
+
+    const getPath = (key: 'users' | 'revenue') => {
+        return data.map((d, i) => {
+            const x = padding + i * xStep;
+            const y = height - padding - (d[key] / maxValue) * (height - padding * 2);
+            return `${i === 0 ? 'M' : 'L'} ${x},${y}`;
+        }).join(' ');
+    };
+
+    return (
+        <div className="w-full h-full">
+            <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
+                {/* Y-axis lines */}
+                {[0, 0.25, 0.5, 0.75, 1].map(tick => (
+                    <g key={tick} className="text-gray-300">
+                        <line x1={padding} x2={width - padding} y1={height - padding - tick * (height - padding * 2)} y2={height - padding - tick * (height - padding * 2)} stroke="currentColor" strokeDasharray="2,2" />
+                        <text x={padding - 10} y={height - padding - tick * (height - padding * 2) + 3} textAnchor="end" className="text-xs fill-current text-gray-500">{Math.round(tick * maxValue)}</text>
+                    </g>
+                ))}
+                
+                {/* X-axis labels */}
+                {data.map((d, i) => (
+                    <text key={d.name} x={padding + i * xStep} y={height - padding + 20} textAnchor="middle" className="text-xs fill-current text-gray-500">{d.name}</text>
+                ))}
+                
+                {/* Data lines */}
+                <path d={getPath('revenue')} fill="none" stroke="#2563EB" strokeWidth="2" />
+                <path d={getPath('users')} fill="none" stroke="#10B981" strokeWidth="2" />
+
+                 {/* Data points */}
+                {data.map((d, i) => <circle key={`rev-${i}`} cx={padding + i * xStep} cy={height - padding - (d.revenue / maxValue) * (height - padding * 2)} r="3" fill="#2563EB" />)}
+                {data.map((d, i) => <circle key={`usr-${i}`} cx={padding + i * xStep} cy={height - padding - (d.users / maxValue) * (height - padding * 2)} r="3" fill="#10B981" />)}
+            </svg>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <StatCard title="Usuários Ativos" value="352" subtext="+12 esta semana" trend="up" icon={<UsersIcon className="text-gray-600" />} />
-            <StatCard title="Vaquinhas Ativas" value="5" subtext="R$ 1.250 arrecadados" trend="up" icon={<VaquinhaIcon className="text-gray-600" />} />
-            <StatCard title="Rifas em Andamento" value="8" subtext="2.300 bilhetes vendidos" trend="up" icon={<RifaIcon className="text-gray-600" />} />
-            <StatCard title="Depósitos" value="R$ 10,00" subtext="Total de Depósitos" trend="up" icon={<DepositIcon className="text-gray-600" />} />
-            <StatCard title="Saques" value="R$ 0,00" subtext="Total de saques" trend="up" icon={<WithdrawIcon className="text-gray-600" />} />
-            <StatCard title="Saldo dos Usuários" value="R$ 0,00" subtext="Saldo dos usuários" trend="up" icon={<UsersIcon className="text-gray-600" />} />
-            <StatCard title="Total Ganhos" value="R$ 170,42" subtext="Ganhos dos usuários" trend="up" icon={<UpArrowIcon className="text-gray-600" />} />
+    );
+};
+
+const DashboardPage: FC<{ onNavigate: (page: Page) => void }> = ({ onNavigate }) => {
+    const chartData = [
+        { name: 'Jan', users: 30, revenue: 1200 },
+        { name: 'Fev', users: 45, revenue: 1800 },
+        { name: 'Mar', users: 60, revenue: 2500 },
+        { name: 'Abr', users: 80, revenue: 2200 },
+        { name: 'Mai', users: 95, revenue: 3500 },
+        { name: 'Jun', users: 110, revenue: 4200 },
+    ];
+    
+    const recentActivities = [
+        { icon: <DepositIcon className="text-green-500" />, text: "Novo depósito de R$ 20,00 por", user: "user@example.com", time: "2 min atrás" },
+        { icon: <UsersIcon className="text-blue-500" />, text: "Novo usuário cadastrado:", user: "novo_user@email.com", time: "15 min atrás" },
+        { icon: <WithdrawIcon className="text-red-500" />, text: "Saque de R$ 50,00 solicitado por", user: "admin@eu.com", time: "1 hora atrás" },
+        { icon: <RifaIcon className="text-purple-500" />, text: "Nova rifa 'iPhone 15' criada", user: "", time: "3 horas atrás" },
+        { icon: <DepositIcon className="text-green-500" />, text: "Novo depósito de R$ 10,00 por", user: "test@test.com", time: "5 horas atrás" },
+    ];
+
+    return (
+        <div className="animate-fade-in space-y-8">
+            <div>
+                <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Painel de Controle</h1>
+                <p className="text-gray-500 mt-1">Visão geral do desempenho e atividades recentes da plataforma.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard title="Usuários Ativos" value="352" subtext="+12 esta semana" trend="up" icon={<UsersIcon className="text-blue-500" />} onClick={() => onNavigate('Usuários')} />
+                <StatCard title="Vaquinhas Ativas" value="5" subtext="R$ 1.250 arrecadados" trend="up" icon={<VaquinhaIcon className="text-green-500" />} onClick={() => onNavigate('Vaquinha Online para Projetos Locais')} />
+                <StatCard title="Rifas em Andamento" value="8" subtext="2.300 bilhetes" trend="up" icon={<RifaIcon className="text-purple-500" />} onClick={() => onNavigate('Rifa Solidária')} />
+                <StatCard title="Total Arrecadado" value="R$ 17.542" subtext="+5.2% este mês" trend="up" icon={<UpArrowIcon className="text-gray-600" />} />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4">Crescimento da Plataforma</h2>
+                     <div className="flex items-center space-x-4 mb-4 text-sm">
+                        <div className="flex items-center"><span className="w-3 h-3 rounded-full bg-blue-600 mr-2"></span>Faturamento</div>
+                        <div className="flex items-center"><span className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>Novos Usuários</div>
+                    </div>
+                    <LineChart data={chartData} />
+                </div>
+                
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                     <h2 className="text-xl font-bold text-gray-800 mb-4">Atividade Recente</h2>
+                     <ul className="space-y-4">
+                        {recentActivities.map((activity, index) => (
+                             <li key={index} className="flex items-start space-x-3">
+                                <div className="bg-gray-100 p-2 rounded-full mt-1">{activity.icon}</div>
+                                <div className="flex-1">
+                                    <p className="text-sm text-gray-700">
+                                        {activity.text} <span className="font-semibold text-gray-800">{activity.user}</span>
+                                    </p>
+                                    <p className="text-xs text-gray-400">{activity.time}</p>
+                                </div>
+                             </li>
+                        ))}
+                     </ul>
+                </div>
+            </div>
+
         </div>
-    </div>
-);
+    );
+}
 
 // --- CONFIGURAÇÕES SECTION ---
 const ConfiguracoesPage = () => (
@@ -1324,7 +1415,7 @@ const AdminPanel: FC<{ onLogout: () => void }> = ({ onLogout }) => {
         }
         
         switch (activePage) {
-            case 'Painel de Controle': return <DashboardPage />;
+            case 'Painel de Controle': return <DashboardPage onNavigate={navigateTo} />;
             // Utilidades
             case 'Guia de Serviços Locais': return <PlaceholderPage title={activePage} />;
             case 'Mapa Interativo': return <PlaceholderPage title={activePage} />;
