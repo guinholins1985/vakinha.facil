@@ -2,7 +2,7 @@ import React, { useState, FC, ReactNode, ChangeEvent, FormEvent, useEffect, useC
 
 // --- Ícones SVG ---
 const DashboardIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>;
-const SettingsIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
+const SettingsIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066 2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
 const GatewayIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>;
 const EmailIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>;
 const BannersIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" /></svg>;
@@ -40,7 +40,7 @@ const ProductIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <
 const OrderIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>;
 const StoreIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>;
 const SwapIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>;
-const StarIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>;
+const StarIcon: FC<{ className?: string, filled?: boolean }> = ({ className = "w-5 h-5", filled = false }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill={filled ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>;
 const ChatBubbleIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>;
 const MegaphoneIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5.882V4.5a1.5 1.5 0 013 0v1.382a1.5 1.5 0 01-3 0zM11.382 5.882a2 2 0 00-1.156.453l-4.502 3.152a1 1 0 00-.324.79v3.43a1 1 0 00.324.79l4.502 3.152a2 2 0 001.156.453h1.118a2 2 0 001.5-2.828l-.044-.088a2 2 0 00-3.356-1.172l-.043-.03-2.5-1.75a1 1 0 010-1.58l2.5-1.75.043-.03a2 2 0 003.356-1.172l.044-.088A2 2 0 0012.5 5.882h-1.118z" /></svg>;
 const UsersGroupIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>;
@@ -52,7 +52,11 @@ const TicketIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <s
 const MicrophoneIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>;
 const PaintBrushIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" /></svg>;
 const ClockIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
-
+const EyeIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>;
+const EyeSlashIcon: FC<{ className?: string }> = ({ className = "w-5 h-5" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 .527-1.664 1.37-3.162 2.458-4.425L13.875 18.825zM10.125 5.175A10.05 10.05 0 0112 5c4.478 0 8.268 2.943 9.542 7-.527 1.664-1.37 3.162-2.458 4.425L10.125 5.175zM12 15a3 3 0 110-6 3 3 0 010 6z" /><path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18" /></svg>;
+const HospitalIcon: FC<{ className?: string }> = ({ className = "w-6 h-6" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2h-3m-1 14v-5m-4 0v5m-4 0v-5m0 0H6m2 0h2m2 0h2m-4-5V3m0 0v5m0-5h4V3m-4 5h4m0 0V3" /></svg>;
+const SchoolIcon: FC<{ className?: string }> = ({ className = "w-6 h-6" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path d="M12 14V3" /></svg>;
+const PharmacyIcon: FC<{ className?: string }> = ({ className = "w-6 h-6" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 6a9 9 0 00-9 9h18a9 9 0 00-9-9z" /><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6" /></svg>;
 
 // --- App Structure & Types ---
 type Page =
@@ -76,7 +80,8 @@ type Withdrawal = { id: number; nome: string; valor: number; tipo: 'Telefone'; c
 type Product = { id: number; name: string; image: string; price: number; seller: string; stock: number; category: string; };
 type Order = { id: string; customer: string; date: string; total: number; status: 'Pendente' | 'Processando' | 'Enviado' | 'Entregue' | 'Cancelado'; items: number; };
 type Producer = { id: number; name: string; category: string; products: number; rating: number; memberSince: string; };
-
+type ServiceProfessional = { id: number; name: string; category: string; phone: string; address: string; rating: number; status: 'Ativo' | 'Inativo'; image: string; };
+type MapLocation = { id: number; name: string; category: 'Farmácias 24h' | 'Postos de Saúde' | 'Escolas'; address: string; hours: string; x: number; y: number; };
 
 const navItems: { title?: string; items: NavItem[] }[] = [
     { items: [{ name: "Painel de Controle", icon: DashboardIcon }] },
@@ -187,7 +192,7 @@ const Button: FC<{ onClick?: () => void; children: ReactNode; className?: string
     </button>
 );
 
-const Input: FC<{ label: string; placeholder?: string; type?: string; value: string | number; onChange: (e: ChangeEvent<HTMLInputElement>) => void; name: string; required?: boolean; className?: string; step?: string }> = ({ label, placeholder, type = 'text', value, onChange, name, required = false, className = '', step }) => (
+const Input: FC<{ label: string; placeholder?: string; type?: string; value: string | number; onChange: (e: ChangeEvent<HTMLInputElement>) => void; name: string; required?: boolean; className?: string; step?: string; hasError?: boolean }> = ({ label, placeholder, type = 'text', value, onChange, name, required = false, className = '', step, hasError = false }) => (
     <div className={`w-full ${className}`}>
         <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">{label}{required && <span className="text-red-500 ml-1">*</span>}</label>
         <input
@@ -199,7 +204,7 @@ const Input: FC<{ label: string; placeholder?: string; type?: string; value: str
             placeholder={placeholder}
             required={required}
             step={step}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            className={`w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-transparent transition ${hasError ? 'border-red-500 ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
         />
     </div>
 );
@@ -451,6 +456,314 @@ const DashboardPage: FC<{ onNavigate: (page: Page) => void }> = ({ onNavigate })
         </div>
     );
 }
+
+// --- UTILIDADES SECTION ---
+const StarRating: FC<{ rating: number }> = ({ rating }) => (
+    <div className="flex items-center">
+        {[1, 2, 3, 4, 5].map((star) => (
+            <StarIcon key={star} className={`w-5 h-5 ${rating >= star ? 'text-amber-400' : 'text-gray-300'}`} filled={rating >= star} />
+        ))}
+    </div>
+);
+
+const initialProfessionals: ServiceProfessional[] = [
+    { id: 1, name: 'Dr. João Silva', category: 'Médicos', phone: '(75) 99999-1234', address: 'Rua das Flores, 123', rating: 5, status: 'Ativo', image: 'https://i.imgur.com/Qv8G1G1.jpg' },
+    { id: 2, name: 'Maria Encanadora', category: 'Encanadores', phone: '(75) 98888-5678', address: 'Av. Principal, 456', rating: 4, status: 'Ativo', image: 'https://i.imgur.com/TUhC23k.jpg' },
+    { id: 3, name: 'Carlos Advogado', category: 'Advogados', phone: '(75) 97777-9012', address: 'Centro, Sala 301', rating: 5, status: 'Inativo', image: 'https://i.imgur.com/t9qG8Yb.jpg' },
+];
+
+const GuiaServicosPage = () => {
+    const [professionals, setProfessionals] = useState<ServiceProfessional[]>(initialProfessionals);
+    const [filteredProfessionals, setFilteredProfessionals] = useState<ServiceProfessional[]>(initialProfessionals);
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [editingProfessional, setEditingProfessional] = useState<ServiceProfessional | null>(null);
+    const [formState, setFormState] = useState<Partial<ServiceProfessional>>({});
+    const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+    const [deletingId, setDeletingId] = useState<number | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterCategory, setFilterCategory] = useState('Todos');
+    const [filterStatus, setFilterStatus] = useState('Todos');
+
+    const categories = ['Todos', ...new Set(professionals.map(p => p.category))];
+
+    useEffect(() => {
+        let result = professionals;
+        if (searchTerm) {
+            result = result.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        }
+        if (filterCategory !== 'Todos') {
+            result = result.filter(p => p.category === filterCategory);
+        }
+        if (filterStatus !== 'Todos') {
+            result = result.filter(p => p.status === filterStatus);
+        }
+        setFilteredProfessionals(result);
+    }, [searchTerm, filterCategory, filterStatus, professionals]);
+
+    const handleCreate = () => {
+        setEditingProfessional(null);
+        setFormState({ name: '', category: 'Médicos', phone: '', address: '', rating: 0, status: 'Ativo', image: '' });
+        setModalOpen(true);
+    };
+
+    const handleEdit = (prof: ServiceProfessional) => {
+        setEditingProfessional(prof);
+        setFormState(prof);
+        setModalOpen(true);
+    };
+
+    const handleDelete = (id: number) => {
+        setDeletingId(id);
+        setConfirmModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (deletingId) {
+            setProfessionals(professionals.filter(p => p.id !== deletingId));
+        }
+        setConfirmModalOpen(false);
+        setDeletingId(null);
+    };
+
+    const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value, type } = e.target;
+        const isNumber = type === 'number';
+        setFormState(prev => ({ ...prev, [name]: isNumber ? parseFloat(value) : value }));
+    };
+
+    const handleFormSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        if (editingProfessional) {
+            setProfessionals(professionals.map(p => p.id === editingProfessional.id ? { ...p, ...formState } as ServiceProfessional : p));
+        } else {
+            const newProfessional: ServiceProfessional = { id: Date.now(), ...formState } as ServiceProfessional;
+            setProfessionals(prev => [newProfessional, ...prev]);
+        }
+        setModalOpen(false);
+    };
+
+    return (
+        <div className="animate-fade-in">
+            <header className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                <div>
+                    <h1 className="text-3xl font-extrabold text-gray-800 font-heading">Guia de Serviços Locais</h1>
+                    <p className="text-gray-500 mt-1">Gerencie os profissionais cadastrados na plataforma.</p>
+                </div>
+                <Button onClick={handleCreate}>+ Adicionar Profissional</Button>
+            </header>
+
+            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="relative">
+                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input type="text" placeholder="Buscar por nome..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <Select label="" name="category" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
+                        {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                    </Select>
+                    <Select label="" name="status" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+                        <option value="Todos">Todos os Status</option>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Inativo">Inativo</option>
+                    </Select>
+                </div>
+            </div>
+
+            <main className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" className="px-6 py-3">Profissional</th>
+                                <th scope="col" className="px-6 py-3">Categoria</th>
+                                <th scope="col" className="px-6 py-3">Contato</th>
+                                <th scope="col" className="px-6 py-3">Avaliação</th>
+                                <th scope="col" className="px-6 py-3">Status</th>
+                                <th scope="col" className="px-6 py-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredProfessionals.map(p => (
+                                <tr key={p.id} className="bg-white border-b hover:bg-gray-50 align-middle">
+                                    <td className="px-6 py-4 font-bold text-gray-800 flex items-center space-x-3">
+                                        <img src={p.image || `https://ui-avatars.com/api/?name=${p.name.replace(' ', '+')}&background=random`} alt={p.name} className="w-10 h-10 object-cover rounded-full" />
+                                        <span>{p.name}</span>
+                                    </td>
+                                    <td className="px-6 py-4">{p.category}</td>
+                                    <td className="px-6 py-4">{p.phone}</td>
+                                    <td className="px-6 py-4"><StarRating rating={p.rating} /></td>
+                                    <td className="px-6 py-4"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${p.status === 'Ativo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{p.status}</span></td>
+                                    <td className="px-6 py-4 text-center">
+                                        <button onClick={() => handleEdit(p)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"><PencilIcon /></button>
+                                        <button onClick={() => handleDelete(p.id)} className="p-2 text-red-600 hover:bg-red-100 rounded-full"><TrashIcon /></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+            <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} title={editingProfessional ? "Editar Profissional" : "Adicionar Profissional"}>
+                <form onSubmit={handleFormSubmit} className="space-y-4">
+                    <Input name="name" label="Nome Completo" value={formState.name || ''} onChange={handleFormChange} required />
+                    <Input name="image" label="URL da Foto" value={formState.image || ''} onChange={handleFormChange} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input name="phone" label="Telefone" value={formState.phone || ''} onChange={handleFormChange} required />
+                        <Select name="category" label="Categoria" value={formState.category || ''} onChange={handleFormChange} required>
+                            <option>Médicos</option>
+                            <option>Encanadores</option>
+                            <option>Advogados</option>
+                            <option>Eletricistas</option>
+                            <option>Outro</option>
+                        </Select>
+                    </div>
+                    <Input name="address" label="Endereço" value={formState.address || ''} onChange={handleFormChange} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input name="rating" label="Avaliação (0-5)" type="number" value={formState.rating || 0} onChange={handleFormChange} />
+                        <Select name="status" label="Status" value={formState.status || 'Ativo'} onChange={handleFormChange} required>
+                            <option>Ativo</option>
+                            <option>Inativo</option>
+                        </Select>
+                    </div>
+                    <footer className="flex justify-end items-center pt-4 space-x-4">
+                        <Button type="button" onClick={() => setModalOpen(false)} className="bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</Button>
+                        <Button type="submit">Salvar</Button>
+                    </footer>
+                </form>
+            </Modal>
+            <ConfirmationModal isOpen={isConfirmModalOpen} onClose={() => setConfirmModalOpen(false)} onConfirm={confirmDelete} title="Confirmar Exclusão" message="Tem certeza que deseja excluir este profissional? Esta ação não pode ser desfeita." />
+        </div>
+    );
+};
+
+const initialMapLocations: MapLocation[] = [
+    { id: 1, name: 'Hospital Regional Dantas Bião', category: 'Postos de Saúde', address: 'Rua Dantas Bião, S/N', hours: '24 Horas', x: 45, y: 35 },
+    { id: 2, name: 'Farmácia do Povo', category: 'Farmácias 24h', address: 'Praça Rui Barbosa, 123', hours: '24 Horas', x: 52, y: 48 },
+    { id: 3, name: 'Colégio Modelo Luís Eduardo Magalhães', category: 'Escolas', address: 'Av. Juracy Magalhães, 789', hours: '07:00 - 17:00', x: 65, y: 60 },
+    { id: 4, name: 'UPA Santa Terezinha', category: 'Postos de Saúde', address: 'Rua do Catu, S/N', hours: '24 Horas', x: 75, y: 25 },
+    { id: 5, name: 'Pague Menos', category: 'Farmácias 24h', address: 'Rua Conselheiro Dantas, 45', hours: '24 Horas', x: 30, y: 55 },
+];
+
+const MapaInterativoPage: FC = () => {
+    const [locations] = useState<MapLocation[]>(initialMapLocations);
+    const [filteredLocations, setFilteredLocations] = useState<MapLocation[]>(locations);
+    const [activeCategory, setActiveCategory] = useState<MapLocation['category'] | 'Todos'>('Todos');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [hoveredLocation, setHoveredLocation] = useState<MapLocation | null>(null);
+    const [clickedLocation, setClickedLocation] = useState<MapLocation | null>(null);
+
+
+    const categories: (MapLocation['category'] | 'Todos')[] = ['Todos', 'Farmácias 24h', 'Postos de Saúde', 'Escolas'];
+
+    const categoryIcons: Record<MapLocation['category'], ReactNode> = {
+        'Farmácias 24h': <PharmacyIcon className="w-5 h-5" />,
+        'Postos de Saúde': <HospitalIcon className="w-5 h-5" />,
+        'Escolas': <SchoolIcon className="w-5 h-5" />,
+    };
+    
+    useEffect(() => {
+        let result = locations.filter(loc =>
+            loc.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        if (activeCategory !== 'Todos') {
+            result = result.filter(loc => loc.category === activeCategory);
+        }
+        setFilteredLocations(result);
+        setClickedLocation(null);
+    }, [searchTerm, activeCategory, locations]);
+    
+    return (
+        <div className="animate-fade-in flex flex-col h-full -m-8">
+            <header className="p-4 border-b border-gray-200 bg-white z-10">
+                <h1 className="text-2xl font-extrabold text-gray-800 font-heading">Mapa Interativo</h1>
+                <p className="text-gray-500 mt-1 text-sm">Explore os pontos de interesse da cidade.</p>
+            </header>
+            <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+                <aside className="w-full md:w-96 bg-white border-r border-gray-200 p-4 flex flex-col">
+                    <div className="relative mb-4">
+                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Buscar local..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {categories.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`px-3 py-1 text-sm font-semibold rounded-full transition-colors ${activeCategory === cat ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex-1 overflow-y-auto pr-2 -mr-2 space-y-2">
+                        {filteredLocations.length > 0 ? filteredLocations.map(loc => (
+                             <div
+                                key={loc.id}
+                                onMouseEnter={() => setHoveredLocation(loc)}
+                                onMouseLeave={() => setHoveredLocation(null)}
+                                onClick={() => setClickedLocation(loc)}
+                                className="p-3 rounded-lg cursor-pointer hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-all"
+                            >
+                                <h3 className="font-bold text-gray-800">{loc.name}</h3>
+                                <p className="text-sm text-gray-500">{loc.address}</p>
+                            </div>
+                        )) : (
+                            <div className="text-center py-10 text-gray-500">
+                                <MapIcon className="mx-auto w-12 h-12 text-gray-300" />
+                                <h3 className="mt-2 font-semibold">Nenhum local encontrado</h3>
+                                <p className="text-sm">Tente ajustar seus filtros de busca.</p>
+                            </div>
+                        )}
+                    </div>
+                </aside>
+                <main className="flex-1 bg-gray-100 relative overflow-hidden">
+                    <div
+                        className="absolute inset-0 bg-cover bg-center"
+                        style={{ backgroundImage: "url('https://i.imgur.com/eB3fSgS.png')", filter: 'grayscale(50%) brightness(1.1)' }}
+                    ></div>
+                    {filteredLocations.map(loc => (
+                        <button
+                            key={loc.id}
+                            onMouseEnter={() => setHoveredLocation(loc)}
+                            onMouseLeave={() => setHoveredLocation(null)}
+                            onClick={() => setClickedLocation(loc)}
+                            style={{ top: `${loc.y}%`, left: `${loc.x}%` }}
+                            className={`absolute -translate-x-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-300 z-10 ${hoveredLocation?.id === loc.id || clickedLocation?.id === loc.id ? 'bg-blue-600 scale-125 shadow-lg' : 'bg-white shadow-md'}`}
+                        >
+                            <span className={hoveredLocation?.id === loc.id || clickedLocation?.id === loc.id ? 'text-white' : 'text-blue-600'}>
+                                {categoryIcons[loc.category]}
+                            </span>
+                        </button>
+                    ))}
+                    {clickedLocation && (
+                         <div
+                            style={{ top: `${clickedLocation.y}%`, left: `${clickedLocation.x}%`, transform: 'translate(20px, -50%)' }}
+                            className="absolute w-64 bg-white p-4 rounded-xl shadow-2xl animate-fade-in border border-gray-200 z-20"
+                        >
+                             <div className="flex justify-between items-start">
+                                <div>
+                                    <h3 className="text-base font-bold text-gray-900">{clickedLocation.name}</h3>
+                                    <p className="text-xs text-gray-600 mt-1">{clickedLocation.address}</p>
+                                </div>
+                                <button onClick={() => setClickedLocation(null)} className="-mt-2 -mr-2 p-1 text-gray-400 hover:text-gray-700"><XIcon className="w-4 h-4" /></button>
+                             </div>
+                             <div className="mt-2 pt-2 border-t border-gray-200 flex items-center text-sm text-gray-500">
+                                <ClockIcon className="w-4 h-4 mr-2" />
+                                <span>{clickedLocation.hours}</span>
+                            </div>
+                        </div>
+                    )}
+                </main>
+            </div>
+        </div>
+    );
+};
 
 // --- CONFIGURAÇÕES SECTION ---
 const ConfiguracoesPage = () => (
@@ -1417,8 +1730,8 @@ const AdminPanel: FC<{ onLogout: () => void }> = ({ onLogout }) => {
         switch (activePage) {
             case 'Painel de Controle': return <DashboardPage onNavigate={navigateTo} />;
             // Utilidades
-            case 'Guia de Serviços Locais': return <PlaceholderPage title={activePage} />;
-            case 'Mapa Interativo': return <PlaceholderPage title={activePage} />;
+            case 'Guia de Serviços Locais': return <GuiaServicosPage />;
+            case 'Mapa Interativo': return <MapaInterativoPage />;
             case 'Classificados Locais': return <PlaceholderPage title={activePage} />;
             // E-commerce
             case 'Produtos': return <ProdutosPage />;
@@ -1759,55 +2072,124 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
     );
 }
 
+const PasswordInput: FC<{ label: string; value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; name: string; required?: boolean; hasError?: boolean }> = ({ label, value, onChange, name, required, hasError }) => {
+    const [showPassword, setShowPassword] = useState(false);
+    return (
+        <div>
+            <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">{label}{required && <span className="text-red-500 ml-1">*</span>}</label>
+            <div className="relative">
+                <input
+                    id={name}
+                    type={showPassword ? 'text' : 'password'}
+                    name={name}
+                    value={value}
+                    onChange={onChange}
+                    required={required}
+                    className={`w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-transparent transition ${hasError ? 'border-red-500 ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
+                />
+                <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600"
+                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                    {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+                </button>
+            </div>
+        </div>
+    );
+};
+
 const LoginModal: FC<{ isOpen: boolean; onClose: () => void; onAdminLogin: () => void; onUserLogin: () => void; }> = ({ isOpen, onClose, onAdminLogin, onUserLogin }) => {
     const [isRegister, setIsRegister] = useState(false);
-    const [role, setRole] = useState<'Administrador' | 'Usuário'>('Usuário');
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [termsAccepted, setTermsAccepted] = useState(false);
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [hasError, setHasError] = useState(false);
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         setError('');
+        setHasError(false);
+        setIsLoading(true);
 
-        if (role === 'Administrador') {
-            if (username === 'admin01' && password === 'a123') {
+        // Simulate API call
+        setTimeout(() => {
+            setIsLoading(false);
+            // Admin Login Check
+            if (!isRegister && email.toLowerCase() === 'ad' && password === 'a123') {
                 onAdminLogin();
-            } else {
-                setError('Credenciais de administrador inválidas.');
+                return;
             }
-        } else if (role === 'Usuário') {
-            // Simula um login/registro de usuário bem-sucedido
-            onUserLogin();
-        }
+            
+            if (!isRegister && email.toLowerCase() === 'ad' && password !== 'a123') {
+                setError('Credenciais de administrador inválidas.');
+                setHasError(true);
+                return;
+            }
+
+            // Basic User Login/Register Simulation
+            if (isRegister) {
+                if (!termsAccepted) {
+                    setError('Você precisa aceitar os termos de uso.');
+                    setHasError(true);
+                    return;
+                }
+                console.log('Registering user:', { name, email });
+                onUserLogin();
+            } else {
+                console.log('Logging in user:', { email });
+                onUserLogin();
+            }
+        }, 1000);
     };
     
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={isRegister ? "Criar Conta" : "Acessar Plataforma"} maxWidth="max-w-md">
-            <div className="w-full">
-                <div className="flex border-b border-gray-200">
-                    <button onClick={() => setIsRegister(false)} className={`w-1/2 py-3 text-sm font-bold ${!isRegister ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}>Login</button>
-                    <button onClick={() => setIsRegister(true)} className={`w-1/2 py-3 text-sm font-bold ${isRegister ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}>{isRegister ? "Já tenho conta" : "Cadastre-se"}</button>
-                </div>
-                <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
-                    <Select label="Selecione seu perfil" name="role" value={role} onChange={e => setRole(e.target.value as any)}>
-                        <option>Usuário</option>
-                        <option>Administrador</option>
-                    </Select>
-
-                    <Input name="username" label="Usuário ou E-mail" value={username} onChange={e => setUsername(e.target.value)} required />
-                    <Input name="password" label="Senha" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+        <Modal isOpen={isOpen} onClose={onClose} title={isRegister ? "Criar Conta" : "Bem-vindo de volta!"} maxWidth="max-w-md">
+            <div>
+                 <form className="space-y-4" onSubmit={handleSubmit}>
+                    {isRegister && <Input name="name" label="Nome completo" value={name} onChange={e => setName(e.target.value)} required hasError={hasError && !name} />}
+                    <Input name="email" label="E-mail ou Usuário" type="text" value={email} onChange={e => setEmail(e.target.value)} required hasError={hasError} />
+                    <PasswordInput name="password" label="Senha" value={password} onChange={e => setPassword(e.target.value)} required hasError={hasError} />
                     
-                    {error && <p className="text-red-500 text-sm font-semibold">{error}</p>}
+                    {!isRegister && (
+                         <div className="text-right">
+                            <a href="#" className="text-sm font-medium text-blue-600 hover:underline">Esqueceu sua senha?</a>
+                        </div>
+                    )}
+                    
+                    {isRegister && (
+                        <div className="flex items-center">
+                            <input id="terms" name="terms" type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                            <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">Eu aceito os <a href="#" className="font-medium text-blue-600 hover:underline">Termos de Uso</a></label>
+                        </div>
+                    )}
+                    
+                    {error && <p className="text-red-500 text-sm font-semibold text-center">{error}</p>}
                     
                     <div className="pt-2">
-                        <Button type="submit" className="w-full">{isRegister ? "Criar Conta" : "Entrar"}</Button>
+                        <Button type="submit" className="w-full" disabled={isLoading}>
+                            {isLoading ? <SpinnerIcon /> : (isRegister ? "Criar Conta" : "Entrar")}
+                        </Button>
                     </div>
                 </form>
+
+                <div className="mt-6 text-center">
+                    <p className="text-sm text-gray-600">
+                        {isRegister ? "Já tem uma conta?" : "Não tem uma conta?"}
+                        <button onClick={() => { setIsRegister(!isRegister); setError(''); setHasError(false); }} className="ml-1 font-semibold text-blue-600 hover:underline">
+                            {isRegister ? "Faça login" : "Cadastre-se"}
+                        </button>
+                    </p>
+                </div>
             </div>
         </Modal>
     )
 }
+
 
 // --- Main App Component ---
 const App = () => {
