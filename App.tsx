@@ -1,5 +1,4 @@
 
-
 import React, { useState, useMemo } from 'react';
 
 // --- ÍCONES SVG COMO COMPONENTES ---
@@ -62,9 +61,29 @@ const initialProducts = [
     { id: 3, name: 'Hortaliças Orgânicas', category: 'Verduras', price: 10.00, stock: 'Em Estoque', image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80' },
 ];
 
+const initialOrders = [
+    { id: '#1234', customerName: 'João Silva', date: '2023-10-27', total: 75.50, status: 'Entregue' },
+    { id: '#1235', customerName: 'Maria Oliveira', date: '2023-10-27', total: 45.00, status: 'Processando' },
+    { id: '#1236', customerName: 'Carlos Pereira', date: '2023-10-26', total: 120.00, status: 'Pendente' },
+    { id: '#1237', customerName: 'Ana Costa', date: '2023-10-25', total: 30.00, status: 'Cancelado' },
+];
+
+const initialProducers = [
+    { id: 1, name: 'Sítio Verde', category: 'Hortifruti', contact: '(75) 9111-1111', rating: 5, status: 'Ativo', avatar: 'https://i.pravatar.cc/150?img=4' },
+    { id: 2, name: 'Laticínios da Serra', category: 'Laticínios', contact: '(75) 9222-2222', rating: 4, status: 'Ativo', avatar: 'https://i.pravatar.cc/150?img=5' },
+    { id: 3, name: 'Doces da Vovó', category: 'Doces', contact: '(75) 9333-3333', rating: 5, status: 'Inativo', avatar: 'https://i.pravatar.cc/150?img=6' },
+];
+
 // --- COMPONENTES DA UI ---
-// FIX: Add explicit types to Modal props to resolve type inference issues.
-const Modal = ({ children, isOpen, onClose }: { children: React.ReactNode; isOpen: boolean; onClose: () => void; }) => {
+// FIX: Refactored Modal props to use a 'type' alias. This can resolve potential
+// TypeScript parser issues that might incorrectly flag 'children' as missing.
+type ModalProps = {
+    children: React.ReactNode;
+    isOpen: boolean;
+    onClose: () => void;
+};
+
+const Modal = ({ children, isOpen, onClose }: ModalProps) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center animate-fade-in" onClick={onClose}>
@@ -78,7 +97,6 @@ const Modal = ({ children, isOpen, onClose }: { children: React.ReactNode; isOpe
 // --- PÁGINAS ---
 
 const Dashboard = ({ setActivePage }) => {
-    // Componente Chart simulado
     const Chart = () => (
         <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
             <p className="text-gray-500">Gráfico de Linhas</p>
@@ -142,7 +160,6 @@ const Dashboard = ({ setActivePage }) => {
 };
 
 const GuiaServicos = () => {
-    // Implementação completa da página
     return <CrudPage 
               title="Guia de Serviços Locais" 
               itemType="Profissional"
@@ -280,7 +297,6 @@ const MapaInterativo = () => {
     );
 };
 
-
 const ClassifiedsPage = () => {
     const [classifieds, setClassifieds] = useState(initialClassifieds);
     const [searchTerm, setSearchTerm] = useState('');
@@ -334,7 +350,6 @@ const ClassifiedsPage = () => {
                 </button>
             </div>
 
-            {/* Filtros */}
             <div className="bg-white p-4 rounded-lg shadow-sm mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700">Buscar</label>
@@ -355,7 +370,6 @@ const ClassifiedsPage = () => {
                 </div>
             </div>
 
-            {/* Grid de Anúncios */}
             {filteredClassifieds.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {filteredClassifieds.map(item => (
@@ -379,12 +393,10 @@ const ClassifiedsPage = () => {
                 </div>
             )}
             
-            {/* Modal de Adicionar/Editar Anúncio */}
             <Modal isOpen={isModalOpen} onClose={closeModal}>
                 <ClassifiedsForm item={editingItem} onSave={handleSave} onCancel={closeModal} />
             </Modal>
             
-            {/* Modal de Confirmação de Exclusão */}
             <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)}>
                 <div className="text-center">
                     <h3 className="text-lg font-bold">Confirmar Exclusão</h3>
@@ -484,6 +496,133 @@ const ProductsPage = () => {
             />;
 }
 
+const OrdersPage = () => {
+    const [orders, setOrders] = useState(initialOrders);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('Todos');
+
+    const orderStatuses = ['Pendente', 'Processando', 'Enviado', 'Entregue', 'Cancelado'];
+
+    const statusColors = {
+        Pendente: 'bg-yellow-100 text-yellow-800',
+        Processando: 'bg-blue-100 text-blue-800',
+        Enviado: 'bg-indigo-100 text-indigo-800',
+        Entregue: 'bg-green-100 text-green-800',
+        Cancelado: 'bg-red-100 text-red-800',
+    };
+
+    const filteredOrders = useMemo(() => {
+        return orders.filter(order => 
+            (order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) || order.id.toLowerCase().includes(searchTerm.toLowerCase())) &&
+            (statusFilter === 'Todos' || order.status === statusFilter)
+        );
+    }, [orders, searchTerm, statusFilter]);
+    
+    const handleStatusChange = (orderId, newStatus) => {
+        setOrders(orders.map(order => order.id === orderId ? { ...order, status: newStatus } : order));
+    };
+
+    return (
+        <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold mb-4">Gerenciamento de Pedidos</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div className="md:col-span-2">
+                    <input 
+                        type="text" 
+                        placeholder="Buscar por cliente ou ID do pedido..."
+                        value={searchTerm} 
+                        onChange={e => setSearchTerm(e.target.value)} 
+                        className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
+                    />
+                </div>
+                <div>
+                    <select 
+                        value={statusFilter} 
+                        onChange={e => setStatusFilter(e.target.value)}
+                        className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
+                    >
+                        <option value="Todos">Status (Todos)</option>
+                        {orderStatuses.map(status => <option key={status} value={status}>{status}</option>)}
+                    </select>
+                </div>
+            </div>
+
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left text-gray-500">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th scope="col" className="px-6 py-3">Pedido ID</th>
+                            <th scope="col" className="px-6 py-3">Cliente</th>
+                            <th scope="col" className="px-6 py-3">Data</th>
+                            <th scope="col" className="px-6 py-3">Total</th>
+                            <th scope="col" className="px-6 py-3">Status</th>
+                            <th scope="col" className="px-6 py-3">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                       {filteredOrders.length > 0 ? filteredOrders.map(order => (
+                            <tr key={order.id} className="bg-white border-b hover:bg-gray-50">
+                                <td className="px-6 py-4 font-medium text-gray-900">{order.id}</td>
+                                <td className="px-6 py-4">{order.customerName}</td>
+                                <td className="px-6 py-4">{order.date}</td>
+                                <td className="px-6 py-4">R$ {order.total.toFixed(2)}</td>
+                                <td className="px-6 py-4">
+                                    <select 
+                                        value={order.status}
+                                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                                        className={`p-1 text-xs rounded-full border-0 focus:ring-0 ${statusColors[order.status]}`}
+                                    >
+                                        {orderStatuses.map(status => <option key={status} value={status}>{status}</option>)}
+                                    </select>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <button className="text-blue-600 hover:underline text-xs">Ver Detalhes</button>
+                                </td>
+                            </tr>
+                        )) : (
+                            <tr>
+                                <td colSpan={6} className="text-center py-8 text-gray-500">
+                                    Nenhum pedido encontrado.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+
+const ProducersPage = () => {
+    return <CrudPage 
+              title="Produtores Locais" 
+              itemType="Produtor"
+              initialItems={initialProducers} 
+              columns={[
+                { key: 'avatar', label: 'Foto', render: (item) => <img src={item.avatar} alt={item.name} className="w-10 h-10 rounded-full object-cover" /> },
+                { key: 'name', label: 'Nome' },
+                { key: 'category', label: 'Categoria' },
+                { key: 'contact', label: 'Contato' },
+                { key: 'rating', label: 'Avaliação', render: (item) => '⭐'.repeat(item.rating) },
+                { key: 'status', label: 'Status', render: (item) => <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'Ativo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{item.status}</span> },
+              ]}
+              filterFields={[
+                { key: 'category', label: 'Categoria', options: ['Hortifruti', 'Laticínios', 'Doces'] },
+                { key: 'status', label: 'Status', options: ['Ativo', 'Inativo'] },
+              ]}
+              formFields={[
+                { key: 'name', label: 'Nome do Produtor', type: 'text' },
+                { key: 'category', label: 'Categoria', type: 'select', options: ['Hortifruti', 'Laticínios', 'Doces', 'Outros'] },
+                { key: 'contact', label: 'Contato (Telefone/Email)', type: 'text' },
+                { key: 'rating', label: 'Avaliação', type: 'number', props: { min:1, max: 5 } },
+                { key: 'status', label: 'Status', type: 'select', options: ['Ativo', 'Inativo'] },
+                { key: 'avatar', label: 'URL da Foto', type: 'text' },
+              ]}
+            />;
+}
+
 
 // --- COMPONENTES GENÉRICOS (CRUD) ---
 
@@ -543,7 +682,6 @@ const CrudPage = ({ title, itemType, initialItems, columns, filterFields, formFi
                 </button>
             </div>
             
-            {/* Filtros */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div className="md:col-span-2">
                     <input 
@@ -568,7 +706,6 @@ const CrudPage = ({ title, itemType, initialItems, columns, filterFields, formFi
                 ))}
             </div>
 
-            {/* Tabela */}
             <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left text-gray-500">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50">
@@ -601,7 +738,6 @@ const CrudPage = ({ title, itemType, initialItems, columns, filterFields, formFi
                 </table>
             </div>
 
-            {/* Modal de Adicionar/Editar */}
              <Modal isOpen={isModalOpen} onClose={closeModal}>
                 <GenericForm 
                     item={editingItem} 
@@ -612,7 +748,6 @@ const CrudPage = ({ title, itemType, initialItems, columns, filterFields, formFi
                 />
             </Modal>
             
-            {/* Modal de Confirmação de Exclusão */}
             <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)}>
                 <div className="text-center">
                     <h3 className="text-lg font-bold">Confirmar Exclusão</h3>
@@ -685,7 +820,6 @@ const PlaceholderPage = ({ title }) => (
 
 
 // --- LOGIN ---
-// FIX: Remove unused `onClose` prop from LoginModal.
 const LoginModal = ({ onLogin }) => {
     const [isLoginView, setIsLoginView] = useState(true);
     const [username, setUsername] = useState('');
@@ -699,7 +833,7 @@ const LoginModal = ({ onLogin }) => {
         setError('');
         setLoading(true);
 
-        setTimeout(() => { // Simula a chamada de API
+        setTimeout(() => { 
             if (isLoginView) {
                 if (username === 'ad' && password === 'a123') {
                     onLogin();
@@ -707,8 +841,7 @@ const LoginModal = ({ onLogin }) => {
                     setError('Usuário ou senha inválidos.');
                 }
             } else {
-                // Lógica de cadastro aqui
-                onLogin(); // Simula sucesso no cadastro
+                onLogin();
             }
             setLoading(false);
         }, 1000);
@@ -764,11 +897,27 @@ const LoginModal = ({ onLogin }) => {
 
 
 // --- ESTRUTURA PRINCIPAL DO APP ---
+// FIX: Added explicit types for menu items to fix type inference issues
+// with the complex menuItems array structure. This resolves errors in .flatMap()
+// and .find() where item properties were previously not accessible.
+interface MenuItem {
+    name: string;
+    icon: string;
+    page: JSX.Element;
+}
+
+interface MenuPillar {
+    pillar: string;
+    items: MenuItem[];
+}
+
+type MenuEntry = MenuItem | MenuPillar;
+
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [activePage, setActivePage] = useState('Painel de Controle');
     
-    const menuItems = [
+    const menuItems: MenuEntry[] = [
         { name: 'Painel de Controle', icon: 'dashboard', page: <Dashboard setActivePage={setActivePage} /> },
         {
             pillar: 'Utilidades do Dia a Dia',
@@ -782,8 +931,8 @@ function App() {
             pillar: 'Economia e Sustentabilidade',
             items: [
                  { name: 'Produtos', icon: 'stock', page: <ProductsPage /> },
-                 { name: 'Pedidos', icon: 'services', page: <PlaceholderPage title="Pedidos" /> },
-                 { name: 'Produtores', icon: 'user', page: <PlaceholderPage title="Produtores" /> },
+                 { name: 'Pedidos', icon: 'services', page: <OrdersPage /> },
+                 { name: 'Produtores', icon: 'user', page: <ProducersPage /> },
             ]
         },
          {
@@ -818,9 +967,8 @@ function App() {
         return <LoginModal onLogin={handleLogin} />;
     }
     
-    // FIX: Use a type guard to correctly flatten the menuItems array and resolve type errors.
     const currentPageComponent = menuItems
-      .flatMap(i => ('items' in i && i.items) ? i.items : [i])
+      .flatMap(i => ('items' in i) ? i.items : [i])
       .find(i => i.name === activePage)?.page;
 
     return (
@@ -833,7 +981,7 @@ function App() {
                 </div>
                 <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
                     {menuItems.map((menu, index) => (
-                        menu.pillar ? (
+                        'pillar' in menu ? (
                            <div key={index}>
                                <h3 className="px-2 pt-4 pb-2 text-xs uppercase text-gray-400 font-bold">{menu.pillar}</h3>
                                {menu.items.map(item => (
