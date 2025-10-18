@@ -1244,7 +1244,7 @@ const AdminPanel: FC<{ onLogout: () => void }> = ({ onLogout }) => {
     const Sidebar: FC = () => (
         <aside className="w-72 flex-shrink-0 bg-[#0F172A] text-gray-300 flex flex-col">
             <div className="text-center py-6 border-b border-gray-700/50">
-                <h1 className="text-3xl font-extrabold text-white tracking-wider font-heading">PREMIX</h1>
+                <h1 className="text-3xl font-extrabold text-white tracking-wider font-heading">REDELOCAL</h1>
             </div>
             <nav className="flex-1 px-4 pt-4 space-y-2 overflow-y-auto">
                 {navItems.map((section, sectionIndex) => (
@@ -1310,18 +1310,51 @@ const AdminPanel: FC<{ onLogout: () => void }> = ({ onLogout }) => {
 // --- HOME PAGE Component ---
 const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
     
-    const initiatives = [
-        { icon: LeafIcon, title: 'Hortas Comunitárias', description: 'Cultive alimentos frescos e fortaleça laços.' },
-        { icon: PawIcon, title: 'Adoção de Animais', description: 'Encontre um amigo fiel e mude uma vida.' },
-        { icon: BookOpenIcon, title: 'Clubes de Leitura', description: 'Compartilhe histórias e expanda horizontes.' },
-        { icon: PaintBrushIcon, title: 'Oficinas de Arte', description: 'Desperte sua criatividade e aprenda novas técnicas.' },
-        { icon: SparklesIcon, title: 'Mutirões de Limpeza', description: 'Cuide do seu bairro e inspire mudanças.' },
-        { icon: MusicNoteIcon, title: 'Música nas Praças', description: 'Apoie artistas locais e curta o som da cidade.' },
+    const slides = [
+        {
+            image: "https://images.unsplash.com/photo-1618172193622-ae2d025f4032?q=80&w=1964&auto=format&fit=crop",
+            alt: "Fundo abstrato com formas geométricas claras",
+            title: "O Poder da Ação Coletiva.",
+            subtitle: "Conectamos pessoas, ideias e recursos para construir uma comunidade mais forte, solidária e vibrante. Junte-se ao movimento.",
+            cta: "Explore as Iniciativas"
+        },
+        {
+            image: "https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2070&auto=format&fit=crop",
+            alt: "Pessoas diversas unindo as mãos em um círculo, simbolizando colaboração e união.",
+            title: "Transforme Ideias em Realidade.",
+            subtitle: "Use nossas ferramentas de vaquinha e rifa para financiar projetos locais e tirar suas ideias do papel com o apoio de todos.",
+            cta: "Crie seu Projeto"
+        },
+        {
+            image: "https://images.unsplash.com/photo-1541532713592-79a0317b6b77?q=80&w=1974&auto=format&fit=crop",
+            alt: "Grupo de amigos sorrindo e se divertindo em um evento ao ar livre.",
+            title: "Cultura e Lazer Para Todos.",
+            subtitle: "Participe de eventos, oficinas e clubes. Encontre novas paixões e fortaleça os laços com sua vizinhança.",
+            cta: "Veja os Eventos"
+        }
     ];
+
+    const initiativeCategories = navItems.filter(section => section.title && section.items.length > 0);
+    const [activeCategory, setActiveCategory] = useState(initiativeCategories[0].title);
+    
+    const [currentSlide, setCurrentSlide] = useState(0);
+
+    const nextSlide = useCallback(() => {
+        setCurrentSlide(prev => (prev === slides.length - 1 ? 0 : prev + 1));
+    }, [slides.length]);
+
+    const prevSlide = () => {
+        setCurrentSlide(prev => (prev === 0 ? slides.length - 1 : prev - 1));
+    };
+
+    useEffect(() => {
+        const slideInterval = setInterval(nextSlide, 5000);
+        return () => clearInterval(slideInterval);
+    }, [nextSlide]);
     
     const testimonials = [
         { name: 'Ana Silva', role: 'Voluntária na Horta', text: 'Participar da horta comunitária transformou meus domingos. É incrível ver o resultado do nosso trabalho e compartilhar com os vizinhos.' },
-        { name: 'Carlos Pereira', role: 'Participante do Clube de Leitura', text: 'A PREMIX me conectou com pessoas que amam ler tanto quanto eu. Nossos debates são a melhor parte do meu mês.'},
+        { name: 'Carlos Pereira', role: 'Participante do Clube de Leitura', text: 'A REDELOCAL me conectou com pessoas que amam ler tanto quanto eu. Nossos debates são a melhor parte do meu mês.'},
         { name: 'Juliana Costa', role: 'Adotou o cão "Pipoca"', text: 'Encontrei meu melhor amigo na feira de adoção organizada pela plataforma. Minha vida ficou muito mais feliz com o Pipoca!'}
     ];
     
@@ -1329,7 +1362,7 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
         <div className="bg-neutral-light text-neutral-dark font-sans">
             <header className="bg-white/80 backdrop-blur-lg sticky top-0 z-40 border-b border-slate-200/80">
                 <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-                    <h1 className="text-3xl font-black tracking-tighter font-heading text-slate-900">PREMIX</h1>
+                    <h1 className="text-3xl font-black tracking-tighter font-heading text-slate-900">REDELOCAL</h1>
                     <nav className="hidden md:flex items-center space-x-8">
                         <a href="#iniciativas" className="text-slate-600 hover:text-primary transition font-semibold">Iniciativas</a>
                         <a href="#sobre" className="text-slate-600 hover:text-primary transition font-semibold">Como Funciona</a>
@@ -1343,21 +1376,39 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
             </header>
 
             <main>
-                <section className="relative min-h-[90vh] w-full flex items-center justify-center text-center text-white px-6 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent z-10"></div>
-                     <div className="absolute inset-0 bg-gradient-to-r from-blue-900/50 to-purple-900/50 z-10"></div>
-                    <img src="https://images.unsplash.com/photo-1524121469377-50b3db48580b?q=80&w=2070&auto=format&fit=crop" alt="Pessoas da comunidade se ajudando" className="absolute inset-0 w-full h-full object-cover"/>
-                    <div className="relative z-20 animate-fade-in max-w-4xl">
-                        <h2 className="text-5xl md:text-7xl font-black font-heading uppercase tracking-tight drop-shadow-lg">O Poder da Ação Coletiva.</h2>
-                        <p className="mt-4 text-xl text-gray-200 drop-shadow-md">Conectamos pessoas, ideias e recursos para construir uma comunidade mais forte, solidária e vibrante. Junte-se ao movimento.</p>
-                        <button onClick={onLoginClick} className="mt-10 bg-white text-primary font-bold text-lg px-8 py-4 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center space-x-2 mx-auto">
-                            <span>Explore as Iniciativas</span>
-                            <ChevronRightIcon className="w-5 h-5" />
-                        </button>
+                <section className="relative h-[90vh] w-full flex items-center justify-center text-center px-6 overflow-hidden">
+                    {slides.map((slide, index) => (
+                        <div key={index} className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
+                            <img src={slide.image} alt={slide.alt} className="w-full h-full object-cover"/>
+                            <div className="absolute inset-0 bg-white/60 backdrop-blur-sm"></div>
+                        </div>
+                    ))}
+                    <div className="relative z-20 max-w-4xl">
+                        {slides.map((slide, index) => (
+                             <div key={index} className={`transition-all duration-700 ease-in-out ${index === currentSlide ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
+                                {index === currentSlide && (
+                                    <>
+                                        <h2 className="text-5xl md:text-7xl font-black font-heading uppercase tracking-tight text-slate-800 drop-shadow-sm">{slide.title}</h2>
+                                        <p className="mt-4 text-xl text-slate-600 drop-shadow-sm">{slide.subtitle}</p>
+                                        <button onClick={onLoginClick} className="mt-10 bg-primary hover:bg-primary-dark text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center space-x-2 mx-auto">
+                                            <span>{slide.cta}</span>
+                                            <ChevronRightIcon className="w-5 h-5" />
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        ))}
                     </div>
+                     <div className="absolute z-30 bottom-8 left-1/2 -translate-x-1/2 flex space-x-3">
+                        {slides.map((_, index) => (
+                            <button key={index} onClick={() => setCurrentSlide(index)} className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide ? 'bg-primary w-6' : 'bg-slate-400/50'}`}></button>
+                        ))}
+                    </div>
+                    <button onClick={prevSlide} className="absolute z-30 left-4 top-1/2 -translate-y-1/2 bg-white/50 p-2 rounded-full hover:bg-white transition-colors"><ArrowLeftIcon/></button>
+                    <button onClick={nextSlide} className="absolute z-30 right-4 top-1/2 -translate-y-1/2 bg-white/50 p-2 rounded-full hover:bg-white transition-colors"><ChevronRightIcon className="w-5 h-5"/></button>
                 </section>
                 
-                 <section className="bg-white py-12">
+                <section className="bg-slate-50 py-12">
                     <div className="container mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                         <div className="p-4">
                             <h3 className="text-4xl font-bold font-heading text-primary">120+</h3>
@@ -1378,29 +1429,44 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
                     </div>
                 </section>
 
-                <section id="iniciativas" className="py-20 lg:py-28 bg-slate-50">
+                <section id="iniciativas" className="py-20 lg:py-28 bg-white">
                     <div className="container mx-auto px-6 text-center">
                         <span className="text-primary font-semibold uppercase tracking-wider">O Que Fazemos</span>
-                        <h3 className="text-3xl lg:text-4xl font-extrabold font-heading text-slate-900 mt-2">Nossas Iniciativas</h3>
-                        <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600">De sustentabilidade à cultura, encontre uma causa para chamar de sua e comece a transformar o seu redor.</p>
+                        <h3 className="text-3xl lg:text-4xl font-extrabold font-heading text-slate-900 mt-2">Explore Todas as Nossas Iniciativas</h3>
+                        <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-600">De sustentabilidade à cultura, encontre uma causa para chamar de sua. Use os filtros abaixo para navegar por todas as oportunidades de transformar o seu redor.</p>
+                        
+                        <div className="mt-12 flex flex-wrap justify-center gap-2 md:gap-4">
+                            {initiativeCategories.map(category => (
+                                <button
+                                    key={category.title}
+                                    onClick={() => setActiveCategory(category.title)}
+                                    className={`px-5 py-2.5 text-sm md:text-base font-bold rounded-full transition-all duration-300 transform hover:scale-105 ${activeCategory === category.title ? 'bg-primary text-white shadow-md' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
+                                >
+                                    {category.title}
+                                </button>
+                            ))}
+                        </div>
+
                         <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {initiatives.map((item, index) => (
-                                <div key={item.title} className="bg-white p-8 rounded-xl shadow-md border border-gray-200/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 animate-fade-in text-left" style={{ animationDelay: `${index * 0.1}s`}}>
+                            {initiativeCategories.find(cat => cat.title === activeCategory)?.items.map((item, index) => {
+                                const description = item.name.length > 50 ? item.name.substring(0, 50) + '...' : item.name;
+                                return (
+                                <div key={item.name} className="bg-white p-8 rounded-xl shadow-md border border-gray-200/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 animate-fade-in text-left" style={{ animationDelay: `${index * 0.05}s`}}>
                                     <div className="bg-primary/10 text-primary w-16 h-16 rounded-2xl flex items-center justify-center">
                                         <item.icon className="w-8 h-8"/>
                                     </div>
-                                    <h4 className="mt-6 text-xl font-bold text-slate-800 font-heading">{item.title}</h4>
-                                    <p className="mt-2 text-gray-500">{item.description}</p>
+                                    <h4 className="mt-6 text-xl font-bold text-slate-800 font-heading">{item.name}</h4>
+                                    <p className="mt-2 text-gray-500">Uma oportunidade incrível para se envolver e fazer a diferença na sua comunidade.</p>
                                     <a href="#" className="mt-4 inline-flex items-center font-semibold text-primary hover:underline">
                                         Saiba mais <ChevronRightIcon className="ml-1 w-4 h-4" />
                                     </a>
                                 </div>
-                            ))}
+                            )})}
                         </div>
                     </div>
                 </section>
                 
-                <section id="sobre" className="py-20 lg:py-28 bg-white">
+                <section id="sobre" className="py-20 lg:py-28 bg-slate-50">
                     <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
                         <div className="text-center md:text-left">
                             <span className="text-primary font-semibold uppercase tracking-wider">Como Funciona</span>
@@ -1427,7 +1493,7 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
                     </div>
                 </section>
 
-                <section id="depoimentos" className="py-20 lg:py-28 bg-slate-50">
+                <section id="depoimentos" className="py-20 lg:py-28 bg-white">
                      <div className="container mx-auto px-6 text-center">
                         <span className="text-primary font-semibold uppercase tracking-wider">Vozes da Comunidade</span>
                         <h3 className="text-3xl lg:text-4xl font-extrabold font-heading text-slate-900 mt-2">O Que Nossos Membros Dizem</h3>
@@ -1450,7 +1516,7 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
                 <div className="container mx-auto px-6 py-16">
                     <div className="grid md:grid-cols-4 gap-8">
                          <div className="col-span-1 md:col-span-2">
-                            <h2 className="text-2xl font-bold font-heading text-white">PREMIX</h2>
+                            <h2 className="text-2xl font-bold font-heading text-white">REDELOCAL</h2>
                             <p className="mt-4 text-slate-400 max-w-md">Fortalecendo comunidades, uma ação de cada vez. Junte-se a nós para fazer a diferença.</p>
                         </div>
                         <div>
@@ -1470,7 +1536,7 @@ const HomePage: FC<{ onLoginClick: () => void }> = ({ onLoginClick }) => {
                         </div>
                     </div>
                      <div className="mt-12 border-t border-slate-700 pt-8 text-center text-sm text-slate-500">
-                        <p>&copy; {new Date().getFullYear()} PREMIX. Todos os direitos reservados.</p>
+                        <p>&copy; {new Date().getFullYear()} REDELOCAL. Todos os direitos reservados.</p>
                     </div>
                 </div>
             </footer>
